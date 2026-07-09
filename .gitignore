@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+dist/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.local
+.DS_Store
+training/receipts/*.log
+!training/receipts/.gitkeep
+/docs

@@ -1,0 +1,12 @@
+# Seed NCR wholesale prices (PHP/kg). Replace with live DA Bantay Presyo / PSA pulls.
+# market,commodity,price_php_per_kg,demand,date
+Balintawak,Cabbage (Scorpio),42,Surging,2026-07-08
+Divisoria,Cabbage (Scorpio),36,Stable,2026-07-08
+Makati NCR DC,Cabbage (Scorpio),48,Stable,2026-07-08
+Cubao,Cabbage (Scorpio),28,Dipping,2026-07-08
+Balintawak,Carrots,55,Stable,2026-07-08
+Divisoria,Carrots,50,Stable,2026-07-08
+Balintawak,Broccoli,120,Surging,2026-07-08
+Divisoria,Lettuce (Romaine),90,Surging,2026-07-08
+Balintawak,Bell Pepper,140,Stable,2026-07-08
+Divisoria,Chinese Cabbage (Wombok),45,Stable,2026-07-08
