@@ -1,57 +1,76 @@
-"""Stub backend — mirrors web/lib/stub.ts so both tiers tell the same story."""
+"""Stub backend — mirrors web/lib/stub.ts so both tiers return identical shapes."""
 
-CROPS = {
-    "Cabbage (Scorpio)": (96, "Firm, market-ready", 8.2),
-    "Carrots": (168, "Mature", 8.6),
-    "Broccoli": (60, "Tight florets", 7.4),
-    "Lettuce (Romaine)": (48, "Crisp, high moisture", 7.1),
-    "Bell Pepper": (120, "Glossy, full color", 8.0),
-    "Chinese Cabbage (Wombok)": (72, "Dense head", 7.6),
+DATA = {
+    "pechay": {
+        "name": "Pechay", "grade": "A", "score": 92, "ripe": "Crisp, tight leaves · minimal wilt",
+        "shelf": 48, "win": "2 days", "fill": 64, "urgency": "high",
+        "to": "Divisoria", "eta": "6h · ₱44/kg", "load": "1.2t matched",
+        "buyers": [
+            ("SM Supermalls commissary", "Divisoria · needs 800kg Grade A by Thu", 44, "Surging", "96% fit", True),
+            ("Balintawak wholesaler", "Balintawak · flexible volume · pays on pickup", 38, "Rising", "88% fit", False),
+            ("Hotel group (QSR)", "Makati · recurring weekly order", 41, "Stable", "81% fit", False),
+        ],
+    },
+    "cabbage": {
+        "name": "Cabbage (Scorpio)", "grade": "A", "score": 88, "ripe": "Firm, market-ready head",
+        "shelf": 96, "win": "4 days", "fill": 42, "urgency": "mid",
+        "to": "Balintawak", "eta": "5h · ₱24/kg", "load": "2.4t matched",
+        "buyers": [
+            ("Balintawak Cloverleaf", "Balintawak · weekend demand surging", 24, "Surging", "94% fit", True),
+            ("Divisoria wholesale cluster", "Divisoria · steady bulk offtake", 18, "Stable", "86% fit", False),
+            ("NCR supermarket DC", "Makati · premium for Grade A", 30, "Rising", "80% fit", False),
+        ],
+    },
+    "carrots": {
+        "name": "Carrots", "grade": "A", "score": 90, "ripe": "Mature · firm · low breakage",
+        "shelf": 168, "win": "7 days", "fill": 26, "urgency": "low",
+        "to": "Cubao", "eta": "6h · ₱55/kg", "load": "3.0t matched",
+        "buyers": [
+            ("Nepa Q-Mart consolidator", "Cubao · demand rising", 55, "Rising", "92% fit", True),
+            ("Divisoria wholesale", "Divisoria · steady offtake", 50, "Stable", "84% fit", False),
+            ("Supermarket DC", "Makati · weekly order", 58, "Stable", "78% fit", False),
+        ],
+    },
+    "broccoli": {
+        "name": "Broccoli", "grade": "B", "score": 74, "ripe": "Tight florets · slight yellowing",
+        "shelf": 60, "win": "2.5 days", "fill": 58, "urgency": "high",
+        "to": "Makati", "eta": "6h · ₱120/kg", "load": "0.4t matched",
+        "buyers": [
+            ("Hotel group (QSR)", "Makati · needs 400kg by Fri", 120, "Surging", "90% fit", True),
+            ("Divisoria specialty", "Divisoria · premium produce", 110, "Rising", "83% fit", False),
+            ("Balintawak wholesaler", "Balintawak · flexible", 95, "Stable", "74% fit", False),
+        ],
+    },
 }
 
 
 def grade(crop: str, quantity_kg: float) -> dict:
-    shelf, ripeness, quality = CROPS.get(crop, CROPS["Cabbage (Scorpio)"])
-    volume_factor = min(2.0, quantity_kg / 400.0)
-    urgency = max(2.0, min(10.0, round((240 - shelf) / 24 + volume_factor * 1.5 + 3, 1)))
-    g = "A" if quality >= 8 else "B" if quality >= 7 else "C"
-    high = urgency >= 7
+    crop_id = crop if crop in DATA else "pechay"
+    d = DATA[crop_id]
+    rush = "move within hours; " if d["urgency"] == "high" else ""
     return {
-        "crop": crop,
-        "grade": g,
-        "qualityScore": round(quality, 1),
-        "ripeness": ripeness,
-        "shelfLifeHours": shelf,
-        "urgency": urgency,
-        "spoilageWindow": f"Peak freshness decays in ~{shelf}h at ambient highland temps",
-        "suggestion": (
-            f"High urgency — prioritize cold-chain dispatch within {round(shelf/6)}h to hold premium NCR pricing."
-            if high else
-            "Moderate urgency — consolidate with nearby farms before dispatch to cut haul cost."
-        ),
+        "cropId": crop_id,
+        "crop": d["name"],
+        "grade": d["grade"],
+        "score": d["score"],
+        "ripeness": d["ripe"],
+        "shelfLifeHours": d["shelf"],
+        "freshnessWindow": d["win"],
+        "freshnessFill": d["fill"],
+        "urgency": d["urgency"],
+        "suggestion": f"“Best sold in {d['to']} — {rush}your grade commands top price.”",
         "source": "stub",
     }
 
 
 def match(grade: dict) -> dict:
-    pool = [
-        ("Balintawak Cloverleaf Trader", "Balintawak, Quezon City", 96, "Surging", 42,
-         "Weekend restaurant demand surging; short supply expected.", "Route First"),
-        ("Divisoria Wholesale Cluster", "Divisoria, Manila", 88, "Stable", 36,
-         "Steady bulk offtake; reliable but price-sensitive.", "Reserve"),
-        ("SM Supermarket Commissary", "Makati NCR DC", 82, "Stable", 48,
-         "Pays premium for Grade A with shelf-life guarantee.", "Review"),
-        ("Nepa-Q-Mart Consolidator", "Cubao, Quezon City", 71, "Dipping", 28,
-         "Demand softening this week; hold unless urgency is high.",
-         "Review" if grade.get("urgency", 0) >= 7 else "Hold"),
-    ]
-    is_a = grade.get("grade") == "A"
+    d = DATA.get((grade or {}).get("cropId"), DATA["pechay"])
     buyers = [
-        {
-            "buyer": b[0], "market": b[1], "matchPct": b[2], "demand": b[3],
-            "pricePerKg": b[4] + (4 if is_a else 0), "note": b[5], "action": b[6],
-        }
-        for b in pool
+        {"buyer": b[0], "sub": b[1], "pricePerKg": b[2], "trend": b[3], "fit": b[4], "first": b[5]}
+        for b in d["buyers"]
     ]
-    buyers.sort(key=lambda x: x["matchPct"], reverse=True)
-    return {"buyers": buyers, "source": "stub"}
+    return {
+        "buyers": buyers,
+        "dispatch": {"to": d["to"], "eta": d["eta"], "load": d["load"]},
+        "source": "stub",
+    }

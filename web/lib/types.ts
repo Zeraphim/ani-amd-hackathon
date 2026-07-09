@@ -1,30 +1,43 @@
-// Shared types — the "contract" between the web tier and the inference tier.
-// Tier 2 (FastAPI) returns the same shapes, so swapping stub -> Fireworks -> MI300X
+// Shared contract between the web tier and the inference tier.
+// Tier 2 (FastAPI) returns these exact shapes, so swapping stub -> Fireworks -> MI300X
 // requires no changes here.
 
+export type Source = "stub" | "fireworks" | "mi300x";
+export type Grade = "A" | "B" | "C";
+export type Urgency = "high" | "mid" | "low";
+export type Trend = "Surging" | "Rising" | "Stable";
+
 export interface GradeCard {
-  crop: string;
-  grade: "A" | "B" | "C";
-  qualityScore: number; // 0-10
+  cropId: string; // pechay | cabbage | carrots | broccoli
+  crop: string; // display name
+  grade: Grade;
+  score: number; // 0-100, the big count-up
   ripeness: string;
   shelfLifeHours: number;
-  urgency: number; // 0-10, drives the whole marketplace
-  spoilageWindow: string;
+  freshnessWindow: string; // e.g. "2 days"
+  freshnessFill: number; // 0-100 meter fill
+  urgency: Urgency;
   suggestion: string;
-  source: "stub" | "fireworks" | "mi300x";
+  source: Source;
 }
 
 export interface BuyerMatch {
   buyer: string;
-  market: string; // NCR location
-  matchPct: number; // 0-100
-  demand: "Surging" | "Stable" | "Dipping";
+  sub: string; // market + note line
   pricePerKg: number; // PHP
-  note: string;
-  action: "Route First" | "Reserve" | "Review" | "Hold";
+  trend: Trend;
+  fit: string; // e.g. "96% fit"
+  first: boolean; // top match
+}
+
+export interface Dispatch {
+  to: string;
+  eta: string; // e.g. "6h · ₱44/kg"
+  load: string; // e.g. "1.2t matched"
 }
 
 export interface MatchResult {
   buyers: BuyerMatch[];
-  source: "stub" | "fireworks" | "mi300x";
+  dispatch: Dispatch;
+  source: Source;
 }

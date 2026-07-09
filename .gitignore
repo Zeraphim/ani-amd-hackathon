@@ -12,3 +12,4 @@ venv/
 training/receipts/*.log
 !training/receipts/.gitkeep
 /docs
+.agents/
