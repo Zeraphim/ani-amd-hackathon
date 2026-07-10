@@ -495,7 +495,7 @@ export default function Home() {
       await delay(850);
       gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
       setStep(2, "done");
-      await delay(800);
+      await delay(2000);
 
       /* --- All trace steps done — cascade result panels --- */
 
@@ -507,7 +507,7 @@ export default function Home() {
       revealPanel(gradeRow, "grid");
       countTo(gid("gScore"), grade.score, 900);
       gid("fVal").style.width = grade.freshnessFill + "%";
-      await delay(800);
+      await delay(2000);
 
       const host = gid("matchHost");
       host.innerHTML = "";
@@ -518,16 +518,16 @@ export default function Home() {
       for (const el of matchRows) {
         await delay(260); el.classList.add("in");
       }
-      await delay(800);
+      await delay(2500);
 
       gid("dTo").textContent = match.dispatch.to;
       gid("dEta").textContent = match.dispatch.eta;
       gid("dLoad").textContent = match.dispatch.load;
       revealPanel(dispatchEl, "block");
-      await delay(600);
-
       await delay(2000);
-      document.getElementById("stack")?.scrollIntoView(reduce ? { block: "start" } as any : { behavior: "smooth", block: "start" });
+
+      // await delay(2000);
+      // document.getElementById("stack")?.scrollIntoView(reduce ? { block: "start" } as any : { behavior: "smooth", block: "start" });
 
       runBtn.classList.remove("loading");
       replayBtn.style.display = "block";
