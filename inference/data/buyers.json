@@ -1,0 +1,23 @@
+[
+  {
+    "id": "B001",
+    "name": "SM Supermarket Fresh",
+    "location": "Makati NCR",
+    "requirement_profile": "Looking for premium, Grade A crops with long shelf life for supermarket retail. Willing to pay top peso for high quality.",
+    "max_price_per_kg": 85
+  },
+  {
+    "id": "B002",
+    "name": "Divisoria Wholesale Stall 4A",
+    "location": "Manila NCR",
+    "requirement_profile": "Looking for bulk vegetables, Grade B or C is acceptable. Prioritizing cheap wholesale prices for wet market resale. Immediate delivery needed.",
+    "max_price_per_kg": 40
+  },
+  {
+    "id": "B003",
+    "name": "Balintawak Bagsakan Center",
+    "location": "Quezon City NCR",
+    "requirement_profile": "Looking for standard Grade A or Grade B crops. Needs decent quality for restaurant supply chains, average market prices.",
+    "max_price_per_kg": 60
+  }
+]
