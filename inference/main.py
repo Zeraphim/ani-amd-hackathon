@@ -1,11 +1,12 @@
 """Ani Tier 2 — inference/orchestration API.
 
-Run locally now:   ANI_BACKEND=stub uvicorn main:app --port 8000
+Run locally now:   ANI_BACKEND=langgraph uvicorn main:app --port 8000
 With Fireworks:    ANI_BACKEND=fireworks FIREWORKS_API_KEY=... uvicorn main:app --port 8000
 On the MI300X:     ANI_BACKEND=mi300x ANI_BASE_URL=https://<tunnel>/v1 ANI_MODEL=<your-finetune> uvicorn main:app --port 8000
 
 Then point the web tier at it: set INFERENCE_BASE_URL=http://<host>:8000 (HF Space secret).
 """
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -24,6 +25,7 @@ backend = get_backend()
 class GradeReq(BaseModel):
     crop: str
     quantity_kg: float = 400
+    image_data: str = ""
 
 
 class MatchReq(BaseModel):
@@ -44,7 +46,7 @@ def health():
 
 @app.post("/grade")
 def grade(req: GradeReq):
-    return backend.grade(req.crop, req.quantity_kg)
+    return backend.grade(req.crop, req.quantity_kg, req.image_data)
 
 
 @app.post("/match")
