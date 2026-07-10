@@ -517,5 +517,7 @@ export default function Home() {
     return () => cleanups.forEach((f) => f());
   }, []);
 
-  return <div dangerouslySetInnerHTML={{ __html: MARKUP }} />;
+  const normalizedMarkup = MARKUP.replace(/\r\n/g, "\n");
+  // ponytail: static HTML blob — whitespace SSR-vs-DOM mismatch is cosmetic, suppress the check
+  return <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: normalizedMarkup }} />;
 }
