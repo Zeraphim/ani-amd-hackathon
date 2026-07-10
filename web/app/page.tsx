@@ -24,6 +24,7 @@ const MARKUP = `
     <div class="brand"><img src="/logo.png" alt="Ani" style="height:38px;width:auto;display:block" /></div>
     <div class="links">
       <a href="#problem">Problem</a>
+      <a href="#market">Market</a>
       <a href="#demo">Live demo</a>
       <a href="#stack">The stack</a>
       <a href="#mi300x">MI300X</a>
@@ -69,6 +70,34 @@ const MARKUP = `
       <div class="stat"><div class="n" data-count="42" data-suffix="%">0</div><div class="l">of vegetables lost across harvest &rarr; transport &rarr; market</div><div class="src">SRC: DA &middot; FAO research</div></div>
       <div class="stat"><div class="n" data-count="4" data-prefix="&#8369;">0</div><div class="l">per kilo &mdash; cabbage dumped below cost, used as fertilizer</div><div class="src">SRC: Rappler &middot; Nordis 2026</div></div>
     </div>
+  </div>
+</section>
+
+<section class="block" id="market">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">02 &mdash; Market opportunity</span>
+      <h2>A cold-chain gap at national scale</h2>
+      <p>Benguet feeds the country's largest market, Metro Manila &mdash; and the same grading-plus-matching engine extends anywhere harvest timing and demand are disconnected.</p>
+    </div>
+    <div class="grid g3 mkt-cards" data-reveal>
+      <div class="mkt-card">
+        <h4>Farmer cooperatives</h4>
+        <p>Better prices and fewer losses on every harvest cycle.</p>
+      </div>
+      <div class="mkt-card">
+        <h4>Traders &amp; wholesalers</h4>
+        <p>A demand-matched feed instead of guesswork ordering.</p>
+      </div>
+      <div class="mkt-card">
+        <h4>Agri-logistics operators</h4>
+        <p>Coordinated dispatch across farms instead of one truck at a time.</p>
+      </div>
+    </div>
+    <div class="mkt-callout" data-reveal>
+      <span class="mkt-callout-ico"><img src="/logo-leaf.png" alt="" width="28" height="28" /></span>
+      <p><strong>Benguet &rarr; Metro Manila today.</strong> Southeast Asian cold chains next.</p>
+    </div>
     <div class="panel" data-reveal style="margin-top:22px">
       <div class="subhead">Loss reduction &mdash; before vs after Ani (pilot simulation)</div>
       <div class="bars">
@@ -83,7 +112,7 @@ const MARKUP = `
 <section class="block" id="demo">
   <div class="wrap">
     <div class="sec-head" data-reveal>
-      <span class="eyebrow">02 &mdash; Tier 1 &middot; the living system</span>
+      <span class="eyebrow">03 &mdash; Tier 1 &middot; the living system</span>
       <h2>Watch three agents turn a photo into a sale</h2>
       <p>This is the real product loop. Pick a harvest and run it &mdash; the grader, the demand oracle, and the router each do their job in seconds, all on one MI300X.</p>
     </div>
@@ -173,7 +202,7 @@ const MARKUP = `
 <section class="block" id="stack">
   <div class="wrap">
     <div class="sec-head" data-reveal>
-      <span class="eyebrow">03 &mdash; Under the hood</span>
+      <span class="eyebrow">04 &mdash; Under the hood</span>
       <h2>Three tiers. Two env vars. One card.</h2>
       <p>The UI you just used is only Tier 1. Behind it, a thin contract lets us run against a stub today and the MI300X at showtime &mdash; swapping backends is a single variable, never a rewrite.</p>
     </div>
@@ -206,7 +235,7 @@ const MARKUP = `
 <section class="block gpu-sec" id="mi300x">
   <div class="wrap">
     <div class="sec-head" data-reveal>
-      <span class="eyebrow">04 &mdash; Tier 3 &middot; why AMD is non-negotiable</span>
+      <span class="eyebrow">05 &mdash; Tier 3 &middot; why AMD is non-negotiable</span>
       <h2>The whole stack fits on a single card</h2>
       <p>192&nbsp;GB of HBM3 co-hosts all three models on one MI300X &mdash; so a farmer co-op runs Ani on-prem, private, and offline-capable. On an 80&nbsp;GB card, you'd need several machines.</p>
     </div>
