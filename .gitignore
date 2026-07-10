@@ -11,5 +11,3 @@ venv/
 .DS_Store
 training/receipts/*.log
 !training/receipts/.gitkeep
-/docs
-.agents/
