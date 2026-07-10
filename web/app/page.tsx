@@ -301,6 +301,14 @@ const MARKUP = `
     <p>Ani &middot; Tier 1&rarr;3 Showcase &middot; AMD Developer Hackathon ACT II &mdash; Track 3.<br>Grade &rarr; Match &rarr; Dispatch &middot; three agents, one AMD MI300X.</p>
   </div>
 </footer>
+
+<div id="errorModal" class="modal-scrim" style="display:none; align-items:center; justify-content:center; z-index: 9999; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8);">
+  <div class="modal" style="background:#1a1a1a; padding: 24px; border-radius: 12px; border: 1px solid #333; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+    <h3 style="color:#ff6b6b; margin-top:0; font-size: 20px;">Invalid Image Detected</h3>
+    <p id="errorModalMsg" style="color:#a1a1aa; margin: 16px 0; font-size: 15px; line-height: 1.5;">This is an error</p>
+    <button class="btn sm" onclick="document.getElementById('errorModal').style.display='none'" style="width:100%; background: #333; color: white;">Dismiss</button>
+  </div>
+</div>
 `;
 
 export default function Home() {
@@ -494,10 +502,15 @@ export default function Home() {
 
     async function run() {
       if (busy) return; busy = true;
-      const cropId = (document.getElementById("cropSel") as HTMLInputElement).value || "Pechay";
-      const qty = parseInt((document.getElementById("qtyIn") as HTMLInputElement).value || "450");
-      const loc = (document.getElementById("locIn") as HTMLInputElement).value || "La Trinidad, Benguet";
-      const imageIn = gid("imageIn") as HTMLInputElement;
+      const cropId = (document.getElementById("cropSel") as HTMLInputElement).value;
+      const qty = parseInt((document.getElementById("qtyIn") as HTMLInputElement).value);
+      const loc = (document.getElementById("locIn") as HTMLInputElement).value;
+      
+      if (!cropId || !cropId.trim()) { alert("Please enter a valid crop."); busy = false; return; }
+      if (!loc || !loc.trim()) { alert("Please enter a valid location."); busy = false; return; }
+      if (isNaN(qty) || qty <= 0) { alert("Please enter a valid weight greater than 0."); busy = false; return; }
+
+      const fileInput = document.getElementById("fileInput") as HTMLInputElement;
       let imageData = "";
       if (imageIn && imageIn.files && imageIn.files[0]) {
         const file = imageIn.files[0];
@@ -540,6 +553,24 @@ export default function Home() {
       const combinedRes = await getProcess(cropId, qty, imageData, loc);
       const grade = combinedRes;
       await delay(950);
+      
+      if (grade && grade.error) {
+        const errMsg = grade.error;
+        const errModal = document.getElementById("errorModal");
+        if (errModal) {
+            document.getElementById("errorModalMsg")!.textContent = errMsg;
+            errModal.style.display = "flex";
+        }
+
+        gid("s0").textContent = "→ Error: " + errMsg;
+        gid("s0").style.color = "#ff6b6b";
+        setStep(0, "done");
+        
+        runBtn.classList.remove("loading");
+        busy = false;
+        return;
+      }
+      
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
       await delay(800);
