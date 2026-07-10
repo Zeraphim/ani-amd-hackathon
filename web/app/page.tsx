@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import DispatchMapModal from "@/components/DispatchMapModal";
 import { gradeStub, matchStub } from "@/lib/stub";
 
 // The showcase markup (from docs/ui/showcase.html), preserved exactly.
@@ -164,7 +165,7 @@ const MARKUP = `
                 <div class="pstep" data-step="2"><div class="rail"><div class="node">&#128666;</div></div><div class="txt"><div class="h">Logistics Router</div><div class="d">Sequences dispatch, most-perishable first.</div><div class="stat" id="s2">&rarr; &hellip;</div></div></div>
               </div>
             </div>
-            <div class="grid g2" style="gap:16px">
+            <div class="grid g2 stage" id="gradeRow" style="gap:16px;display:none">
               <div class="grade-card">
                 <div class="grade-photo"><span class="badge green live"><span class="d"></span> graded on MI300X</span></div>
                 <div class="grade-body">
@@ -175,7 +176,7 @@ const MARKUP = `
                   <div class="suggestion" id="gSuggest">&mdash;</div>
                 </div>
               </div>
-              <div class="panel" style="padding:18px">
+            <div class="panel stage" id="matchPanel" style="padding:18px;display:none">
                 <div class="row" style="justify-content:space-between;align-items:baseline"><div class="subhead" style="margin:0">Freshness window</div><div style="font-family:var(--display);font-weight:700;font-size:22px;color:var(--gold-deep)" id="fWin">&mdash;</div></div>
                 <div class="fresh-meter"><div class="val" id="fVal"></div></div>
                 <div class="ticks"><small>Fresh</small><small>Ripe</small><small>Sell now</small><small>Spoil</small></div>
@@ -186,11 +187,12 @@ const MARKUP = `
               <div class="subhead" style="margin-bottom:12px">Demand-match feed &middot; live NCR buyers</div>
               <div id="matchHost"></div>
             </div>
-            <div class="dispatch" id="dispatch">
+            <div class="dispatch stage" id="dispatch" style="display:none">
               <span class="eyebrow">Dispatch plan</span>
               <h3 style="color:#fff;font-size:19px;margin-top:6px">Most-perishable first</h3>
               <div class="route"><div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Divisoria</div><div class="s" id="dEta">6h &middot; &#8369;44/kg</div></div></div>
               <div class="row"><span class="badge gold" id="dLoad">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
+              <button class="btn sm gold sheen magnetic" id="mapTrackBtn" type="button" style="margin-top:14px;width:100%">&#128506; Track live route <span class="ico arrow">&rarr;</span></button>
             </div>
           </div>
         </div>
@@ -409,6 +411,7 @@ export default function Home() {
 
     /* ---------- interactive demo (wired to /api) ---------- */
     const runBtn = gid("runBtn"), replayBtn = gid("replayBtn"), outEmpty = gid("outEmpty"), outStack = gid("outStack");
+    const gradeRow = gid("gradeRow"), matchPanel = gid("matchPanel"), dispatchEl = gid("dispatch");
     const steps = Array.from(document.querySelectorAll("#pipe .pstep")) as any[];
     let hasRun = false, busy = false;
 
@@ -426,6 +429,52 @@ export default function Home() {
       const s = performance.now();
       const tk = (n: number) => { const p = Math.min((n - s) / dur, 1); el.textContent = String(Math.round((1 - Math.pow(1 - p, 3)) * target)); if (p < 1) requestAnimationFrame(tk); };
       requestAnimationFrame(tk);
+    };
+
+    const scrollContainerTo = (container: HTMLElement, top: number, dur = 1200) => {
+      const start = container.scrollTop;
+      const delta = top - start;
+      if (Math.abs(delta) < 1) return;
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min((now - t0) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        container.scrollTop = start + delta * eased;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const revealPanel = (el: any, displayType: string) => {
+      if (!el || el.classList.contains("show")) return;
+      el.style.display = displayType;
+      void el.offsetHeight;
+      el.classList.add("show");
+      if (!reduce) {
+        const consoleOut = outStack?.parentElement;
+        if (consoleOut && window.innerWidth > 900) {
+          scrollContainerTo(consoleOut, Math.max(0, el.offsetTop - 16));
+        } else {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    };
+
+    const createMatchRow = (b: any, index: number) => {
+      const label = (b.trend === "Stable" ? "– " : "▲ ") + b.trend;
+      const tcls = b.trend.toLowerCase();
+      const tag1cls = b.first ? "first" : tcls;
+      const tag1txt = b.first ? "★ First match" : label;
+      const badgeCls = index === 0 ? "ok" : "soft";
+      const dot = index === 0 ? '<span class="d"></span> ' : "";
+      const el = document.createElement("div"); el.className = "match";
+      el.innerHTML =
+        '<div class="top"><span class="nm">' + b.buyer + '</span><span class="price">₱' + b.pricePerKg + "/kg</span></div>" +
+        '<div class="sub">' + b.sub + "</div>" +
+        '<div class="meta"><span class="tag ' + tag1cls + '">' + tag1txt + "</span>" +
+        '<span class="tag ' + tcls + '">' + label + "</span>" +
+        '<span class="badge ' + badgeCls + '" style="font-size:11px">' + dot + b.fit + "</span></div>";
+      return el;
     };
 
     async function getSelectedImageBase64() {
@@ -465,59 +514,68 @@ export default function Home() {
       outEmpty.style.display = "none"; outStack.classList.add("show");
       steps.forEach((s) => s.classList.remove("active", "done"));
       gid("s0").textContent = "→ …"; gid("s1").textContent = "→ …"; gid("s2").textContent = "→ …";
-      gid("gScore").textContent = "0"; gid("fVal").style.width = "0"; gid("matchHost").innerHTML = ""; gid("dispatch").style.opacity = ".25";
+      gid("gScore").textContent = "0"; gid("fVal").style.width = "0"; gid("matchHost").innerHTML = "";
+      gradeRow.classList.remove("show"); gradeRow.style.display = "none";
+      matchPanel.classList.remove("show"); matchPanel.style.display = "none";
+      dispatchEl.classList.remove("show"); dispatchEl.style.display = "none";
 
       const imageB64 = await getSelectedImageBase64();
-      
-      /* Trigger LangGraph */
       const processData = await getProcess(cropId, qty, imageB64);
 
-      /* Agent A */
+      /* Agent A — trace only */
       setStep(0, "active");
       await delay(950);
+      gid("s0").textContent = "→ Grade " + processData.grade + " · " + processData.score + " · 0.4s";
+      setStep(0, "done");
+      await delay(800);
+
+      /* Agent D — trace only */
+      setStep(1, "active");
+      await delay(900);
+      gid("s1").textContent = "→ " + processData.buyers.length + " buyers · ₱" + processData.buyers[0].pricePerKg + "/kg peak";
+      setStep(1, "done");
+      await delay(800);
+
+      /* Router — trace only */
+      setStep(2, "active");
+      await delay(850);
+      gid("s2").textContent = "→ La Trinidad → " + processData.dispatch.to + " · " + processData.dispatch.eta.split("·")[0].trim();
+      setStep(2, "done");
+      await delay(2000);
+
+      /* --- All trace steps done — cascade result panels --- */
+
       gid("gCrop").textContent = processData.crop;
       gid("gGrade").textContent = "Grade " + processData.grade;
       gid("gRipe").textContent = processData.ripeness;
       gid("gSuggest").textContent = processData.suggestion;
-      countTo(gid("gScore"), processData.score, 900);
       gid("fWin").textContent = processData.freshnessWindow;
+      revealPanel(gradeRow, "grid");
+      countTo(gid("gScore"), processData.score, 900);
       gid("fVal").style.width = processData.freshnessFill + "%";
-      gid("s0").textContent = "→ Grade " + processData.grade + " · " + processData.score + " · 0.4s";
-      setStep(0, "done");
+      await delay(2000);
 
-      /* Agent D */
-      setStep(1, "active");
-      await delay(900);
-      gid("s1").textContent = "→ " + processData.buyers.length + " buyers · ₱" + processData.buyers[0].pricePerKg + "/kg peak";
       const host = gid("matchHost");
-      for (let i = 0; i < processData.buyers.length; i++) {
-        const b = processData.buyers[i];
-        const label = (b.trend === "Stable" ? "– " : "▲ ") + b.trend;
-        const tcls = b.trend.toLowerCase();
-        const tag1cls = b.first ? "first" : tcls;
-        const tag1txt = b.first ? "★ First match" : label;
-        const badgeCls = i === 0 ? "ok" : "soft";
-        const dot = i === 0 ? '<span class="d"></span> ' : "";
-        const el = document.createElement("div"); el.className = "match";
-        el.innerHTML =
-          '<div class="top"><span class="nm">' + b.buyer + '</span><span class="price">₱' + b.pricePerKg + "/kg</span></div>" +
-          '<div class="sub">' + b.sub + "</div>" +
-          '<div class="meta"><span class="tag ' + tag1cls + '">' + tag1txt + "</span>" +
-          '<span class="tag ' + tcls + '">' + label + "</span>" +
-          '<span class="badge ' + badgeCls + '" style="font-size:11px">' + dot + b.fit + "</span></div>";
-        host.appendChild(el);
+      host.innerHTML = "";
+      const matchRows = processData.buyers.map((b: any, i: number) => createMatchRow(b, i));
+      matchRows.forEach((el: HTMLElement) => host.appendChild(el));
+      revealPanel(matchPanel, "block");
+      await delay(650);
+      for (const el of matchRows) {
         await delay(260); el.classList.add("in");
       }
-      setStep(1, "done");
+      await delay(2500);
 
-      /* Router */
-      setStep(2, "active"); await delay(850);
       gid("dTo").textContent = processData.dispatch.to;
       gid("dEta").textContent = processData.dispatch.eta;
       gid("dLoad").textContent = processData.dispatch.load;
-      gid("dispatch").style.opacity = "1";
-      gid("s2").textContent = "→ La Trinidad → " + processData.dispatch.to + " · " + processData.dispatch.eta.split("·")[0].trim();
-      setStep(2, "done");
+      revealPanel(dispatchEl, "block");
+      await delay(2000);
+      window.dispatchEvent(
+        new CustomEvent("ani:map-route", {
+          detail: { destination: processData.dispatch.to, eta: processData.dispatch.eta },
+        })
+      );
 
       runBtn.classList.remove("loading");
       replayBtn.style.display = "block";
@@ -525,13 +583,7 @@ export default function Home() {
     }
     on(runBtn, "click", run);
     on(replayBtn, "click", run);
-
-    const console_ = document.querySelector(".console");
-    if (console_) {
-      const demoObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !hasRun) { setTimeout(run, 500); demoObs.unobserve(e.target); } }), { threshold: 0.4 });
-      demoObs.observe(console_);
-      cleanups.push(() => demoObs.disconnect());
-    }
+    on(gid("mapTrackBtn"), "click", () => window.dispatchEvent(new CustomEvent("ani:map-open")));
 
     /* MI300X telemetry */
     const gpu = gid("mi300x");
@@ -563,5 +615,11 @@ export default function Home() {
     return () => cleanups.forEach((f) => f());
   }, []);
 
-  return <div dangerouslySetInnerHTML={{ __html: MARKUP }} />;
+  const normalizedMarkup = MARKUP.replace(/\r\n/g, "\n");
+  return (
+    <>
+      <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: normalizedMarkup }} />
+      <DispatchMapModal />
+    </>
+  );
 }
