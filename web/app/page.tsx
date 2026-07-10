@@ -541,13 +541,6 @@ export default function Home() {
     on(replayBtn, "click", run);
     on(gid("mapTrackBtn"), "click", () => window.dispatchEvent(new CustomEvent("ani:map-open")));
 
-    const console_ = document.querySelector(".console");
-    if (console_) {
-      const demoObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !hasRun) { setTimeout(run, 500); demoObs.unobserve(e.target); } }), { threshold: 0.4 });
-      demoObs.observe(console_);
-      cleanups.push(() => demoObs.disconnect());
-    }
-
     /* MI300X telemetry */
     const gpu = gid("mi300x");
     if (gpu) {
