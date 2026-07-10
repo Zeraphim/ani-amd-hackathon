@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import DispatchMapModal from "@/components/DispatchMapModal";
 import { gradeStub, matchStub } from "@/lib/stub";
 
 // The showcase markup (from docs/ui/showcase.html), preserved exactly.
@@ -22,7 +21,7 @@ const MARKUP = `
 
 <nav>
   <div class="wrap">
-    <div class="brand"><img src="/logo.png" alt="Ani" style="height:38px;width:auto;display:block" /></div>
+    <div class="brand"><svg viewBox="0 0 512 512"><use href="#leaf"/></svg> Ani</div>
     <div class="links">
       <a href="#problem">Problem</a>
       <a href="#demo">Live demo</a>
@@ -35,7 +34,7 @@ const MARKUP = `
 
 <header class="hero" id="top">
   <canvas id="net-canvas"></canvas>
-  <img class="floatleaf" src="/logo-leaf.png" alt="" />
+  <svg class="floatleaf" viewBox="0 0 512 512"><use href="#leaf"/></svg>
   <div class="wrap">
     <span class="kicker" data-reveal><span class="dot"></span> Ani &middot; 3 agents &middot; one AMD MI300X &middot; Track 3 Unicorn</span>
     <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
@@ -136,7 +135,7 @@ const MARKUP = `
                 <div class="pstep" data-step="2"><div class="rail"><div class="node">&#128666;</div></div><div class="txt"><div class="h">Logistics Router</div><div class="d">Sequences dispatch, most-perishable first.</div><div class="stat" id="s2">&rarr; &hellip;</div></div></div>
               </div>
             </div>
-            <div class="grid g2 stage" id="gradeRow" style="gap:16px;display:none">
+            <div class="grid g2" style="gap:16px">
               <div class="grade-card">
                 <div class="grade-photo"><span class="badge green live"><span class="d"></span> graded on MI300X</span></div>
                 <div class="grade-body">
@@ -154,16 +153,15 @@ const MARKUP = `
                 <p class="muted" style="font-size:12.5px;margin-top:12px">The gradient is the spoilage clock &mdash; green when there's time, gold when it's time to move.</p>
               </div>
             </div>
-            <div class="panel stage" id="matchPanel" style="padding:18px;display:none">
+            <div class="panel" style="padding:18px">
               <div class="subhead" style="margin-bottom:12px">Demand-match feed &middot; live NCR buyers</div>
               <div id="matchHost"></div>
             </div>
-            <div class="dispatch stage" id="dispatch" style="display:none">
+            <div class="dispatch" id="dispatch">
               <span class="eyebrow">Dispatch plan</span>
               <h3 style="color:#fff;font-size:19px;margin-top:6px">Most-perishable first</h3>
               <div class="route"><div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Divisoria</div><div class="s" id="dEta">6h &middot; &#8369;44/kg</div></div></div>
               <div class="row"><span class="badge gold" id="dLoad">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
-              <button class="btn sm gold sheen magnetic" id="mapTrackBtn" type="button" style="margin-top:14px;width:100%">&#128506; Track live route <span class="ico arrow">&rarr;</span></button>
             </div>
           </div>
         </div>
@@ -268,7 +266,7 @@ const MARKUP = `
 
 <footer class="foot">
   <div class="wrap">
-    <img src="/logo.png" alt="Ani" style="height:44px;width:auto;display:block;margin:0 auto 12px" />
+    <svg viewBox="0 0 512 512"><use href="#leaf"/></svg>
     <p>Ani &middot; Tier 1&rarr;3 Showcase &middot; AMD Developer Hackathon ACT II &mdash; Track 3.<br>Grade &rarr; Match &rarr; Dispatch &middot; three agents, one AMD MI300X.</p>
   </div>
 </footer>
@@ -382,7 +380,6 @@ export default function Home() {
 
     /* ---------- interactive demo (wired to /api) ---------- */
     const runBtn = gid("runBtn"), replayBtn = gid("replayBtn"), outEmpty = gid("outEmpty"), outStack = gid("outStack");
-    const gradeRow = gid("gradeRow"), matchPanel = gid("matchPanel"), dispatchEl = gid("dispatch");
     const steps = Array.from(document.querySelectorAll("#pipe .pstep")) as any[];
     let hasRun = false, busy = false;
 
@@ -402,65 +399,33 @@ export default function Home() {
       requestAnimationFrame(tk);
     };
 
-    const scrollContainerTo = (container: HTMLElement, top: number, dur = 1200) => {
-      const start = container.scrollTop;
-      const delta = top - start;
-      if (Math.abs(delta) < 1) return;
-      const t0 = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min((now - t0) / dur, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        container.scrollTop = start + delta * eased;
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    };
-
-    const revealPanel = (el: any, displayType: string) => {
-      if (!el || el.classList.contains("show")) return;
-      el.style.display = displayType;
-      void el.offsetHeight;
-      el.classList.add("show");
-      if (!reduce) {
-        const consoleOut = outStack?.parentElement;
-        if (consoleOut && window.innerWidth > 900) {
-          scrollContainerTo(consoleOut, Math.max(0, el.offsetTop - 16));
-        } else {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+    async function getSelectedImageBase64() {
+      const activeSample = document.querySelector(".samples .s.on") as any;
+      const filename = activeSample ? activeSample.dataset.ph : "Pechay_B12.jpg";
+      try {
+        const res = await fetch(`/${filename}`);
+        const blob = await res.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      } catch {
+        return "";
       }
-    };
-
-    const createMatchRow = (b: any, index: number) => {
-      const label = (b.trend === "Stable" ? "– " : "▲ ") + b.trend;
-      const tcls = b.trend.toLowerCase();
-      const tag1cls = b.first ? "first" : tcls;
-      const tag1txt = b.first ? "★ First match" : label;
-      const badgeCls = index === 0 ? "ok" : "soft";
-      const dot = index === 0 ? '<span class="d"></span> ' : "";
-      const el = document.createElement("div"); el.className = "match";
-      el.innerHTML =
-        '<div class="top"><span class="nm">' + b.buyer + '</span><span class="price">₱' + b.pricePerKg + "/kg</span></div>" +
-        '<div class="sub">' + b.sub + "</div>" +
-        '<div class="meta"><span class="tag ' + tag1cls + '">' + tag1txt + "</span>" +
-        '<span class="tag ' + tcls + '">' + label + "</span>" +
-        '<span class="badge ' + badgeCls + '" style="font-size:11px">' + dot + b.fit + "</span></div>";
-      return el;
-    };
-
-    async function getGrade(cropId: string, qty: number) {
-      try {
-        const r = await fetch("/api/grade", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty }) });
-        if (r.ok) return await r.json();
-      } catch {}
-      return gradeStub(cropId, qty);
     }
-    async function getMatch(grade: any) {
+
+    async function getProcess(cropId: string, qty: number, imageB64: any) {
       try {
-        const r = await fetch("/api/match", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ grade }) });
+        const r = await fetch("/api/process", { 
+            method: "POST", 
+            headers: { "content-type": "application/json" }, 
+            body: JSON.stringify({ crop: cropId, quantityKg: qty, image_data: imageB64 }) 
+        });
         if (r.ok) return await r.json();
       } catch {}
-      return matchStub(grade);
+      const g = gradeStub(cropId, qty);
+      return { ...g, ...matchStub(g) };
     }
 
     async function run() {
@@ -471,67 +436,59 @@ export default function Home() {
       outEmpty.style.display = "none"; outStack.classList.add("show");
       steps.forEach((s) => s.classList.remove("active", "done"));
       gid("s0").textContent = "→ …"; gid("s1").textContent = "→ …"; gid("s2").textContent = "→ …";
-      gid("gScore").textContent = "0"; gid("fVal").style.width = "0"; gid("matchHost").innerHTML = "";
-      gradeRow.classList.remove("show"); gradeRow.style.display = "none";
-      matchPanel.classList.remove("show"); matchPanel.style.display = "none";
-      dispatchEl.classList.remove("show"); dispatchEl.style.display = "none";
+      gid("gScore").textContent = "0"; gid("fVal").style.width = "0"; gid("matchHost").innerHTML = ""; gid("dispatch").style.opacity = ".25";
 
-      /* Agent A — trace only */
+      const imageB64 = await getSelectedImageBase64();
+      
+      /* Trigger LangGraph */
+      const processData = await getProcess(cropId, qty, imageB64);
+
+      /* Agent A */
       setStep(0, "active");
-      const grade = await getGrade(cropId, qty);
       await delay(950);
-      gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
+      gid("gCrop").textContent = processData.crop;
+      gid("gGrade").textContent = "Grade " + processData.grade;
+      gid("gRipe").textContent = processData.ripeness;
+      gid("gSuggest").textContent = processData.suggestion;
+      countTo(gid("gScore"), processData.score, 900);
+      gid("fWin").textContent = processData.freshnessWindow;
+      gid("fVal").style.width = processData.freshnessFill + "%";
+      gid("s0").textContent = "→ Grade " + processData.grade + " · " + processData.score + " · 0.4s";
       setStep(0, "done");
-      await delay(800);
 
-      /* Agent D — trace only */
+      /* Agent D */
       setStep(1, "active");
-      const match = await getMatch(grade);
       await delay(900);
-      gid("s1").textContent = "→ " + match.buyers.length + " buyers · ₱" + match.buyers[0].pricePerKg + "/kg peak";
-      setStep(1, "done");
-      await delay(800);
-
-      /* Router — trace only */
-      setStep(2, "active");
-      await delay(850);
-      gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
-      setStep(2, "done");
-      await delay(2000);
-
-      /* --- All trace steps done — cascade result panels --- */
-
-      gid("gCrop").textContent = grade.crop;
-      gid("gGrade").textContent = "Grade " + grade.grade;
-      gid("gRipe").textContent = grade.ripeness;
-      gid("gSuggest").textContent = grade.suggestion;
-      gid("fWin").textContent = grade.freshnessWindow;
-      revealPanel(gradeRow, "grid");
-      countTo(gid("gScore"), grade.score, 900);
-      gid("fVal").style.width = grade.freshnessFill + "%";
-      await delay(2000);
-
+      gid("s1").textContent = "→ " + processData.buyers.length + " buyers · ₱" + processData.buyers[0].pricePerKg + "/kg peak";
       const host = gid("matchHost");
-      host.innerHTML = "";
-      const matchRows = match.buyers.map((b: any, i: number) => createMatchRow(b, i));
-      matchRows.forEach((el: HTMLElement) => host.appendChild(el));
-      revealPanel(matchPanel, "block");
-      await delay(650);
-      for (const el of matchRows) {
+      for (let i = 0; i < processData.buyers.length; i++) {
+        const b = processData.buyers[i];
+        const label = (b.trend === "Stable" ? "– " : "▲ ") + b.trend;
+        const tcls = b.trend.toLowerCase();
+        const tag1cls = b.first ? "first" : tcls;
+        const tag1txt = b.first ? "★ First match" : label;
+        const badgeCls = i === 0 ? "ok" : "soft";
+        const dot = i === 0 ? '<span class="d"></span> ' : "";
+        const el = document.createElement("div"); el.className = "match";
+        el.innerHTML =
+          '<div class="top"><span class="nm">' + b.buyer + '</span><span class="price">₱' + b.pricePerKg + "/kg</span></div>" +
+          '<div class="sub">' + b.sub + "</div>" +
+          '<div class="meta"><span class="tag ' + tag1cls + '">' + tag1txt + "</span>" +
+          '<span class="tag ' + tcls + '">' + label + "</span>" +
+          '<span class="badge ' + badgeCls + '" style="font-size:11px">' + dot + b.fit + "</span></div>";
+        host.appendChild(el);
         await delay(260); el.classList.add("in");
       }
-      await delay(2500);
+      setStep(1, "done");
 
-      gid("dTo").textContent = match.dispatch.to;
-      gid("dEta").textContent = match.dispatch.eta;
-      gid("dLoad").textContent = match.dispatch.load;
-      revealPanel(dispatchEl, "block");
-      await delay(2000);
-      window.dispatchEvent(
-        new CustomEvent("ani:map-route", {
-          detail: { destination: match.dispatch.to, eta: match.dispatch.eta },
-        })
-      );
+      /* Router */
+      setStep(2, "active"); await delay(850);
+      gid("dTo").textContent = processData.dispatch.to;
+      gid("dEta").textContent = processData.dispatch.eta;
+      gid("dLoad").textContent = processData.dispatch.load;
+      gid("dispatch").style.opacity = "1";
+      gid("s2").textContent = "→ La Trinidad → " + processData.dispatch.to + " · " + processData.dispatch.eta.split("·")[0].trim();
+      setStep(2, "done");
 
       runBtn.classList.remove("loading");
       replayBtn.style.display = "block";
@@ -539,7 +496,13 @@ export default function Home() {
     }
     on(runBtn, "click", run);
     on(replayBtn, "click", run);
-    on(gid("mapTrackBtn"), "click", () => window.dispatchEvent(new CustomEvent("ani:map-open")));
+
+    const console_ = document.querySelector(".console");
+    if (console_) {
+      const demoObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !hasRun) { setTimeout(run, 500); demoObs.unobserve(e.target); } }), { threshold: 0.4 });
+      demoObs.observe(console_);
+      cleanups.push(() => demoObs.disconnect());
+    }
 
     /* MI300X telemetry */
     const gpu = gid("mi300x");
@@ -571,11 +534,5 @@ export default function Home() {
     return () => cleanups.forEach((f) => f());
   }, []);
 
-  const normalizedMarkup = MARKUP.replace(/\r\n/g, "\n");
-  return (
-    <>
-      <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: normalizedMarkup }} />
-      <DispatchMapModal />
-    </>
-  );
+  return <div dangerouslySetInnerHTML={{ __html: MARKUP }} />;
 }

@@ -25,6 +25,11 @@ class GradeReq(BaseModel):
     crop: str
     quantity_kg: float = 400
 
+class ProcessReq(BaseModel):
+    crop: str
+    quantity_kg: float = 400
+    image_data: str = ""
+
 
 class MatchReq(BaseModel):
     grade: dict
@@ -44,3 +49,7 @@ def grade(req: GradeReq):
 @app.post("/match")
 def match(req: MatchReq):
     return backend.match(req.grade)
+
+@app.post("/process")
+def process(req: ProcessReq):
+    return backend.process_harvest(req.crop, req.quantity_kg, req.image_data)
