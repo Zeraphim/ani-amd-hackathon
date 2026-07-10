@@ -74,3 +74,9 @@ def match(grade: dict) -> dict:
         "dispatch": {"to": d["to"], "eta": d["eta"], "load": d["load"]},
         "source": "stub",
     }
+
+
+def process_harvest(crop: str, quantity_kg: float, image_data: str) -> dict:
+    g = grade(crop, quantity_kg)
+    m = match(g)
+    return {**g, **m}
