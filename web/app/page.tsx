@@ -22,7 +22,7 @@ const MARKUP = `
 
 <nav>
   <div class="wrap">
-    <div class="brand"><svg viewBox="0 0 512 512"><use href="#leaf"/></svg> Ani</div>
+    <div class="brand"><img src="/logo.png" alt="Ani" style="height:38px;width:auto;display:block" /></div>
     <div class="links">
       <a href="#problem">Problem</a>
       <a href="#market">Market</a>
@@ -36,7 +36,7 @@ const MARKUP = `
 
 <header class="hero" id="top">
   <canvas id="net-canvas"></canvas>
-  <svg class="floatleaf" viewBox="0 0 512 512"><use href="#leaf"/></svg>
+  <img class="floatleaf" src="/logo-leaf.png" alt="" />
   <div class="wrap">
     <span class="kicker" data-reveal><span class="dot"></span> Ani &middot; 3 agents &middot; one AMD MI300X &middot; Track 3 Unicorn</span>
     <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
@@ -128,16 +128,24 @@ const MARKUP = `
           <div class="subhead">Post a harvest</div>
           <div class="field">
             <label>Crop</label>
-            <input class="input" id="cropSel" type="text" placeholder="e.g. Heirloom Tomatoes" defaultValue="Pechay" />
+            <select class="select" id="cropSel">
+              <option value="pechay">Pechay</option>
+              <option value="cabbage">Cabbage (Scorpio)</option>
+              <option value="carrots">Carrots</option>
+              <option value="broccoli">Broccoli</option>
+            </select>
           </div>
           <div class="field">
             <label>Volume (kg)</label>
-            <input class="input" id="qtyIn" type="number" defaultValue="450" min="1">
+            <input class="input" id="qtyIn" type="number" value="450" min="1">
           </div>
           <div class="field" style="margin-bottom:12px">
             <label>Harvest photo</label>
-            <input type="file" id="imageIn" accept="image/*" style="width:100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: rgba(0,0,0,0.2); color: #fff; margin-bottom: 8px;" />
-            <div class="muted" style="font-size:12.5px">graded on-device &middot; JPG/PNG</div>
+            <div class="drop" id="drop"><span class="leafico">&#127807;</span><div class="big">Drop or tap to capture</div><div class="muted" style="font-size:12.5px">graded on-device &middot; JPG/PNG</div></div>
+            <div class="samples">
+              <span class="s on" data-ph="Pechay_B12.jpg">Pechay_B12.jpg</span>
+              <span class="s" data-ph="field_shot.jpg">field_shot.jpg</span>
+            </div>
           </div>
           <button class="btn lg sheen magnetic" id="runBtn" style="width:100%">&#9889; Grade &amp; match harvest</button>
           <button class="btn sm secondary magnetic" id="replayBtn" style="width:100%;margin-top:10px;display:none">Replay &#8635;</button>
@@ -168,14 +176,14 @@ const MARKUP = `
                   <div class="suggestion" id="gSuggest">&mdash;</div>
                 </div>
               </div>
-            <div class="panel stage" id="matchPanel" style="padding:18px;display:none">
+              <div class="panel" style="padding:18px">
                 <div class="row" style="justify-content:space-between;align-items:baseline"><div class="subhead" style="margin:0">Freshness window</div><div style="font-family:var(--display);font-weight:700;font-size:22px;color:var(--gold-deep)" id="fWin">&mdash;</div></div>
                 <div class="fresh-meter"><div class="val" id="fVal"></div></div>
                 <div class="ticks"><small>Fresh</small><small>Ripe</small><small>Sell now</small><small>Spoil</small></div>
                 <p class="muted" style="font-size:12.5px;margin-top:12px">The gradient is the spoilage clock &mdash; green when there's time, gold when it's time to move.</p>
               </div>
             </div>
-            <div class="panel" style="padding:18px">
+            <div class="panel stage" id="matchPanel" style="padding:18px;display:none">
               <div class="subhead" style="margin-bottom:12px">Demand-match feed &middot; live NCR buyers</div>
               <div id="matchHost"></div>
             </div>
@@ -289,7 +297,7 @@ const MARKUP = `
 
 <footer class="foot">
   <div class="wrap">
-    <svg viewBox="0 0 512 512"><use href="#leaf"/></svg>
+    <img src="/logo.png" alt="Ani" style="height:44px;width:auto;display:block;margin:0 auto 12px" />
     <p>Ani &middot; Tier 1&rarr;3 Showcase &middot; AMD Developer Hackathon ACT II &mdash; Track 3.<br>Grade &rarr; Match &rarr; Dispatch &middot; three agents, one AMD MI300X.</p>
   </div>
 </footer>
@@ -469,37 +477,25 @@ export default function Home() {
       return el;
     };
 
-
-
-    async function getProcess(cropId: string, qty: number, imageB64: any) {
+    async function getGrade(cropId: string, qty: number) {
       try {
-        const r = await fetch("/api/process", { 
-            method: "POST", 
-            headers: { "content-type": "application/json" }, 
-            body: JSON.stringify({ crop: cropId, quantityKg: qty, image_data: imageB64 }) 
-        });
+        const r = await fetch("/api/grade", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty }) });
         if (r.ok) return await r.json();
       } catch {}
-      const g = gradeStub(cropId, qty);
-      return { ...g, ...matchStub(g) };
+      return gradeStub(cropId, qty);
+    }
+    async function getMatch(grade: any) {
+      try {
+        const r = await fetch("/api/match", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ grade }) });
+        if (r.ok) return await r.json();
+      } catch {}
+      return matchStub(grade);
     }
 
     async function run() {
       if (busy) return; busy = true;
       const cropId = (gid("cropSel") as any).value;
       const qty = Number((gid("qtyIn") as any).value) || 450;
-      
-      const imageIn = gid("imageIn") as HTMLInputElement;
-      let imageData = "";
-      if (imageIn && imageIn.files && imageIn.files[0]) {
-        const file = imageIn.files[0];
-        imageData = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-      }
-
       runBtn.classList.add("loading");
       outEmpty.style.display = "none"; outStack.classList.add("show");
       steps.forEach((s) => s.classList.remove("active", "done"));
@@ -509,46 +505,44 @@ export default function Home() {
       matchPanel.classList.remove("show"); matchPanel.style.display = "none";
       dispatchEl.classList.remove("show"); dispatchEl.style.display = "none";
 
-      const imageB64 = imageData;
-      const processData = await getProcess(cropId, qty, imageB64);
-
       /* Agent A — trace only */
       setStep(0, "active");
-
+      const grade = await getGrade(cropId, qty);
       await delay(950);
-      gid("s0").textContent = "→ Grade " + processData.grade + " · " + processData.score + " · 0.4s";
+      gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
       await delay(800);
 
       /* Agent D — trace only */
       setStep(1, "active");
+      const match = await getMatch(grade);
       await delay(900);
-      gid("s1").textContent = "→ " + processData.buyers.length + " buyers · ₱" + processData.buyers[0].pricePerKg + "/kg peak";
+      gid("s1").textContent = "→ " + match.buyers.length + " buyers · ₱" + match.buyers[0].pricePerKg + "/kg peak";
       setStep(1, "done");
       await delay(800);
 
       /* Router — trace only */
       setStep(2, "active");
       await delay(850);
-      gid("s2").textContent = "→ La Trinidad → " + processData.dispatch.to + " · " + processData.dispatch.eta.split("·")[0].trim();
+      gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
       setStep(2, "done");
       await delay(2000);
 
       /* --- All trace steps done — cascade result panels --- */
 
-      gid("gCrop").textContent = processData.crop;
-      gid("gGrade").textContent = "Grade " + processData.grade;
-      gid("gRipe").textContent = processData.ripeness;
-      gid("gSuggest").textContent = processData.suggestion;
-      gid("fWin").textContent = processData.freshnessWindow;
+      gid("gCrop").textContent = grade.crop;
+      gid("gGrade").textContent = "Grade " + grade.grade;
+      gid("gRipe").textContent = grade.ripeness;
+      gid("gSuggest").textContent = grade.suggestion;
+      gid("fWin").textContent = grade.freshnessWindow;
       revealPanel(gradeRow, "grid");
-      countTo(gid("gScore"), processData.score, 900);
-      gid("fVal").style.width = processData.freshnessFill + "%";
+      countTo(gid("gScore"), grade.score, 900);
+      gid("fVal").style.width = grade.freshnessFill + "%";
       await delay(2000);
 
       const host = gid("matchHost");
       host.innerHTML = "";
-      const matchRows = processData.buyers.map((b: any, i: number) => createMatchRow(b, i));
+      const matchRows = match.buyers.map((b: any, i: number) => createMatchRow(b, i));
       matchRows.forEach((el: HTMLElement) => host.appendChild(el));
       revealPanel(matchPanel, "block");
       await delay(650);
@@ -557,14 +551,14 @@ export default function Home() {
       }
       await delay(2500);
 
-      gid("dTo").textContent = processData.dispatch.to;
-      gid("dEta").textContent = processData.dispatch.eta;
-      gid("dLoad").textContent = processData.dispatch.load;
+      gid("dTo").textContent = match.dispatch.to;
+      gid("dEta").textContent = match.dispatch.eta;
+      gid("dLoad").textContent = match.dispatch.load;
       revealPanel(dispatchEl, "block");
       await delay(2000);
       window.dispatchEvent(
         new CustomEvent("ani:map-route", {
-          detail: { destination: processData.dispatch.to, eta: processData.dispatch.eta },
+          detail: { destination: match.dispatch.to, eta: match.dispatch.eta },
         })
       );
 
