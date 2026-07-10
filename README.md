@@ -45,3 +45,5 @@ cd web && npm install && npm run dev     # http://localhost:3000
 ```bash
 git add . && git commit -m "Phase 0 MVP" && git push        # HF builds the root Dockerfile
 ```
+
+hi im jan
