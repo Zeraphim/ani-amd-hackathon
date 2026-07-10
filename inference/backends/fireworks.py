@@ -30,7 +30,7 @@ GRADE_SYS = (
 )
 
 
-def grade(crop: str, quantity_kg: float) -> dict:
+def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
     try:
         resp = _client.chat.completions.create(
             model=MODEL,
@@ -47,7 +47,7 @@ def grade(crop: str, quantity_kg: float) -> dict:
         return data
     except Exception as e:  # noqa: BLE001
         print(f"[fireworks.grade] fallback to stub: {e}")
-        return stub.grade(crop, quantity_kg)
+        return stub.grade(crop, quantity_kg, image_data)
 
 
 def match(grade: dict) -> dict:

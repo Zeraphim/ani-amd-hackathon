@@ -8,6 +8,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
   const crop = body.crop ?? "pechay";
   const quantityKg = Number(body.quantityKg ?? 450);
+  const imageData = body.image_data ?? "";
 
   const base = process.env.INFERENCE_BASE_URL;
   if (base) {
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
       const r = await fetch(`${base.replace(/\/$/, "")}/grade`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ crop, quantity_kg: quantityKg }),
+        body: JSON.stringify({ crop, quantity_kg: quantityKg, image_data: imageData }),
         cache: "no-store",
       });
       if (r.ok) return NextResponse.json(await r.json());

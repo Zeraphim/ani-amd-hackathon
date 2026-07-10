@@ -128,24 +128,16 @@ const MARKUP = `
           <div class="subhead">Post a harvest</div>
           <div class="field">
             <label>Crop</label>
-            <select class="select" id="cropSel">
-              <option value="pechay">Pechay</option>
-              <option value="cabbage">Cabbage (Scorpio)</option>
-              <option value="carrots">Carrots</option>
-              <option value="broccoli">Broccoli</option>
-            </select>
+            <input class="input" id="cropSel" type="text" placeholder="e.g. Heirloom Tomatoes" defaultValue="Pechay" />
           </div>
           <div class="field">
             <label>Volume (kg)</label>
-            <input class="input" id="qtyIn" type="number" value="450" min="1">
+            <input class="input" id="qtyIn" type="number" defaultValue="450" min="1">
           </div>
           <div class="field" style="margin-bottom:12px">
             <label>Harvest photo</label>
-            <div class="drop" id="drop"><span class="leafico">&#127807;</span><div class="big">Drop or tap to capture</div><div class="muted" style="font-size:12.5px">graded on-device &middot; JPG/PNG</div></div>
-            <div class="samples">
-              <span class="s on" data-ph="Pechay_B12.jpg">Pechay_B12.jpg</span>
-              <span class="s" data-ph="field_shot.jpg">field_shot.jpg</span>
-            </div>
+            <input type="file" id="imageIn" accept="image/*" style="width:100%; padding: 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: rgba(0,0,0,0.2); color: #fff; margin-bottom: 8px;" />
+            <div class="muted" style="font-size:12.5px">graded on-device &middot; JPG/PNG</div>
           </div>
           <button class="btn lg sheen magnetic" id="runBtn" style="width:100%">&#9889; Grade &amp; match harvest</button>
           <button class="btn sm secondary magnetic" id="replayBtn" style="width:100%;margin-top:10px;display:none">Replay &#8635;</button>
@@ -477,9 +469,9 @@ export default function Home() {
       return el;
     };
 
-    async function getGrade(cropId: string, qty: number) {
+    async function getGrade(cropId: string, qty: number, imageData: string) {
       try {
-        const r = await fetch("/api/grade", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty }) });
+        const r = await fetch("/api/grade", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty, image_data: imageData }) });
         if (r.ok) return await r.json();
       } catch {}
       return gradeStub(cropId, qty);
@@ -496,6 +488,18 @@ export default function Home() {
       if (busy) return; busy = true;
       const cropId = (gid("cropSel") as any).value;
       const qty = Number((gid("qtyIn") as any).value) || 450;
+      
+      const imageIn = gid("imageIn") as HTMLInputElement;
+      let imageData = "";
+      if (imageIn && imageIn.files && imageIn.files[0]) {
+        const file = imageIn.files[0];
+        imageData = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      }
+
       runBtn.classList.add("loading");
       outEmpty.style.display = "none"; outStack.classList.add("show");
       steps.forEach((s) => s.classList.remove("active", "done"));
@@ -507,7 +511,7 @@ export default function Home() {
 
       /* Agent A — trace only */
       setStep(0, "active");
-      const grade = await getGrade(cropId, qty);
+      const grade = await getGrade(cropId, qty, imageData);
       await delay(950);
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
