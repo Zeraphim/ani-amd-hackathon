@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const quantityKg = Number(body.quantityKg ?? 450);
   const imageData = body.image_data ?? "";
 
-  const base = process.env.INFERENCE_BASE_URL;
+  const base = process.env.INFERENCE_BASE_URL || "http://127.0.0.1:8000";
   if (base) {
     try {
       const r = await fetch(`${base.replace(/\/$/, "")}/grade`, {

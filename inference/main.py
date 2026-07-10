@@ -46,6 +46,7 @@ def health():
 
 @app.post("/grade")
 def grade(req: GradeReq):
+    print(f"\n[MAIN] Received grade request for crop: '{req.crop}' with image: {'YES' if req.image_data else 'NO'}")
     return backend.grade(req.crop, req.quantity_kg, req.image_data)
 
 

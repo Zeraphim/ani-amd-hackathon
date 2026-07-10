@@ -66,7 +66,7 @@ export function gradeStub(cropId: string, _quantityKg: number): GradeCard {
   const rush = d.urgency === "high" ? "move within hours; " : "";
   return {
     cropId: DATA[cropId] ? cropId : "pechay",
-    crop: d.name,
+    crop: DATA[cropId] ? d.name : cropId,
     grade: d.grade,
     score: d.score,
     ripeness: d.ripe,

@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
   const grade = body.grade as GradeCard;
 
-  const base = process.env.INFERENCE_BASE_URL;
+  const base = process.env.INFERENCE_BASE_URL || "http://127.0.0.1:8000";
   if (base && grade) {
     try {
       const r = await fetch(`${base.replace(/\/$/, "")}/match`, {
