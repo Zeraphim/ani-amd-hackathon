@@ -1,0 +1,13 @@
+{
+  "base_model": "google/gemma-3-27b-it",
+  "adapter": "/shared-docker/ani-artifacts/ani-gemma-grader-lora",
+  "train_examples": 240,
+  "eval_examples": 30,
+  "epochs": 1,
+  "seed": 42,
+  "base_accuracy": 0.8666666666666667,
+  "tuned_accuracy": 1.0,
+  "absolute_change": 0.1333333333333333,
+  "base_accuracy_percent": 86.67,
+  "tuned_accuracy_percent": 100.0
+}
