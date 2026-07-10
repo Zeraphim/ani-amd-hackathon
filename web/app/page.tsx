@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import DispatchMapModal from "@/components/DispatchMapModal";
 import { gradeStub, matchStub } from "@/lib/stub";
 
 // The showcase markup (from docs/ui/showcase.html), preserved exactly.
@@ -162,6 +163,7 @@ const MARKUP = `
               <h3 style="color:#fff;font-size:19px;margin-top:6px">Most-perishable first</h3>
               <div class="route"><div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Divisoria</div><div class="s" id="dEta">6h &middot; &#8369;44/kg</div></div></div>
               <div class="row"><span class="badge gold" id="dLoad">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
+              <button class="btn sm gold sheen magnetic" id="mapTrackBtn" type="button" style="margin-top:14px;width:100%">&#128506; Track live route <span class="ico arrow">&rarr;</span></button>
             </div>
           </div>
         </div>
@@ -525,9 +527,11 @@ export default function Home() {
       gid("dLoad").textContent = match.dispatch.load;
       revealPanel(dispatchEl, "block");
       await delay(2000);
-
-      // await delay(2000);
-      // document.getElementById("stack")?.scrollIntoView(reduce ? { block: "start" } as any : { behavior: "smooth", block: "start" });
+      window.dispatchEvent(
+        new CustomEvent("ani:map-route", {
+          detail: { destination: match.dispatch.to, eta: match.dispatch.eta },
+        })
+      );
 
       runBtn.classList.remove("loading");
       replayBtn.style.display = "block";
@@ -535,13 +539,7 @@ export default function Home() {
     }
     on(runBtn, "click", run);
     on(replayBtn, "click", run);
-
-    const console_ = document.querySelector(".console");
-    if (console_) {
-      const demoObs = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !hasRun) { setTimeout(run, 500); demoObs.unobserve(e.target); } }), { threshold: 0.4 });
-      demoObs.observe(console_);
-      cleanups.push(() => demoObs.disconnect());
-    }
+    on(gid("mapTrackBtn"), "click", () => window.dispatchEvent(new CustomEvent("ani:map-open")));
 
     /* MI300X telemetry */
     const gpu = gid("mi300x");
@@ -574,6 +572,10 @@ export default function Home() {
   }, []);
 
   const normalizedMarkup = MARKUP.replace(/\r\n/g, "\n");
-  // ponytail: static HTML blob — whitespace SSR-vs-DOM mismatch is cosmetic, suppress the check
-  return <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: normalizedMarkup }} />;
+  return (
+    <>
+      <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: normalizedMarkup }} />
+      <DispatchMapModal />
+    </>
+  );
 }
