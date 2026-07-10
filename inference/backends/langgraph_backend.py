@@ -187,6 +187,7 @@ ani_app = workflow.compile()
 
 # Provide wrapper functions to easily drop into FastAPI if needed
 def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
+    print(f"[LANGGRAPH] Starting grader node for crop: {crop}")
     state = {
         "crop_type": crop,
         "quantity": int(quantity_kg),
@@ -197,6 +198,7 @@ def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
     return result
 
 def match(grade_dict: dict) -> dict:
+    print(f"[LANGGRAPH] Starting match nodes for crop: {grade_dict.get('crop')}")
     state = {
         "crop_type": grade_dict.get("crop", "Unknown"),
         "quantity": grade_dict.get("quantity_kg", 450),
