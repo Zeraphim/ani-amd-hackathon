@@ -144,6 +144,13 @@ section.block{padding:96px 0;border-top:1px solid var(--line);position:relative;
 .out-stack{display:flex;flex-direction:column;gap:16px;opacity:0;transition:opacity var(--dur-3);}
 .out-stack.show{opacity:1;}
 
+.stage{opacity:0;transform:translateY(26px);transition:opacity .55s var(--ease-out),transform .55s var(--ease-out);}
+.stage.show{opacity:1;transform:none;}
+
+@media(prefers-reduced-motion:reduce){.stage{transition:none;transform:none;}}
+
+@media(max-width:900px){.stage{scroll-margin-top:12px;}}
+
 .pipe{display:flex;flex-direction:column;}
 .pstep{display:flex;gap:14px;position:relative;padding-bottom:20px;}
 .pstep:last-child{padding-bottom:0;}
