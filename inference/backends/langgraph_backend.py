@@ -9,7 +9,7 @@ from langgraph.graph import StateGraph, START, END
 from pathlib import Path
 
 # Setup clients (Using Fireworks for both vision/chat and embeddings per prototype)
-FIREWORKS_API_KEY = os.getenv("FIREWORKS_API_KEY", "fw_AaBp4XkLnqyqShhqHZX5Qg")
+FIREWORKS_API_KEY = os.getenv("FIREWORKS_API_KEY", "")
 client = OpenAI(
     base_url="https://api.fireworks.ai/inference/v1",
     api_key=FIREWORKS_API_KEY
