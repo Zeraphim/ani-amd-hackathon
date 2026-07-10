@@ -15,12 +15,13 @@ client = OpenAI(
     api_key=FIREWORKS_API_KEY
 )
 
-# 1. Load the buyers database
-DATA_DIR = Path(__file__).parent.parent / "data"
-with open(DATA_DIR / "buyers.json", "r") as f:
-    BUYERS = json.load(f)
+# 1. Load the most recent wholesale market opportunities
+import csv
 
-# 2. Pre-calculate embeddings for buyers
+DATA_DIR = Path(__file__).parent.parent / "data"
+CSV_PATH = DATA_DIR / "ncr_prices.csv"
+
+# Pre-calculate embeddings for buyers
 def get_embedding(text: str) -> np.ndarray:
     response = client.embeddings.create(
         model="nomic-ai/nomic-embed-text-v1.5",
@@ -28,14 +29,42 @@ def get_embedding(text: str) -> np.ndarray:
     )
     return np.array(response.data[0].embedding)
 
-for buyer in BUYERS:
-    buyer["vector"] = get_embedding(buyer["requirement_profile"])
+# Parse CSV and extract only the latest date
+BUYERS = []
+try:
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        all_rows = [row for row in reader if row and not row[0].startswith("#")]
+        
+    if all_rows:
+        # Since our dataset is sorted by date descending, the first row's date is the latest.
+        latest_date = all_rows[0][4]
+        latest_rows = [r for r in all_rows if r[4] == latest_date]
+        
+        print(f"[LANGGRAPH] Pre-calculating embeddings for {len(latest_rows)} market opportunities on {latest_date}...")
+        for row in latest_rows:
+            market, commodity, price, demand, date = row
+            # Create a descriptive profile for the vector search
+            profile = f"{market} wholesale market needs {commodity}. Price is {price} PHP/kg. Demand is {demand}."
+            
+            BUYERS.append({
+                "market": market,
+                "commodity": commodity,
+                "price_php_per_kg": int(price),
+                "demand": demand,
+                "date": date,
+                "requirement_profile": profile,
+                "vector": get_embedding(profile)
+            })
+except Exception as e:
+    print(f"[LANGGRAPH] Error loading CSV: {e}")
 
 # 3. LangGraph State
 class HarvestState(TypedDict, total=False):
     crop_type: str
     quantity: int
     image_data: str
+    location: str
 
     grade: str
     score: float
@@ -116,9 +145,9 @@ def harvest_grader_node(state: HarvestState):
     }
 
 def demand_oracle_node(state: HarvestState):
-    print(f"Oracle Agent: Finding buyers for Grade {state['grade']} {state['crop_type']}...")
+    print(f"Oracle Agent: Finding buyers for Grade {state['grade']} {state['crop_type']} from {state.get('location', 'Unknown')}...")
 
-    harvest_text = f"We have {state['quantity']}kg of Grade {state['grade']} {state['crop_type']}."
+    harvest_text = f"We have {state['quantity']}kg of Grade {state['grade']} {state['crop_type']} located in {state.get('location', 'Unknown')}."
     harvest_vector = get_embedding(harvest_text)
 
     scored_buyers = []
@@ -133,25 +162,26 @@ def demand_oracle_node(state: HarvestState):
     for i, match in enumerate(top_3):
         b = match["buyer"]
         formatted_buyers.append({
-            "buyer": b["name"],
-            "sub": b.get("location_needs", f"Needs {state['crop_type']}"),
-            "pricePerKg": b.get("max_price_per_kg", 50),
-            "trend": "Surging" if i == 0 else "Stable",
+            "buyer": f"{b['market']} Wholesale",
+            "sub": f"Top market match based on current demand",
+            "pricePerKg": b["price_php_per_kg"],
+            "trend": b["demand"],
             "fit": f"{int(match['score'] * 100)}% fit",
             "first": (i == 0)
         })
 
     return {
         "buyers": formatted_buyers,
-        "matched_buyer": top_3[0]["buyer"]["name"]
+        "matched_buyer": top_3[0]["buyer"]["market"] if top_3 else "Unknown"
     }
 
 def logistics_router_node(state: HarvestState):
     print(f"Router Agent: Planning route to {state['matched_buyer']}...")
 
+    origin = state.get('location', 'Unknown')
     prompt = f"""
     You are an expert logistics router in the Philippines.
-    We are sending {state['quantity']}kg of {state['crop_type']} from Benguet to {state['matched_buyer']}.
+    We are sending {state['quantity']}kg of {state['crop_type']} from {origin} to {state['matched_buyer']}.
     
     Calculate realistic transit details and return a JSON object with:
     'to': the city or market destination (e.g. 'Balintawak' or 'Makati')
@@ -215,11 +245,12 @@ def match(grade_dict: dict) -> dict:
         "source": "langgraph"
     }
 
-def process_harvest(crop: str, quantity_kg: float, image_data: str = "") -> dict:
+def process_harvest(crop: str, quantity_kg: float, image_data: str = "", location: str = "La Trinidad, Benguet") -> dict:
     initial_state = {
         "crop_type": crop,
         "quantity": int(quantity_kg),
-        "image_data": image_data
+        "image_data": image_data,
+        "location": location
     }
     
     final_state = ani_app.invoke(initial_state)

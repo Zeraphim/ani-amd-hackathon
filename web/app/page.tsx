@@ -131,6 +131,10 @@ const MARKUP = `
             <input class="input" id="cropSel" type="text" placeholder="e.g. Heirloom Tomatoes" defaultValue="Pechay" />
           </div>
           <div class="field">
+            <label>Location (Origin)</label>
+            <input class="input" id="locIn" type="text" placeholder="e.g. Cebu City" defaultValue="La Trinidad, Benguet" />
+          </div>
+          <div class="field">
             <label>Volume (kg)</label>
             <input class="input" id="qtyIn" type="number" defaultValue="450" min="1">
           </div>
@@ -186,7 +190,7 @@ const MARKUP = `
             <div class="dispatch stage" id="dispatch" style="display:none">
               <span class="eyebrow">Dispatch plan</span>
               <h3 style="color:#fff;font-size:19px;margin-top:6px">Most-perishable first</h3>
-              <div class="route"><div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Divisoria</div><div class="s" id="dEta">6h &middot; &#8369;44/kg</div></div></div>
+              <div class="route"><div class="stop"><div class="p" id="dFrom">Origin</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Destination</div><div class="s" id="dEta">6h &middot; &#8369;44/kg</div></div></div>
               <div class="row"><span class="badge gold" id="dLoad">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
               <button class="btn sm gold sheen magnetic" id="mapTrackBtn" type="button" style="margin-top:14px;width:100%">&#128506; Track live route <span class="ico arrow">&rarr;</span></button>
             </div>
@@ -473,16 +477,16 @@ export default function Home() {
       return el;
     };
 
-    async function getGrade(cropId: string, qty: number, imageData: string) {
+    async function getProcess(cropId: string, qty: number, imageData: string, location: string) {
       try {
-        const r = await fetch("/api/grade", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty, image_data: imageData }) });
+        const r = await fetch("/api/process", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty, image_data: imageData, location }) });
         if (r.ok) return await r.json();
       } catch {}
       return gradeStub(cropId, qty);
     }
-    async function getMatch(grade: any) {
+    async function getMatch(grade: any, location: string) {
       try {
-        const r = await fetch("/api/match", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ grade }) });
+        const r = await fetch("/api/match", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ grade, location }) });
         if (r.ok) return await r.json();
       } catch {}
       return matchStub(grade);
@@ -490,9 +494,9 @@ export default function Home() {
 
     async function run() {
       if (busy) return; busy = true;
-      const cropId = (gid("cropSel") as any).value;
-      const qty = Number((gid("qtyIn") as any).value) || 450;
-      
+      const cropId = (document.getElementById("cropSel") as HTMLInputElement).value || "Pechay";
+      const qty = parseInt((document.getElementById("qtyIn") as HTMLInputElement).value || "450");
+      const loc = (document.getElementById("locIn") as HTMLInputElement).value || "La Trinidad, Benguet";
       const imageIn = gid("imageIn") as HTMLInputElement;
       let imageData = "";
       if (imageIn && imageIn.files && imageIn.files[0]) {
@@ -533,7 +537,8 @@ export default function Home() {
 
       /* Agent A — trace only */
       setStep(0, "active");
-      const grade = await getGrade(cropId, qty, imageData);
+      const combinedRes = await getProcess(cropId, qty, imageData, loc);
+      const grade = combinedRes;
       await delay(950);
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
@@ -541,7 +546,7 @@ export default function Home() {
 
       /* Agent D — trace only */
       setStep(1, "active");
-      const match = await getMatch(grade);
+      const match = await getMatch(grade, loc);
       await delay(900);
       gid("s1").textContent = "→ " + match.buyers.length + " buyers · ₱" + match.buyers[0].pricePerKg + "/kg peak";
       setStep(1, "done");
@@ -550,7 +555,11 @@ export default function Home() {
       /* Router — trace only */
       setStep(2, "active");
       await delay(850);
-      gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
+      if (match && match.dispatch) {
+        gid("s2").textContent = "→ " + (match.dispatch.from || loc).split(',')[0] + " → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
+      } else {
+        gid("s2").textContent = "→ Routing complete";
+      }
       setStep(2, "done");
       await delay(2000);
 
