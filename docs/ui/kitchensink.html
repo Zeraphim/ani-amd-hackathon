@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ani — UI Kitchen Sink</title>
+<meta name="description" content="The complete Ani design language: foundations, components, motion, and harvest-specific patterns for the AMD Hackathon submission site.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ANI — DESIGN TOKENS
+   Organic-Editorial. Warm brand palette, pushed to an outlier.
+   ============================================================ */
+:root{
+  /* Core palette (from the Ani brand book) */
+  --green:#14663B;        /* Highland Green — primary */
+  --green-deep:#0E3F23;   /* Deep Forest — depth */
+  --green-ink:#0A2A18;    /* darkest, for text on gold */
+  --leaf1:#8CC63F;        /* Leaf Green — fresh */
+  --leaf2:#4FA84E;        /* Grove Green — growing */
+  --gold:#E0A62E;         /* Harvest Gold — value / accent */
+  --gold-deep:#B67E10;
+  --cream:#F4F2EA;        /* Field Cream — canvas */
+  --cream-2:#EDEADD;      /* recessed cream */
+  --paper:#FBFAF4;        /* raised paper */
+  --black:#101A15;        /* Field Black — text */
+  --green-100:#E7F3DF;    /* soft green wash */
+  --gray:#5B6B62;         /* muted */
+  --line:rgba(16,26,21,.10);
+  --line-2:rgba(16,26,21,.06);
+
+  /* Semantic */
+  --danger:#C0342C;
+  --danger-wash:#FBE7E5;
+  --warn:#E0A62E;
+  --ok:#178A4E;
+  --ok-wash:#E4F4EA;
+
+  /* Type */
+  --display:'Poppins','Century Gothic',Futura,ui-rounded,system-ui,sans-serif;
+  --body:'Inter',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* Spacing scale (4pt base) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px;
+  --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px; --s-10:128px;
+
+  /* Radii */
+  --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:30px; --r-pill:999px;
+
+  /* Elevation */
+  --e-1:0 1px 2px rgba(16,26,21,.06);
+  --e-2:0 6px 18px -8px rgba(16,26,21,.18);
+  --e-3:0 22px 48px -22px rgba(16,26,21,.34);
+  --e-gold:0 12px 40px -12px rgba(224,166,46,.55);
+
+  /* Motion */
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-io:cubic-bezier(.65,0,.35,1);
+  --dur-1:.16s; --dur-2:.32s; --dur-3:.6s; --dur-4:1s;
+
+  /* Signature gradient */
+  --harvest:linear-gradient(100deg,var(--leaf1),var(--leaf2) 42%,var(--gold));
+  --harvest-soft:linear-gradient(120deg,#EAF5DE,#E7F0DB 45%,#F6E7C4);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--body);
+  color:var(--black);
+  background:var(--cream);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* Grain / paper texture overlay — the "organic" tell */
+body::before{
+  content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.4;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+::selection{background:var(--gold);color:var(--green-ink);}
+
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;line-height:1.04;letter-spacing:-.03em;}
+a{color:inherit;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;position:relative;z-index:2;}
+.mono{font-family:var(--mono);}
+.muted{color:var(--gray);}
+.eyebrow{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:60;background:rgba(244,242,234,.72);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line);}
+nav .wrap{display:flex;align-items:center;gap:26px;height:66px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.03em;color:var(--green);margin-right:auto;}
+.brand svg{width:30px;height:30px;}
+nav .links{display:flex;gap:22px;}
+nav .links a{font-size:13.5px;color:var(--gray);text-decoration:none;font-weight:500;position:relative;padding:4px 0;transition:color var(--dur-1) var(--ease-out);}
+nav .links a::after{content:"";position:absolute;left:0;bottom:-2px;height:2px;width:0;background:var(--gold);transition:width var(--dur-2) var(--ease-out);}
+nav .links a:hover{color:var(--green);}
+nav .links a:hover::after{width:100%;}
+@media(max-width:900px){nav .links{display:none;}}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;padding:120px 0 96px;overflow:hidden;}
+.hero canvas{position:absolute;inset:0;z-index:0;opacity:.9;}
+.hero .wrap{z-index:3;}
+.hero .kicker{display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--paper);box-shadow:var(--e-1);font-size:12.5px;font-weight:600;color:var(--green);margin-bottom:26px;}
+.hero .kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--leaf2);box-shadow:0 0 0 4px rgba(79,168,78,.22);animation:pulse 2.4s var(--ease-io) infinite;}
+.hero h1{font-size:clamp(52px,9vw,116px);font-weight:700;letter-spacing:-.05em;line-height:.92;max-width:14ch;}
+.hero h1 .grad{background:var(--harvest);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% 100%;animation:shimmer 6s ease infinite;}
+.hero p.lead{font-size:clamp(18px,2.4vw,23px);color:#243a31;max-width:56ch;margin-top:26px;}
+.hero .cta-row{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap;}
+.hero .meta{margin-top:64px;display:flex;gap:44px;flex-wrap:wrap;}
+.hero .meta .m .n{font-family:var(--display);font-weight:700;font-size:40px;color:var(--green);letter-spacing:-.03em;}
+.hero .meta .m .l{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);}
+
+/* floating leaf */
+.floatleaf{position:absolute;right:-40px;top:80px;width:min(46vw,560px);z-index:1;opacity:.14;animation:float 11s var(--ease-io) infinite;}
+@media(max-width:900px){.floatleaf{opacity:.07;}}
+
+/* ---------- SECTION SHELL ---------- */
+section.block{padding:88px 0;border-top:1px solid var(--line);position:relative;}
+.sec-head{margin-bottom:44px;max-width:60ch;}
+.sec-head h2{font-size:clamp(32px,4.4vw,52px);margin:14px 0 10px;}
+.sec-head p{font-size:18px;color:#25352d;}
+
+/* ---------- REVEAL (motion) ---------- */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity var(--dur-3) var(--ease-out),transform var(--dur-3) var(--ease-out);}
+[data-reveal].in{opacity:1;transform:none;}
+[data-reveal].d1{transition-delay:.06s;}[data-reveal].d2{transition-delay:.12s;}
+[data-reveal].d3{transition-delay:.18s;}[data-reveal].d4{transition-delay:.24s;}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+  [data-reveal]{opacity:1;transform:none;}
+}
+
+/* ---------- GRID HELPERS ---------- */
+.grid{display:grid;gap:20px;}
+.g2{grid-template-columns:repeat(2,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+
+/* ---------- CARD (base panel) ---------- */
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px;box-shadow:var(--e-1);}
+.subhead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-bottom:16px;}
+
+/* ============================================================
+   FOUNDATIONS
+   ============================================================ */
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+@media(max-width:760px){.swatches{grid-template-columns:repeat(2,1fr);}}
+.swatch{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:var(--paper);cursor:pointer;transition:transform var(--dur-2) var(--ease-spring),box-shadow var(--dur-2) var(--ease-out);}
+.swatch:hover{transform:translateY(-4px);box-shadow:var(--e-2);}
+.swatch .chip{height:96px;position:relative;}
+.swatch .chip .copied{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;background:rgba(16,26,21,.55);opacity:0;transition:opacity var(--dur-1);}
+.swatch.copied .chip .copied{opacity:1;}
+.swatch .info{padding:12px 14px;}
+.swatch .info .name{font-family:var(--display);font-weight:600;font-size:14px;}
+.swatch .info .hex{font-family:var(--mono);font-size:11.5px;color:var(--gray);margin-top:3px;}
+
+.grad-strip{height:96px;border-radius:var(--r-md);background:var(--harvest);background-size:220% 100%;animation:shimmer 7s ease infinite;box-shadow:var(--e-2);}
+.grad-legend{display:flex;justify-content:space-between;margin-top:10px;}
+.grad-legend small{font-family:var(--mono);font-size:11px;color:var(--gray);}
+
+.type-row{display:flex;align-items:baseline;gap:20px;padding:16px 0;border-bottom:1px solid var(--line-2);}
+.type-row:last-child{border:none;}
+.type-row .s{font-family:var(--display);color:var(--black);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.type-row .lab{font-family:var(--mono);font-size:11px;color:var(--gray);white-space:nowrap;}
+
+.scale-list{display:flex;flex-direction:column;gap:10px;}
+.scale-item{display:flex;align-items:center;gap:16px;}
+.scale-item .bar{height:16px;border-radius:6px;background:var(--harvest);}
+.scale-item .tag{font-family:var(--mono);font-size:12px;color:var(--gray);white-space:nowrap;}
+
+.radii-row{display:flex;gap:16px;flex-wrap:wrap;}
+.radii-box{width:92px;height:92px;background:var(--green-100);border:1px solid var(--line);display:flex;align-items:flex-end;justify-content:center;padding:8px;}
+.radii-box span{font-family:var(--mono);font-size:11px;color:var(--green);}
+
+.elev-row{display:flex;gap:22px;flex-wrap:wrap;}
+.elev-box{width:130px;height:92px;border-radius:var(--r-md);background:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--gray);}
+
+.ease-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:760px){.ease-grid{grid-template-columns:1fr;}}
+.ease-card{border:1px solid var(--line);border-radius:var(--r-md);padding:16px;background:var(--paper);overflow:hidden;}
+.ease-track{height:8px;background:var(--cream-2);border-radius:var(--r-pill);position:relative;margin:14px 0 6px;}
+.ease-ball{position:absolute;top:50%;left:0;width:18px;height:18px;border-radius:50%;background:var(--gold);transform:translate(0,-50%);box-shadow:var(--e-gold);}
+.ease-card .nm{font-family:var(--mono);font-size:11px;color:var(--gray);}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  --bg:var(--green);--fg:#fff;--bd:transparent;
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--body);font-weight:600;font-size:15px;line-height:1;
+  padding:14px 22px;border-radius:var(--r-pill);border:1.5px solid var(--bd);
+  background:var(--bg);color:var(--fg);cursor:pointer;text-decoration:none;
+  transition:transform var(--dur-1) var(--ease-spring),box-shadow var(--dur-2) var(--ease-out),background var(--dur-2),color var(--dur-2);
+  will-change:transform;
+}
+.btn:hover{box-shadow:var(--e-2);}
+.btn:active{transform:scale(.97);}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(20,102,59,.28);}
+.btn .ico{font-size:16px;transition:transform var(--dur-2) var(--ease-spring);}
+.btn:hover .ico.arrow{transform:translateX(4px);}
+.btn.secondary{--bg:transparent;--fg:var(--green);--bd:var(--green);}
+.btn.secondary:hover{--bg:var(--green-100);}
+.btn.gold{--bg:var(--gold);--fg:var(--green-ink);box-shadow:var(--e-gold);}
+.btn.ghost{--bg:transparent;--fg:var(--green);--bd:transparent;}
+.btn.ghost:hover{--bg:var(--green-100);box-shadow:none;}
+.btn.dark{--bg:var(--black);--fg:#fff;}
+.btn.sm{padding:9px 15px;font-size:13px;}
+.btn.lg{padding:18px 30px;font-size:17px;}
+.btn.icon{width:46px;height:46px;padding:0;border-radius:50%;}
+.btn:disabled,.btn.is-disabled{opacity:.42;cursor:not-allowed;box-shadow:none;transform:none;}
+/* magnetic buttons use JS translate on --mx/--my */
+.magnetic{transform:translate(var(--mx,0),var(--my,0));}
+/* gradient sheen button */
+.btn.sheen{--bg:var(--green);overflow:hidden;}
+.btn.sheen::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);transition:left .7s var(--ease-out);}
+.btn.sheen:hover::after{left:140%;}
+/* loading btn */
+.btn.loading{color:transparent;pointer-events:none;}
+.btn.loading::before{content:"";position:absolute;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--green-deep);margin-bottom:7px;}
+.input,.select,.textarea{
+  width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:var(--r-sm);
+  font-size:15px;font-family:inherit;background:var(--paper);color:var(--black);
+  transition:border-color var(--dur-2) var(--ease-out),box-shadow var(--dur-2) var(--ease-out),background var(--dur-2);
+}
+.textarea{min-height:96px;resize:vertical;}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px rgba(20,102,59,.13);background:#fff;}
+.input::placeholder{color:#9aa79f;}
+.input.error{border-color:var(--danger);box-shadow:0 0 0 4px rgba(192,52,44,.12);}
+.help{font-size:12.5px;color:var(--gray);margin-top:6px;}
+.help.err{color:var(--danger);}
+
+/* search with icon */
+.search{position:relative;}
+.search .input{padding-left:44px;}
+.search .ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--gray);}
+
+/* checkbox / radio */
+.check{display:flex;align-items:center;gap:11px;cursor:pointer;font-size:14.5px;margin-bottom:12px;}
+.check input{position:absolute;opacity:0;}
+.check .box{width:22px;height:22px;border:1.5px solid var(--outline,#b7c3ba);border-radius:7px;display:grid;place-items:center;transition:all var(--dur-2) var(--ease-spring);flex:none;background:var(--paper);}
+.check .box svg{width:13px;height:13px;stroke:#fff;stroke-width:3.4;fill:none;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset var(--dur-2) var(--ease-out);}
+.check input:checked + .box{background:var(--green);border-color:var(--green);}
+.check input:checked + .box svg{stroke-dashoffset:0;}
+.check.radio .box{border-radius:50%;}
+.check.radio .box::after{content:"";width:10px;height:10px;border-radius:50%;background:#fff;transform:scale(0);transition:transform var(--dur-2) var(--ease-spring);}
+.check.radio input:checked + .box{background:var(--green);border-color:var(--green);}
+.check.radio input:checked + .box::after{transform:scale(1);}
+
+/* toggle */
+.toggle{position:relative;width:52px;height:30px;flex:none;cursor:pointer;}
+.toggle input{position:absolute;opacity:0;}
+.toggle .track{position:absolute;inset:0;background:var(--cream-2);border:1px solid var(--line);border-radius:var(--r-pill);transition:background var(--dur-2) var(--ease-out);}
+.toggle .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:var(--e-1);transition:transform var(--dur-2) var(--ease-spring);}
+.toggle input:checked ~ .track{background:var(--green);}
+.toggle input:checked ~ .knob{transform:translateX(22px);}
+
+/* slider */
+.slider{width:100%;height:8px;border-radius:var(--r-pill);background:var(--cream-2);position:relative;cursor:pointer;}
+.slider .fill{height:100%;border-radius:var(--r-pill);background:var(--harvest);width:60%;}
+.slider .thumb{position:absolute;top:50%;left:60%;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid var(--green);box-shadow:var(--e-2);}
+
+/* file drop */
+.drop{border:2px dashed var(--outline,#b7c3ba);border-radius:var(--r-md);padding:30px;text-align:center;color:var(--gray);background:var(--cream);transition:all var(--dur-2) var(--ease-out);cursor:pointer;}
+.drop:hover,.drop.over{border-color:var(--leaf2);background:var(--green-100);color:var(--green-deep);}
+.drop .big{font-family:var(--display);font-weight:600;font-size:17px;color:var(--green);margin-bottom:4px;}
+.drop .leafico{font-size:32px;display:block;margin-bottom:10px;transition:transform var(--dur-3) var(--ease-spring);}
+.drop:hover .leafico{transform:translateY(-6px) rotate(-8deg);}
+
+/* ============================================================
+   BADGES / CHIPS / TAGS
+   ============================================================ */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 11px;border-radius:var(--r-pill);}
+.badge.grade{background:var(--leaf1);color:var(--green-ink);font-family:var(--display);font-weight:700;}
+.badge.gold{background:var(--gold);color:var(--green-ink);}
+.badge.green{background:var(--green);color:#fff;}
+.badge.soft{background:var(--green-100);color:var(--green-deep);}
+.badge.ok{background:var(--ok-wash);color:var(--ok);}
+.badge.warn{background:#FBEFD3;color:var(--gold-deep);}
+.badge.danger{background:var(--danger-wash);color:var(--danger);}
+.badge .d{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.badge.live .d{animation:pulse 1.8s var(--ease-io) infinite;}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--r-pill);background:var(--paper);border:1px solid var(--line);cursor:pointer;transition:all var(--dur-2) var(--ease-spring);}
+.chip:hover{border-color:var(--green);color:var(--green);}
+.chip.active{background:var(--green);color:#fff;border-color:var(--green);}
+.chip .x{opacity:.6;font-size:15px;}
+
+/* trend tags */
+.tag{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:4px;}
+.tag.surging{background:var(--danger-wash);color:var(--danger);}
+.tag.rising{background:#FBEFD3;color:var(--gold-deep);}
+.tag.stable{background:var(--cream-2);color:var(--gray);}
+.tag.first{background:var(--gold);color:var(--green-ink);}
+
+/* ============================================================
+   ANI-SPECIFIC COMPONENTS
+   ============================================================ */
+/* Grade card */
+.grade-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--e-2);}
+.grade-photo{height:170px;background:linear-gradient(135deg,#2f7d3f,#155a30);position:relative;display:flex;align-items:flex-end;padding:16px;}
+.grade-photo::after{content:"🥬";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.5;}
+.grade-photo .live{position:relative;z-index:2;}
+.grade-body{padding:20px;}
+.grade-head{display:flex;align-items:center;gap:16px;}
+.grade-score{min-width:76px;text-align:center;padding:14px 8px;border-radius:var(--r-md);background:var(--green);color:#fff;}
+.grade-score .num{font-family:var(--display);font-weight:800;font-size:34px;line-height:1;}
+.grade-score .cap{font-family:var(--mono);font-size:9px;letter-spacing:.1em;opacity:.8;text-transform:uppercase;}
+.grade-head .t{font-family:var(--display);font-weight:600;font-size:19px;}
+.suggestion{background:var(--green-100);border-left:3px solid var(--leaf2);padding:12px 14px;border-radius:var(--r-xs);font-size:13.5px;color:var(--green-deep);margin-top:14px;font-style:italic;}
+
+/* Freshness / spoilage meter */
+.fresh{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--e-1);}
+.fresh .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
+.fresh .win{font-family:var(--display);font-weight:700;font-size:26px;color:var(--gold-deep);}
+.fresh-meter{height:14px;border-radius:var(--r-pill);background:var(--cream-2);overflow:hidden;position:relative;}
+.fresh-meter .val{height:100%;width:0;background:var(--harvest);background-size:200% 100%;border-radius:var(--r-pill);transition:width 1.4s var(--ease-out);animation:shimmer 4s ease infinite;}
+.fresh .ticks{display:flex;justify-content:space-between;margin-top:8px;}
+.fresh .ticks small{font-family:var(--mono);font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;}
+
+/* Match feed */
+.match{border:1px solid var(--line);border-radius:var(--r-md);padding:16px;background:var(--paper);transition:transform var(--dur-2) var(--ease-out),box-shadow var(--dur-2) var(--ease-out),border-color var(--dur-2);margin-bottom:12px;}
+.match:hover{transform:translateX(4px);box-shadow:var(--e-2);border-color:var(--leaf2);}
+.match .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.match .nm{font-family:var(--display);font-weight:600;font-size:16px;}
+.match .price{font-family:var(--mono);font-weight:600;color:var(--green);font-size:15px;}
+.match .sub{font-size:13px;color:var(--gray);margin:4px 0 10px;}
+.match .meta{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* Agent trace pipeline */
+.pipe{display:flex;flex-direction:column;gap:0;}
+.pstep{display:flex;gap:16px;position:relative;padding-bottom:26px;}
+.pstep:last-child{padding-bottom:0;}
+.pstep .rail{position:relative;display:flex;flex-direction:column;align-items:center;}
+.pstep .node{width:38px;height:38px;border-radius:50%;background:var(--cream-2);border:2px solid var(--line);display:grid;place-items:center;font-size:16px;flex:none;z-index:2;transition:all var(--dur-3) var(--ease-spring);}
+.pstep:not(:last-child) .rail::after{content:"";position:absolute;top:38px;bottom:-4px;width:2px;background:var(--line);}
+.pstep.done .node{background:var(--green);border-color:var(--green);color:#fff;transform:scale(1.05);}
+.pstep.active .node{background:var(--gold);border-color:var(--gold);color:var(--green-ink);box-shadow:0 0 0 6px rgba(224,166,46,.22);animation:pulse 1.6s var(--ease-io) infinite;}
+.pstep.done:not(:last-child) .rail::after{background:var(--leaf2);}
+.pstep .txt .h{font-family:var(--display);font-weight:600;font-size:15px;}
+.pstep .txt .d{font-size:13px;color:var(--gray);}
+.pstep .txt .stat{font-family:var(--mono);font-size:11px;color:var(--gold-deep);margin-top:3px;opacity:0;transition:opacity var(--dur-2);}
+.pstep.done .txt .stat,.pstep.active .txt .stat{opacity:1;}
+
+/* Dispatch route */
+.dispatch{background:var(--green);color:#fff;border-radius:var(--r-lg);padding:24px;box-shadow:var(--e-3);position:relative;overflow:hidden;}
+.dispatch::before{content:"";position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(224,166,46,.4),transparent 70%);}
+.dispatch .eyebrow{color:var(--gold);}
+.dispatch .route{display:flex;align-items:center;gap:12px;margin:18px 0;}
+.dispatch .stop{text-align:center;}
+.dispatch .stop .p{font-family:var(--display);font-weight:700;font-size:17px;}
+.dispatch .stop .s{font-family:var(--mono);font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.1em;}
+.dispatch .dline{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--gold) 0 8px,transparent 8px 14px);position:relative;}
+.dispatch .dline::after{content:"🚚";position:absolute;top:50%;left:0;transform:translate(-50%,-55%);animation:drive 4s linear infinite;}
+
+/* ============================================================
+   DATA VIZ
+   ============================================================ */
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;box-shadow:var(--e-1);position:relative;overflow:hidden;}
+.stat .n{font-family:var(--display);font-weight:800;font-size:clamp(38px,5vw,56px);letter-spacing:-.04em;background:var(--harvest);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+.stat .l{font-size:14px;color:var(--gray);margin-top:8px;}
+.stat .src{font-family:var(--mono);font-size:10px;color:var(--gold-deep);margin-top:10px;letter-spacing:.06em;}
+.bars{display:flex;flex-direction:column;gap:14px;}
+.bar-row .lbl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.bar-row .lbl b{font-family:var(--mono);color:var(--green);}
+.bar-track{height:12px;border-radius:var(--r-pill);background:var(--cream-2);overflow:hidden;}
+.bar-track .bf{height:100%;width:0;border-radius:var(--r-pill);background:var(--harvest);transition:width 1.3s var(--ease-out);}
+.spark{display:block;width:100%;height:56px;}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.table-wrap{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--paper);}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+thead th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);padding:14px 18px;background:var(--cream);border-bottom:1px solid var(--line);}
+tbody td{padding:14px 18px;border-bottom:1px solid var(--line-2);}
+tbody tr{transition:background var(--dur-1);}
+tbody tr:hover{background:var(--green-100);}
+tbody tr:last-child td{border-bottom:none;}
+
+/* ============================================================
+   OVERLAYS
+   ============================================================ */
+.toast-host{position:fixed;bottom:24px;right:24px;z-index:120;display:flex;flex-direction:column;gap:10px;}
+.toast{display:flex;align-items:center;gap:12px;background:var(--black);color:#fff;padding:14px 18px;border-radius:var(--r-md);box-shadow:var(--e-3);font-size:14px;transform:translateX(140%);opacity:0;transition:transform var(--dur-3) var(--ease-spring),opacity var(--dur-2);}
+.toast.show{transform:none;opacity:1;}
+.toast .ic{width:26px;height:26px;border-radius:50%;background:var(--leaf2);display:grid;place-items:center;flex:none;}
+
+.modal-scrim{position:fixed;inset:0;z-index:110;background:rgba(10,26,18,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity var(--dur-2);}
+.modal-scrim.open{opacity:1;pointer-events:auto;}
+.modal{background:var(--paper);border-radius:var(--r-lg);max-width:440px;width:100%;padding:30px;box-shadow:var(--e-3);transform:scale(.92) translateY(14px);transition:transform var(--dur-3) var(--ease-spring);}
+.modal-scrim.open .modal{transform:none;}
+.modal h3{font-size:24px;margin-bottom:10px;}
+.modal .close{position:absolute;}
+
+/* tooltip */
+.tip{position:relative;display:inline-flex;border-bottom:1.5px dashed var(--gold-deep);cursor:help;font-weight:600;color:var(--green);}
+.tip .bubble{position:absolute;bottom:135%;left:50%;transform:translateX(-50%) translateY(6px);background:var(--black);color:#fff;font-size:12.5px;font-weight:400;padding:9px 13px;border-radius:var(--r-xs);white-space:nowrap;opacity:0;pointer-events:none;transition:all var(--dur-2) var(--ease-spring);box-shadow:var(--e-2);}
+.tip .bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--black);}
+.tip:hover .bubble{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ============================================================
+   LOADING / EMPTY STATES
+   ============================================================ */
+.skeleton{background:linear-gradient(100deg,var(--cream-2) 30%,#f4f1e6 50%,var(--cream-2) 70%);background-size:220% 100%;animation:sk 1.4s ease infinite;border-radius:var(--r-xs);}
+@keyframes sk{0%{background-position:120% 0;}100%{background-position:-120% 0;}}
+.spinner{width:40px;height:40px;border-radius:50%;border:4px solid var(--cream-2);border-top-color:var(--green);animation:spin .8s linear infinite;}
+.leaf-loader{width:44px;height:44px;animation:spin 1.6s var(--ease-io) infinite;}
+.empty{text-align:center;padding:44px 20px;border:1.5px dashed var(--line);border-radius:var(--r-md);}
+.empty .em{font-size:44px;display:block;margin-bottom:12px;animation:float 5s var(--ease-io) infinite;}
+.empty .h{font-family:var(--display);font-weight:600;font-size:18px;color:var(--green);}
+.progress{height:8px;border-radius:var(--r-pill);background:var(--cream-2);overflow:hidden;}
+.progress .pf{height:100%;background:var(--harvest);border-radius:var(--r-pill);animation:indeter 1.6s var(--ease-io) infinite;}
+@keyframes indeter{0%{margin-left:-40%;width:40%;}100%{margin-left:100%;width:40%;}}
+
+/* tilt card */
+.tilt{transition:transform var(--dur-2) var(--ease-out);transform-style:preserve-3d;will-change:transform;}
+.tilt .glow{position:absolute;inset:0;border-radius:inherit;background:radial-gradient(320px circle at var(--gx,50%) var(--gy,50%),rgba(224,166,46,.18),transparent 60%);opacity:0;transition:opacity var(--dur-2);pointer-events:none;}
+.tilt:hover .glow{opacity:1;}
+
+/* marquee */
+.marquee{overflow:hidden;border-block:1px solid var(--line);padding:16px 0;background:var(--green);}
+.marquee .track{display:flex;gap:40px;white-space:nowrap;animation:scrollx 22s linear infinite;width:max-content;}
+.marquee .track span{font-family:var(--display);font-weight:600;font-size:22px;color:rgba(255,255,255,.9);display:inline-flex;align-items:center;gap:14px;}
+.marquee .track span::after{content:"·";color:var(--gold);}
+
+/* ---------- KEYFRAMES ---------- */
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,168,78,.35);}50%{box-shadow:0 0 0 8px rgba(79,168,78,0);}}
+@keyframes shimmer{0%{background-position:0% 0;}50%{background-position:100% 0;}100%{background-position:0% 0;}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-18px) rotate(3deg);}}
+@keyframes drive{0%{left:0;}100%{left:100%;}}
+@keyframes scrollx{to{transform:translateX(-50%);}}
+
+/* footer */
+.foot{padding:70px 0 90px;border-top:1px solid var(--line);text-align:center;}
+.foot svg{width:48px;height:48px;}
+.foot p{color:var(--gray);font-size:14px;margin-top:14px;}
+
+/* section anchor label */
+.anchor-tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold-deep);text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<!-- ===== SVG DEFS: the Node-Leaf mark ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <clipPath id="lfc"><path d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/></clipPath>
+  <symbol id="leaf" viewBox="0 0 512 512">
+    <path style="fill:var(--l1,#8CC63F)" d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/>
+    <g clip-path="url(#lfc)"><path style="fill:var(--l2,#4FA84E)" d="M212,58 L520,58 L520,520 L332,470 Z"/></g>
+    <g style="stroke:var(--net,#E0A62E)" stroke-width="5" stroke-linecap="round" fill="none">
+      <path d="M256,120 L312,172 M256,120 L206,214 M256,120 L256,68 M312,172 L298,252 M206,214 L298,252 M206,214 L226,300 M298,252 L312,318 M226,300 L312,318 M312,172 L352,150 M206,214 L168,232"/>
+    </g>
+    <g style="fill:var(--net,#E0A62E)">
+      <circle cx="256" cy="120" r="8"/><circle cx="312" cy="172" r="8"/><circle cx="206" cy="214" r="8"/>
+      <circle cx="298" cy="252" r="8"/><circle cx="226" cy="300" r="7"/><circle cx="312" cy="318" r="7"/>
+    </g>
+    <path style="fill:var(--mtn,#17572F);stroke:var(--edge,#FBFAF4);stroke-width:4" d="M188,386 L256,300 L324,386 Z"/>
+    <path style="fill:var(--peak,#E0A62E)" d="M256,300 L244,326 L256,318 L268,326 Z"/>
+  </symbol>
+</svg>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="wrap">
+    <div class="brand"><svg viewBox="0 0 512 512"><use href="#leaf"/></svg> Ani</div>
+    <div class="links">
+      <a href="#foundations">Foundations</a>
+      <a href="#buttons">Buttons</a>
+      <a href="#forms">Forms</a>
+      <a href="#components">Components</a>
+      <a href="#harvest">Harvest UI</a>
+      <a href="#motion">Motion</a>
+    </div>
+    <a href="#harvest" class="btn sm gold sheen magnetic">See it live <span class="ico arrow">→</span></a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <canvas id="net-canvas"></canvas>
+  <svg class="floatleaf" viewBox="0 0 512 512"><use href="#leaf"/></svg>
+  <div class="wrap">
+    <span class="kicker" data-reveal><span class="dot"></span> Ani Design Language · v1 · AMD Hackathon</span>
+    <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
+    <p class="lead" data-reveal class="d1">The complete UI kitchen sink for Ani — every token, component, state, and animation that makes the harvest feel alive on screen. Organic, editorial, and unmistakably ours.</p>
+    <div class="cta-row" data-reveal class="d2">
+      <a href="#harvest" class="btn lg sheen magnetic">Explore the system <span class="ico arrow">→</span></a>
+      <a href="#foundations" class="btn lg secondary magnetic">Foundations</a>
+    </div>
+    <div class="meta" data-reveal class="d3">
+      <div class="m"><div class="n" data-count="80" data-suffix="%">0%</div><div class="l">of NCR veg from Benguet</div></div>
+      <div class="m"><div class="n" data-count="50" data-suffix="%">0%</div><div class="l">harvest lost to timing</div></div>
+      <div class="m"><div class="n" data-count="192" data-suffix="GB">0</div><div class="l">one MI300X, all agents</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MARQUEE ===== -->
+<div class="marquee">
+  <div class="track">
+    <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
+    <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
+  </div>
+</div>
+
+<!-- ===== FOUNDATIONS ===== -->
+<section class="block" id="foundations">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">01 — Foundations</span>
+      <h2>The building blocks</h2>
+      <p>Color, type, spacing, radius, elevation, and motion. Everything else is assembled from these. Click a swatch to copy its hex.</p>
+    </div>
+
+    <div class="subhead" data-reveal>Color · lead with green, spark with gold</div>
+    <div class="swatches" data-reveal>
+      <div class="swatch" data-hex="#14663B"><div class="chip" style="background:#14663B"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Highland Green</div><div class="hex">#14663B</div></div></div>
+      <div class="swatch" data-hex="#0E3F23"><div class="chip" style="background:#0E3F23"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Deep Forest</div><div class="hex">#0E3F23</div></div></div>
+      <div class="swatch" data-hex="#8CC63F"><div class="chip" style="background:#8CC63F"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Leaf Green</div><div class="hex">#8CC63F</div></div></div>
+      <div class="swatch" data-hex="#4FA84E"><div class="chip" style="background:#4FA84E"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Grove Green</div><div class="hex">#4FA84E</div></div></div>
+      <div class="swatch" data-hex="#E0A62E"><div class="chip" style="background:#E0A62E"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Harvest Gold</div><div class="hex">#E0A62E</div></div></div>
+      <div class="swatch" data-hex="#F4F2EA"><div class="chip" style="background:#F4F2EA;border-bottom:1px solid var(--line)"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Field Cream</div><div class="hex">#F4F2EA</div></div></div>
+      <div class="swatch" data-hex="#101A15"><div class="chip" style="background:#101A15"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Field Black</div><div class="hex">#101A15</div></div></div>
+      <div class="swatch" data-hex="#E7F3DF"><div class="chip" style="background:#E7F3DF;border-bottom:1px solid var(--line)"><span class="copied">Copied ✓</span></div><div class="info"><div class="name">Green Wash</div><div class="hex">#E7F3DF</div></div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:40px;align-items:start">
+      <div data-reveal>
+        <div class="subhead">The harvest gradient · hero motif</div>
+        <div class="grad-strip"></div>
+        <div class="grad-legend"><small>Fresh #8CC63F</small><small>Growing #4FA84E</small><small>Harvest #E0A62E</small></div>
+        <p class="muted" style="font-size:13.5px;margin-top:14px">Reserved for hero moments, freshness meters, and data. Leaf green ripening into gold — never rebuild the logo with it.</p>
+      </div>
+      <div data-reveal class="d1">
+        <div class="subhead">Motion · easing tokens</div>
+        <div class="ease-grid">
+          <div class="ease-card"><div class="ease-track"><div class="ease-ball" data-ease="cubic-bezier(.16,1,.3,1)"></div></div><div class="nm">--ease-out</div></div>
+          <div class="ease-card"><div class="ease-track"><div class="ease-ball" data-ease="cubic-bezier(.34,1.56,.64,1)"></div></div><div class="nm">--ease-spring</div></div>
+          <div class="ease-card"><div class="ease-track"><div class="ease-ball" data-ease="cubic-bezier(.65,0,.35,1)"></div></div><div class="nm">--ease-io</div></div>
+        </div>
+        <p class="muted" style="font-size:13.5px;margin-top:14px">Spring for playful entrances, ease-out for reveals, io for continuous loops. Hover a track to replay.</p>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:40px;align-items:start">
+      <div class="panel" data-reveal>
+        <div class="subhead">Type scale · Poppins display / Inter body</div>
+        <div class="type-row"><span class="s" style="font-size:44px;font-weight:700">Harvest, delivered</span><span class="lab">Display 700 / -5%</span></div>
+        <div class="type-row"><span class="s" style="font-size:30px;font-weight:600">Grade A pechay</span><span class="lab">H2 600</span></div>
+        <div class="type-row"><span class="s" style="font-size:21px;font-weight:600">Best sold in Divisoria</span><span class="lab">H3 600</span></div>
+        <div class="type-row"><span class="s" style="font-family:var(--body);font-size:16px;font-weight:400">Body copy for the app — clear, calm, human.</span><span class="lab">Body / Inter</span></div>
+        <div class="type-row"><span class="s mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)">Label · overline · meta</span><span class="lab">Mono caps</span></div>
+      </div>
+      <div class="panel" data-reveal class="d1">
+        <div class="subhead">Spacing · 4pt scale</div>
+        <div class="scale-list">
+          <div class="scale-item"><div class="bar" style="width:4px"></div><span class="tag">--s-1 · 4</span></div>
+          <div class="scale-item"><div class="bar" style="width:8px"></div><span class="tag">--s-2 · 8</span></div>
+          <div class="scale-item"><div class="bar" style="width:16px"></div><span class="tag">--s-4 · 16</span></div>
+          <div class="scale-item"><div class="bar" style="width:24px"></div><span class="tag">--s-5 · 24</span></div>
+          <div class="scale-item"><div class="bar" style="width:48px"></div><span class="tag">--s-7 · 48</span></div>
+          <div class="scale-item"><div class="bar" style="width:96px"></div><span class="tag">--s-9 · 96</span></div>
+        </div>
+        <div class="subhead" style="margin-top:22px">Radius &amp; elevation</div>
+        <div class="radii-row">
+          <div class="radii-box" style="border-radius:8px"><span>xs 8</span></div>
+          <div class="radii-box" style="border-radius:16px"><span>md 16</span></div>
+          <div class="radii-box" style="border-radius:22px"><span>lg 22</span></div>
+          <div class="radii-box" style="border-radius:30px"><span>xl 30</span></div>
+        </div>
+        <div class="elev-row" style="margin-top:16px">
+          <div class="elev-box" style="box-shadow:var(--e-1)">e-1</div>
+          <div class="elev-box" style="box-shadow:var(--e-2)">e-2</div>
+          <div class="elev-box" style="box-shadow:var(--e-3)">e-3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BUTTONS ===== -->
+<section class="block" id="buttons">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">02 — Buttons</span>
+      <h2>Actions with weight</h2>
+      <p>Pill buttons that spring on press and drift toward the cursor. Primary greens carry intent; gold is reserved for the single most valuable action on a screen.</p>
+    </div>
+    <div class="panel" data-reveal>
+      <div class="subhead">Variants</div>
+      <div class="row">
+        <button class="btn magnetic sheen">Plan dispatch <span class="ico arrow">→</span></button>
+        <button class="btn secondary magnetic">Secondary</button>
+        <button class="btn gold magnetic sheen">Sell now <span class="ico">↗</span></button>
+        <button class="btn dark magnetic">Dark</button>
+        <button class="btn ghost magnetic">Ghost</button>
+        <button class="btn icon magnetic" aria-label="camera">📷</button>
+      </div>
+      <div class="subhead" style="margin-top:26px">Sizes &amp; states</div>
+      <div class="row">
+        <button class="btn sm magnetic">Small</button>
+        <button class="btn magnetic">Default</button>
+        <button class="btn lg magnetic">Large</button>
+        <button class="btn is-disabled">Disabled</button>
+        <button class="btn" id="loadBtn">Click to load</button>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:20px">Hover any button and move the cursor around it — the magnetic pull and arrow nudge are the signature micro-interaction.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FORMS ===== -->
+<section class="block" id="forms">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">03 — Forms &amp; inputs</span>
+      <h2>Every control, in voice</h2>
+      <p>Inputs breathe on focus with a soft green ring. Checkboxes draw themselves. The upload zone is where a farmer's harvest photo enters Ani — so it gets the most personality.</p>
+    </div>
+    <div class="grid g2" data-reveal>
+      <div class="panel">
+        <div class="subhead">Text · select · search</div>
+        <div class="field"><label>Farmer / co-op name</label><input class="input" placeholder="e.g. La Trinidad Growers"></div>
+        <div class="field"><label>Crop</label>
+          <select class="select"><option>Pechay</option><option>Cabbage</option><option>Carrots</option><option>Broccoli</option></select>
+        </div>
+        <div class="field"><label>Search markets</label>
+          <div class="search"><span class="ico">⌕</span><input class="input" placeholder="Divisoria, Balintawak…"></div>
+        </div>
+        <div class="field"><label>Volume (kg)</label><input class="input error" value="-40"><div class="help err">Volume must be a positive number.</div></div>
+        <div class="field" style="margin:0"><label>Notes</label><textarea class="textarea" placeholder="Anything the buyer should know…"></textarea></div>
+      </div>
+      <div class="panel">
+        <div class="subhead">Choice controls</div>
+        <label class="check"><input type="checkbox" checked><span class="box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></span> Prioritize most-perishable loads</label>
+        <label class="check"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></span> Notify me on price surges</label>
+        <div style="height:8px"></div>
+        <label class="check radio"><input type="radio" name="mkt" checked><span class="box"></span> Sell at best price</label>
+        <label class="check radio"><input type="radio" name="mkt"><span class="box"></span> Sell fastest</label>
+        <div style="height:14px"></div>
+        <div class="row" style="justify-content:space-between"><span style="font-size:14.5px;font-weight:600;color:var(--green-deep)">Offline mode (on-prem)</span>
+          <label class="toggle"><input type="checkbox" checked><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div style="margin-top:20px"><label style="font-size:13px;font-weight:600;color:var(--green-deep);display:block;margin-bottom:10px">Freshness threshold</label>
+          <div class="slider" id="slider"><div class="fill"></div><div class="thumb"></div></div>
+        </div>
+        <div class="subhead" style="margin-top:26px">Harvest photo upload</div>
+        <div class="drop" id="drop">
+          <span class="leafico">🌿</span>
+          <div class="big">Drop your harvest photo</div>
+          <div class="muted" style="font-size:13px">or tap to capture · JPG/PNG · graded on-device</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BADGES / CHIPS / COMPONENTS ===== -->
+<section class="block" id="components">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">04 — Badges, chips, tables &amp; overlays</span>
+      <h2>The connective tissue</h2>
+      <p>Small pieces that carry status and meaning across the product — grades, price trends, filters, and the surfaces they live in.</p>
+    </div>
+
+    <div class="grid g2" data-reveal>
+      <div class="panel">
+        <div class="subhead">Badges &amp; grades</div>
+        <div class="row">
+          <span class="badge grade">Grade A</span>
+          <span class="badge green">Verified fresh</span>
+          <span class="badge gold">Sell now</span>
+          <span class="badge soft">Benguet</span>
+          <span class="badge ok"><span class="d"></span> Matched</span>
+          <span class="badge warn"><span class="d"></span> 3 days left</span>
+          <span class="badge danger"><span class="d"></span> Spoiling</span>
+          <span class="badge green live"><span class="d"></span> Live demand</span>
+        </div>
+        <div class="subhead" style="margin-top:24px">Filter chips</div>
+        <div class="row">
+          <span class="chip active">All crops</span>
+          <span class="chip">Pechay</span>
+          <span class="chip">Cabbage</span>
+          <span class="chip">Grade A only <span class="x">×</span></span>
+        </div>
+        <div class="subhead" style="margin-top:24px">Price-trend tags</div>
+        <div class="row">
+          <span class="tag surging">▲ Surging</span>
+          <span class="tag rising">▲ Rising</span>
+          <span class="tag stable">– Stable</span>
+          <span class="tag first">★ First match</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="subhead">Overlays &amp; helpers</div>
+        <div class="row" style="margin-bottom:18px">
+          <button class="btn magnetic" id="modalBtn">Open modal</button>
+          <button class="btn secondary magnetic" id="toastBtn">Fire toast</button>
+        </div>
+        <p style="font-size:14.5px">Hover this <span class="tip">spoilage score<span class="bubble">0–100 · higher = sell sooner</span></span> to see a tooltip. It's how Ani explains its AI without a glossary.</p>
+        <div class="subhead" style="margin-top:24px">Table · live market feed</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Market</th><th>Crop</th><th>Price</th><th>Trend</th></tr></thead>
+            <tbody>
+              <tr><td>Divisoria</td><td>Pechay</td><td class="mono">₱42/kg</td><td><span class="tag surging">▲</span></td></tr>
+              <tr><td>Balintawak</td><td>Cabbage</td><td class="mono">₱18/kg</td><td><span class="tag stable">–</span></td></tr>
+              <tr><td>Nepa Q-Mart</td><td>Carrots</td><td class="mono">₱55/kg</td><td><span class="tag rising">▲</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="subhead" style="margin-top:40px" data-reveal>Loading &amp; empty states</div>
+    <div class="grid g4" data-reveal>
+      <div class="panel"><div class="skeleton" style="height:14px;width:70%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:100%;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:45%"></div><div style="font-size:12px;color:var(--gray);margin-top:14px" class="mono">skeleton</div></div>
+      <div class="panel" style="display:flex;flex-direction:column;align-items:center;gap:14px"><div class="spinner"></div><svg class="leaf-loader" viewBox="0 0 512 512"><use href="#leaf"/></svg><div class="mono" style="font-size:12px;color:var(--gray)">spinner · leaf</div></div>
+      <div class="panel"><div class="mono" style="font-size:12px;color:var(--gray);margin-bottom:12px">progress</div><div class="progress"><div class="pf"></div></div><div style="height:14px"></div><div class="progress"><div class="pf" style="width:64%;animation:none"></div></div></div>
+      <div class="empty"><span class="em">🧺</span><div class="h">No harvests yet</div><div class="muted" style="font-size:13px;margin-top:4px">Snap a photo to begin</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HARVEST-SPECIFIC UI ===== -->
+<section class="block" id="harvest">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">05 — Harvest UI · the signature components</span>
+      <h2>Where Ani comes alive</h2>
+      <p>The components no other product has: a grade card, a living freshness meter, a demand-match feed, the three-agent trace, and a dispatch route. This is the heart of the brand on screen.</p>
+    </div>
+
+    <div class="grid g3" data-reveal style="align-items:start">
+      <!-- Grade card -->
+      <div class="grade-card tilt"><div class="glow"></div>
+        <div class="grade-photo"><span class="badge green live live"><span class="d"></span> graded on MI300X</span></div>
+        <div class="grade-body">
+          <div class="grade-head">
+            <div class="grade-score"><div class="num">92</div><div class="cap">score</div></div>
+            <div><div class="t">Pechay · <span class="badge grade">Grade A</span></div><div class="muted" style="font-size:13px">Crisp, tight leaves · minimal wilt</div></div>
+          </div>
+          <div class="suggestion">"Best sold in Divisoria by Thursday — demand is surging and your grade commands top price."</div>
+        </div>
+      </div>
+
+      <!-- Freshness meter -->
+      <div class="fresh tilt"><div class="glow"></div>
+        <div class="top"><div class="subhead" style="margin:0">Freshness window</div><div class="win">3 days</div></div>
+        <div class="fresh-meter"><div class="val" data-fill="72"></div></div>
+        <div class="ticks"><small>Fresh</small><small>Ripe</small><small>Sell now</small><small>Spoil</small></div>
+        <p class="muted" style="font-size:13px;margin-top:14px">The gradient fill is the spoilage clock — green when there's time, gold when it's time to move.</p>
+      </div>
+
+      <!-- Dispatch -->
+      <div class="dispatch">
+        <span class="eyebrow">Dispatch plan</span>
+        <h3 style="color:#fff;font-size:22px;margin-top:8px">Most-perishable first</h3>
+        <div class="route">
+          <div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div>
+          <div class="dline"></div>
+          <div class="stop"><div class="p">Divisoria</div><div class="s">6h · 42/kg</div></div>
+        </div>
+        <div class="row"><span class="badge gold">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
+      </div>
+    </div>
+
+    <div class="grid g2" data-reveal style="margin-top:24px;align-items:start">
+      <!-- Match feed -->
+      <div class="panel">
+        <div class="subhead">Demand-match feed</div>
+        <div class="match">
+          <div class="top"><span class="nm">SM Supermalls commissary</span><span class="price">₱44/kg</span></div>
+          <div class="sub">Divisoria · needs 800kg Grade A pechay by Thu</div>
+          <div class="meta"><span class="tag first">★ First match</span><span class="tag surging">▲ Surging</span><span class="badge ok" style="font-size:11px"><span class="d"></span> 96% fit</span></div>
+        </div>
+        <div class="match">
+          <div class="top"><span class="nm">Balintawak wholesaler</span><span class="price">₱38/kg</span></div>
+          <div class="sub">Balintawak · flexible volume · pays on pickup</div>
+          <div class="meta"><span class="tag rising">▲ Rising</span><span class="badge soft" style="font-size:11px">88% fit</span></div>
+        </div>
+        <div class="match" style="margin-bottom:0">
+          <div class="top"><span class="nm">Hotel group (QSR)</span><span class="price">₱41/kg</span></div>
+          <div class="sub">Makati · recurring weekly order</div>
+          <div class="meta"><span class="tag stable">– Stable</span><span class="badge soft" style="font-size:11px">81% fit</span></div>
+        </div>
+      </div>
+
+      <!-- Agent trace -->
+      <div class="panel">
+        <div class="subhead">Agent trace · three models, one MI300X</div>
+        <div class="pipe" id="pipe">
+          <div class="pstep" data-step="0"><div class="rail"><div class="node">📸</div></div><div class="txt"><div class="h">Harvest Grader</div><div class="d">Fine-tuned Gemma vision reads the photo.</div><div class="stat">→ Grade A · 92 · 0.4s</div></div></div>
+          <div class="pstep" data-step="1"><div class="rail"><div class="node">📊</div></div><div class="txt"><div class="h">Demand &amp; Price Oracle</div><div class="d">Matches grade to live NCR market demand.</div><div class="stat">→ 3 buyers · ₱44/kg peak</div></div></div>
+          <div class="pstep" data-step="2"><div class="rail"><div class="node">🚚</div></div><div class="txt"><div class="h">Logistics Router</div><div class="d">Sequences dispatch, most-perishable first.</div><div class="stat">→ La Trinidad → Divisoria · 6h</div></div></div>
+        </div>
+        <button class="btn sm secondary magnetic" id="runPipe" style="margin-top:18px">Replay trace ↻</button>
+      </div>
+    </div>
+
+    <!-- stats -->
+    <div class="subhead" style="margin-top:44px" data-reveal>Data viz · numbers that persuade</div>
+    <div class="grid g3" data-reveal>
+      <div class="stat"><div class="n" data-count="80" data-suffix="%">0</div><div class="l">of Metro Manila's veg grown in Benguet</div><div class="src">SRC: WowCordillera / GMA</div></div>
+      <div class="stat"><div class="n" data-count="42" data-suffix="%">0</div><div class="l">of vegetables lost across the chain</div><div class="src">SRC: DA · FAO research</div></div>
+      <div class="stat"><div class="n" data-count="4" data-prefix="₱">0</div><div class="l">per kilo — cabbage dumped below cost</div><div class="src">SRC: Rappler / Nordis 2026</div></div>
+    </div>
+    <div class="panel" data-reveal style="margin-top:24px">
+      <div class="subhead">Loss reduction — before vs after Ani (simulated)</div>
+      <div class="bars">
+        <div class="bar-row"><div class="lbl"><span>Baseline waste</span><b>42%</b></div><div class="bar-track"><div class="bf" data-w="42"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>With Ani matching</span><b>17%</b></div><div class="bar-track"><div class="bf" data-w="17"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Farmer income recovered</span><b>+31%</b></div><div class="bar-track"><div class="bf" data-w="31"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MOTION ===== -->
+<section class="block" id="motion">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">06 — Motion principles</span>
+      <h2>Motion means growth</h2>
+      <p>Every animation ties back to one idea: things that are alive move. Reveals rise like sprouts, numbers count up like a harvest tally, gradients ripen, and the node-network in the hero breathes.</p>
+    </div>
+    <div class="grid g3" data-reveal>
+      <div class="panel"><div class="subhead">Reveal on scroll</div><p class="muted" style="font-size:14px">Content rises 26px and fades in with a staggered delay. Uses <code class="mono">IntersectionObserver</code>; respects <code class="mono">prefers-reduced-motion</code>.</p></div>
+      <div class="panel"><div class="subhead">Magnetic + spring</div><p class="muted" style="font-size:14px">Buttons drift toward the cursor and spring back on release. Playful, tactile, never sluggish.</p></div>
+      <div class="panel"><div class="subhead">Living gradient</div><p class="muted" style="font-size:14px">The harvest gradient slowly shifts position, so freshness meters and hero text feel warm and alive rather than static.</p></div>
+    </div>
+    <p class="muted" data-reveal style="margin-top:24px;font-size:14px">Accessibility: all motion is disabled automatically when the user prefers reduced motion. Color contrast follows the brand book — white/cream on green and black on cream both clear WCAG AA.</p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="foot">
+  <div class="wrap">
+    <svg viewBox="0 0 512 512"><use href="#leaf"/></svg>
+    <p>Ani UI Kitchen Sink · Design language v1 · Built for the AMD Developer Hackathon — ACT II, Track 3.<br>Benguet won't have to dump another harvest. Ani sells it — before it spoils.</p>
+  </div>
+</footer>
+
+<!-- ===== OVERLAY HOSTS ===== -->
+<div class="modal-scrim" id="scrim">
+  <div class="modal">
+    <h3>Confirm dispatch</h3>
+    <p class="muted" style="font-size:14.5px">Send 1.2 tons of Grade A pechay to the SM commissary in Divisoria, most-perishable first. ETA 6 hours.</p>
+    <div class="row" style="margin-top:22px;justify-content:flex-end">
+      <button class="btn ghost magnetic" data-close>Cancel</button>
+      <button class="btn gold magnetic sheen" data-close>Confirm · Sell now</button>
+    </div>
+  </div>
+</div>
+<div class="toast-host" id="toastHost"></div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Reveal on scroll ---------- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.12});
+  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
+
+  /* ---------- Count-up ---------- */
+  function countUp(el){
+    var target = parseFloat(el.dataset.count), pre = el.dataset.prefix||'', suf = el.dataset.suffix||'';
+    if(reduce){ el.textContent = pre+target+suf; return; }
+    var start = performance.now(), dur = 1400;
+    function tick(now){
+      var p = Math.min((now-start)/dur,1), eased = 1-Math.pow(1-p,3);
+      el.textContent = pre + Math.round(eased*target) + suf;
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  var countObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); countObs.unobserve(e.target); } });
+  }, {threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(function(el){ countObs.observe(el); });
+
+  /* ---------- Bar / meter fills ---------- */
+  var fillObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var el = e.target;
+        if(el.dataset.w!=null) el.style.width = el.dataset.w+'%';
+        if(el.dataset.fill!=null) el.style.width = el.dataset.fill+'%';
+        fillObs.unobserve(el);
+      }
+    });
+  }, {threshold:.4});
+  document.querySelectorAll('[data-w],[data-fill]').forEach(function(el){ fillObs.observe(el); });
+
+  /* ---------- Magnetic buttons ---------- */
+  if(!reduce){
+    document.querySelectorAll('.magnetic').forEach(function(btn){
+      btn.addEventListener('pointermove', function(ev){
+        var r = btn.getBoundingClientRect();
+        var mx = (ev.clientX - r.left - r.width/2) * .3;
+        var my = (ev.clientY - r.top - r.height/2) * .4;
+        btn.style.setProperty('--mx', mx+'px');
+        btn.style.setProperty('--my', my+'px');
+      });
+      btn.addEventListener('pointerleave', function(){
+        btn.style.setProperty('--mx','0px'); btn.style.setProperty('--my','0px');
+      });
+    });
+  }
+
+  /* ---------- Card tilt + glow ---------- */
+  if(!reduce){
+    document.querySelectorAll('.tilt').forEach(function(card){
+      card.style.position = 'relative';
+      card.addEventListener('pointermove', function(ev){
+        var r = card.getBoundingClientRect();
+        var px = (ev.clientX - r.left)/r.width, py = (ev.clientY - r.top)/r.height;
+        card.style.transform = 'perspective(800px) rotateY('+((px-.5)*6)+'deg) rotateX('+((.5-py)*6)+'deg) translateZ(0)';
+        card.style.setProperty('--gx', (px*100)+'%'); card.style.setProperty('--gy', (py*100)+'%');
+      });
+      card.addEventListener('pointerleave', function(){ card.style.transform=''; });
+    });
+  }
+
+  /* ---------- Swatch copy ---------- */
+  document.querySelectorAll('.swatch').forEach(function(sw){
+    sw.addEventListener('click', function(){
+      var hex = sw.dataset.hex;
+      if(navigator.clipboard) navigator.clipboard.writeText(hex).catch(function(){});
+      sw.classList.add('copied');
+      setTimeout(function(){ sw.classList.remove('copied'); }, 900);
+    });
+  });
+
+  /* ---------- Easing demo replay ---------- */
+  document.querySelectorAll('.ease-card').forEach(function(card){
+    var ball = card.querySelector('.ease-ball'), ease = ball.dataset.ease;
+    function play(){
+      ball.style.transition='none'; ball.style.left='0';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        ball.style.transition='left 1s '+ease; ball.style.left='calc(100% - 18px)';
+      }); });
+    }
+    card.addEventListener('mouseenter', play);
+    setTimeout(play, 400);
+  });
+
+  /* ---------- Loading button ---------- */
+  var lb = document.getElementById('loadBtn');
+  if(lb) lb.addEventListener('click', function(){
+    lb.classList.add('loading');
+    setTimeout(function(){ lb.classList.remove('loading'); fireToast('Harvest graded — Grade A ✓'); }, 1600);
+  });
+
+  /* ---------- Slider ---------- */
+  var slider = document.getElementById('slider');
+  if(slider){
+    var fill = slider.querySelector('.fill'), thumb = slider.querySelector('.thumb'), dragging=false;
+    function setPct(clientX){
+      var r = slider.getBoundingClientRect();
+      var pct = Math.max(0,Math.min(1,(clientX-r.left)/r.width))*100;
+      fill.style.width = pct+'%'; thumb.style.left = pct+'%';
+    }
+    slider.addEventListener('pointerdown', function(e){ dragging=true; setPct(e.clientX); });
+    window.addEventListener('pointermove', function(e){ if(dragging) setPct(e.clientX); });
+    window.addEventListener('pointerup', function(){ dragging=false; });
+  }
+
+  /* ---------- Drop zone ---------- */
+  var drop = document.getElementById('drop');
+  if(drop){
+    ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('over'); }); });
+    ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
+    drop.addEventListener('drop', function(){ fireToast('Photo received — grading…'); });
+  }
+
+  /* ---------- Modal ---------- */
+  var scrim = document.getElementById('scrim');
+  document.getElementById('modalBtn').addEventListener('click', function(){ scrim.classList.add('open'); });
+  scrim.addEventListener('click', function(e){ if(e.target===scrim) scrim.classList.remove('open'); });
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', function(){ scrim.classList.remove('open'); }); });
+
+  /* ---------- Toast ---------- */
+  function fireToast(msg){
+    var host = document.getElementById('toastHost');
+    var t = document.createElement('div'); t.className='toast';
+    t.innerHTML = '<span class="ic">✓</span> '+msg;
+    host.appendChild(t);
+    requestAnimationFrame(function(){ t.classList.add('show'); });
+    setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 500); }, 3000);
+  }
+  window.fireToast = fireToast;
+  document.getElementById('toastBtn').addEventListener('click', function(){ fireToast('Matched to SM commissary · ₱44/kg'); });
+
+  /* ---------- Agent trace pipeline ---------- */
+  function runPipe(){
+    var steps = document.querySelectorAll('#pipe .pstep');
+    steps.forEach(function(s){ s.classList.remove('done','active'); });
+    var i=0;
+    (function next(){
+      if(i>0) steps[i-1].classList.remove('active'), steps[i-1].classList.add('done');
+      if(i<steps.length){ steps[i].classList.add('active'); i++; setTimeout(next, reduce?0:900); }
+    })();
+  }
+  var pipeObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ runPipe(); pipeObs.unobserve(e.target); } });
+  }, {threshold:.5});
+  var pipe = document.getElementById('pipe'); if(pipe) pipeObs.observe(pipe);
+  document.getElementById('runPipe').addEventListener('click', runPipe);
+
+  /* ---------- Hero node-network canvas ---------- */
+  var canvas = document.getElementById('net-canvas');
+  if(canvas && !reduce){
+    var ctx = canvas.getContext('2d'), W,H, dpr=Math.min(window.devicePixelRatio||1,2);
+    var pts=[], N=46, mouse={x:-999,y:-999};
+    function resize(){
+      var h = canvas.parentElement.getBoundingClientRect();
+      W = h.width; H = h.height;
+      canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    function init(){ pts=[]; for(var i=0;i<N;i++) pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}); }
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      for(var i=0;i<pts.length;i++){
+        var p=pts[i]; p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1;
+        for(var j=i+1;j<pts.length;j++){
+          var q=pts[j], dx=p.x-q.x, dy=p.y-q.y, d=Math.sqrt(dx*dx+dy*dy);
+          if(d<130){ ctx.strokeStyle='rgba(79,168,78,'+(1-d/130)*.28+')'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
+        }
+        var mdx=p.x-mouse.x, mdy=p.y-mouse.y, md=Math.sqrt(mdx*mdx+mdy*mdy);
+        var isGold = md<150;
+        ctx.fillStyle = isGold ? 'rgba(224,166,46,.9)' : 'rgba(20,102,59,.5)';
+        ctx.beginPath(); ctx.arc(p.x,p.y, isGold?3.4:2.2, 0, Math.PI*2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', function(){ resize(); init(); });
+    canvas.parentElement.addEventListener('pointermove', function(e){ var r=canvas.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top; });
+    canvas.parentElement.addEventListener('pointerleave', function(){ mouse.x=-999; mouse.y=-999; });
+    resize(); init(); draw();
+  }
+})();
+</script>
+</body>
+</html>

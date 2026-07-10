@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ani — The Living Harvest Engine · Tier 1→3 Showcase</title>
+<meta name="description" content="One photo grades a harvest, scores its spoilage urgency, and matches it to live Metro Manila demand — three AI agents on a single AMD MI300X. An interactive walkthrough of the whole stack.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================ ANI TOKENS (from docs/ui/kitchensink.html) ============================================================ */
+:root{
+  --green:#14663B;--green-deep:#0E3F23;--green-ink:#0A2A18;--leaf1:#8CC63F;--leaf2:#4FA84E;
+  --gold:#E0A62E;--gold-deep:#B67E10;--cream:#F4F2EA;--cream-2:#EDEADD;--paper:#FBFAF4;
+  --black:#101A15;--green-100:#E7F3DF;--gray:#5B6B62;--line:rgba(16,26,21,.10);--line-2:rgba(16,26,21,.06);
+  --danger:#C0342C;--danger-wash:#FBE7E5;--ok:#178A4E;--ok-wash:#E4F4EA;
+  --display:'Poppins','Century Gothic',Futura,ui-rounded,system-ui,sans-serif;
+  --body:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;
+  --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:22px;--r-xl:30px;--r-pill:999px;
+  --e-1:0 1px 2px rgba(16,26,21,.06);--e-2:0 6px 18px -8px rgba(16,26,21,.18);
+  --e-3:0 22px 48px -22px rgba(16,26,21,.34);--e-gold:0 12px 40px -12px rgba(224,166,46,.55);
+  --ease-out:cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--ease-io:cubic-bezier(.65,0,.35,1);
+  --dur-1:.16s;--dur-2:.32s;--dur-3:.6s;
+  --harvest:linear-gradient(100deg,var(--leaf1),var(--leaf2) 42%,var(--gold));
+  --harvest-soft:linear-gradient(120deg,#EAF5DE,#E7F0DB 45%,#F6E7C4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);color:var(--black);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.4;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");}
+::selection{background:var(--gold);color:var(--green-ink);}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;line-height:1.04;letter-spacing:-.03em;}
+.wrap{max-width:1200px;margin:0 auto;padding:0 32px;position:relative;z-index:2;}
+.mono{font-family:var(--mono);}
+.muted{color:var(--gray);}
+.eyebrow{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);}
+.grad{background:var(--harvest);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% 100%;animation:shimmer 6s ease infinite;}
+
+/* progress + nav */
+.scrollbar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--harvest);background-size:200% 100%;z-index:100;box-shadow:0 0 12px rgba(224,166,46,.5);}
+nav{position:sticky;top:0;z-index:60;background:rgba(244,242,234,.72);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line);}
+nav .wrap{display:flex;align-items:center;gap:26px;height:64px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-.03em;color:var(--green);margin-right:auto;}
+.brand svg{width:28px;height:28px;}
+nav .links{display:flex;gap:22px;}
+nav .links a{font-size:13px;color:var(--gray);text-decoration:none;font-weight:500;position:relative;padding:4px 0;transition:color var(--dur-1) var(--ease-out);}
+nav .links a::after{content:"";position:absolute;left:0;bottom:-2px;height:2px;width:0;background:var(--gold);transition:width var(--dur-2) var(--ease-out);}
+nav .links a:hover{color:var(--green);}nav .links a:hover::after{width:100%;}
+@media(max-width:960px){nav .links{display:none;}}
+
+/* buttons */
+.btn{--bg:var(--green);--fg:#fff;--bd:transparent;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:var(--body);font-weight:600;font-size:15px;line-height:1;padding:14px 22px;border-radius:var(--r-pill);border:1.5px solid var(--bd);background:var(--bg);color:var(--fg);cursor:pointer;text-decoration:none;transition:transform var(--dur-1) var(--ease-spring),box-shadow var(--dur-2) var(--ease-out),background var(--dur-2),color var(--dur-2);will-change:transform;}
+.btn:hover{box-shadow:var(--e-2);}.btn:active{transform:scale(.97);}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(20,102,59,.28);}
+.btn .ico{font-size:16px;transition:transform var(--dur-2) var(--ease-spring);}
+.btn:hover .ico.arrow{transform:translateX(4px);}
+.btn.secondary{--bg:transparent;--fg:var(--green);--bd:var(--green);}
+.btn.secondary:hover{--bg:var(--green-100);}
+.btn.gold{--bg:var(--gold);--fg:var(--green-ink);box-shadow:var(--e-gold);}
+.btn.sm{padding:9px 15px;font-size:13px;}.btn.lg{padding:17px 28px;font-size:16px;}
+.btn:disabled,.btn.is-disabled{opacity:.5;cursor:not-allowed;box-shadow:none;transform:none;}
+.magnetic{transform:translate(var(--mx,0),var(--my,0));}
+.btn.sheen{overflow:hidden;}
+.btn.sheen::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-18deg);transition:left .7s var(--ease-out);}
+.btn.sheen:hover::after{left:140%;}
+.btn.loading{color:transparent;pointer-events:none;}
+.btn.loading::before{content:"";position:absolute;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+
+/* hero */
+.hero{position:relative;padding:120px 0 90px;overflow:hidden;}
+.hero canvas{position:absolute;inset:0;z-index:0;opacity:.9;}
+.hero .wrap{z-index:3;}
+.floatleaf{position:absolute;right:-40px;top:70px;width:min(46vw,560px);z-index:1;opacity:.12;animation:float 11s var(--ease-io) infinite;}
+.kicker{display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--paper);box-shadow:var(--e-1);font-size:12.5px;font-weight:600;color:var(--green);margin-bottom:26px;}
+.kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--leaf2);box-shadow:0 0 0 4px rgba(79,168,78,.22);animation:pulse 2.4s var(--ease-io) infinite;}
+.hero h1{font-size:clamp(48px,8.5vw,108px);font-weight:700;letter-spacing:-.05em;line-height:.92;max-width:15ch;}
+.hero p.lead{font-size:clamp(18px,2.2vw,22px);color:#243a31;max-width:60ch;margin-top:24px;}
+.cta-row{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap;}
+.hero .meta{margin-top:58px;display:flex;gap:44px;flex-wrap:wrap;}
+.hero .meta .m .n{font-family:var(--display);font-weight:700;font-size:38px;color:var(--green);letter-spacing:-.03em;}
+.hero .meta .m .l{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);}
+.scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:4;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);display:flex;flex-direction:column;align-items:center;gap:8px;}
+.scrollcue .line{width:1px;height:34px;background:linear-gradient(var(--gold),transparent);animation:cue 2s var(--ease-io) infinite;}
+
+/* marquee */
+.marquee{overflow:hidden;border-block:1px solid var(--line);padding:15px 0;background:var(--green);}
+.marquee .track{display:flex;gap:40px;white-space:nowrap;animation:scrollx 24s linear infinite;width:max-content;}
+.marquee .track span{font-family:var(--display);font-weight:600;font-size:21px;color:rgba(255,255,255,.9);display:inline-flex;align-items:center;gap:14px;}
+.marquee .track span::after{content:"·";color:var(--gold);}
+
+/* sections */
+section.block{padding:96px 0;border-top:1px solid var(--line);position:relative;}
+.sec-head{margin-bottom:44px;max-width:64ch;}
+.sec-head h2{font-size:clamp(32px,4.6vw,54px);margin:14px 0 12px;}
+.sec-head p{font-size:18px;color:#25352d;}
+[data-reveal]{opacity:0;transform:translateY(28px);transition:opacity var(--dur-3) var(--ease-out),transform var(--dur-3) var(--ease-out);}
+[data-reveal].in{opacity:1;transform:none;}
+.d1{transition-delay:.07s;}.d2{transition-delay:.14s;}.d3{transition-delay:.21s;}.d4{transition-delay:.28s;}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}[data-reveal]{opacity:1;transform:none;}}
+.grid{display:grid;gap:20px;}.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px;box-shadow:var(--e-1);}
+.subhead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-bottom:16px;}
+
+/* stats + bars */
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px;box-shadow:var(--e-1);position:relative;overflow:hidden;}
+.stat::after{content:"";position:absolute;right:-20px;bottom:-20px;width:90px;height:90px;border-radius:50%;background:var(--harvest-soft);opacity:.5;}
+.stat .n{position:relative;font-family:var(--display);font-weight:800;font-size:clamp(40px,5vw,58px);letter-spacing:-.04em;background:var(--harvest);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+.stat .l{position:relative;font-size:14px;color:var(--gray);margin-top:8px;max-width:24ch;}
+.stat .src{position:relative;font-family:var(--mono);font-size:10px;color:var(--gold-deep);margin-top:12px;letter-spacing:.05em;}
+.bars{display:flex;flex-direction:column;gap:16px;}
+.bar-row .lbl{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:7px;}
+.bar-row .lbl b{font-family:var(--mono);color:var(--green);}
+.bar-track{height:13px;border-radius:var(--r-pill);background:var(--cream-2);overflow:hidden;}
+.bar-track .bf{height:100%;width:0;border-radius:var(--r-pill);background:var(--harvest);transition:width 1.4s var(--ease-out);}
+.bar-track .bf.warn{background:linear-gradient(90deg,#e88,#C0342C);}
+
+/* ============ THE DEMO CONSOLE (centerpiece) ============ */
+.console{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--e-3);overflow:hidden;}
+.console-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--green-ink);color:#fff;}
+.console-bar .dots{display:flex;gap:6px;}
+.console-bar .dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.25);}
+.console-bar .dots i:nth-child(1){background:#ff6058;}.console-bar .dots i:nth-child(2){background:#ffbd2e;}.console-bar .dots i:nth-child(3){background:#28c840;}
+.console-bar .ttl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;opacity:.85;}
+.console-bar .live{margin-left:auto;font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:7px;color:var(--leaf1);}
+.console-bar .live .d{width:7px;height:7px;border-radius:50%;background:var(--leaf1);animation:pulse 1.8s var(--ease-io) infinite;}
+.console-body{display:grid;grid-template-columns:0.85fr 1.15fr;gap:0;}
+@media(max-width:900px){.console-body{grid-template-columns:1fr;}}
+.console-in{padding:28px;border-right:1px solid var(--line);}
+.console-out{padding:28px;background:linear-gradient(180deg,var(--cream),var(--paper));min-height:520px;position:relative;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--green-deep);margin-bottom:7px;}
+.input,.select{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:var(--r-sm);font-size:15px;font-family:inherit;background:var(--paper);color:var(--black);transition:border-color var(--dur-2),box-shadow var(--dur-2);}
+.input:focus,.select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px rgba(20,102,59,.13);background:#fff;}
+.drop{border:2px dashed #b7c3ba;border-radius:var(--r-md);padding:26px;text-align:center;color:var(--gray);background:var(--cream);transition:all var(--dur-2) var(--ease-out);cursor:pointer;}
+.drop:hover,.drop.armed{border-color:var(--leaf2);background:var(--green-100);color:var(--green-deep);}
+.drop .leafico{font-size:30px;display:block;margin-bottom:8px;transition:transform var(--dur-3) var(--ease-spring);}
+.drop:hover .leafico{transform:translateY(-6px) rotate(-8deg);}
+.drop .big{font-family:var(--display);font-weight:600;font-size:16px;color:var(--green);}
+.samples{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.samples .s{font-size:12px;padding:6px 12px;border-radius:var(--r-pill);background:var(--paper);border:1px solid var(--line);cursor:pointer;transition:all var(--dur-2) var(--ease-spring);}
+.samples .s:hover,.samples .s.on{background:var(--green);color:#fff;border-color:var(--green);}
+
+/* output stack */
+.out-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--gray);padding:30px;}
+.out-empty .em{font-size:46px;animation:float 5s var(--ease-io) infinite;}
+.out-empty .h{font-family:var(--display);font-weight:600;font-size:18px;color:var(--green);margin-top:10px;}
+.out-stack{display:flex;flex-direction:column;gap:16px;opacity:0;transition:opacity var(--dur-3);}
+.out-stack.show{opacity:1;}
+
+/* agent pipeline */
+.pipe{display:flex;flex-direction:column;}
+.pstep{display:flex;gap:14px;position:relative;padding-bottom:20px;}
+.pstep:last-child{padding-bottom:0;}
+.pstep .rail{position:relative;display:flex;flex-direction:column;align-items:center;}
+.pstep .node{width:36px;height:36px;border-radius:50%;background:var(--cream-2);border:2px solid var(--line);display:grid;place-items:center;font-size:15px;flex:none;z-index:2;transition:all var(--dur-3) var(--ease-spring);}
+.pstep:not(:last-child) .rail::after{content:"";position:absolute;top:36px;bottom:-4px;width:2px;background:var(--line);}
+.pstep.done .node{background:var(--green);border-color:var(--green);color:#fff;transform:scale(1.06);}
+.pstep.active .node{background:var(--gold);border-color:var(--gold);color:var(--green-ink);box-shadow:0 0 0 6px rgba(224,166,46,.22);animation:pulse 1.5s var(--ease-io) infinite;}
+.pstep.done:not(:last-child) .rail::after{background:var(--leaf2);}
+.pstep .txt .h{font-family:var(--display);font-weight:600;font-size:14.5px;}
+.pstep .txt .d{font-size:12.5px;color:var(--gray);}
+.pstep .txt .stat{font-family:var(--mono);font-size:11px;color:var(--gold-deep);margin-top:3px;opacity:0;transform:translateY(-3px);transition:all var(--dur-2);}
+.pstep.done .txt .stat,.pstep.active .txt .stat{opacity:1;transform:none;}
+
+/* grade card */
+.grade-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--e-2);}
+.grade-photo{height:120px;background:linear-gradient(135deg,#2f7d3f,#155a30);position:relative;display:flex;align-items:flex-end;padding:14px;}
+.grade-photo::after{content:"🥬";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.5;}
+.grade-photo .badge{position:relative;z-index:2;}
+.grade-body{padding:18px;}
+.grade-head{display:flex;align-items:center;gap:14px;}
+.grade-score{min-width:70px;text-align:center;padding:12px 8px;border-radius:var(--r-md);background:var(--green);color:#fff;}
+.grade-score .num{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;}
+.grade-score .cap{font-family:var(--mono);font-size:9px;letter-spacing:.1em;opacity:.8;text-transform:uppercase;}
+.grade-head .t{font-family:var(--display);font-weight:600;font-size:17px;}
+.suggestion{background:var(--green-100);border-left:3px solid var(--leaf2);padding:11px 13px;border-radius:var(--r-xs);font-size:13px;color:var(--green-deep);margin-top:13px;font-style:italic;}
+
+/* freshness */
+.fresh-meter{height:12px;border-radius:var(--r-pill);background:var(--cream-2);overflow:hidden;margin-top:6px;}
+.fresh-meter .val{height:100%;width:0;background:var(--harvest);background-size:200% 100%;border-radius:var(--r-pill);transition:width 1.4s var(--ease-out);animation:shimmer 4s ease infinite;}
+.ticks{display:flex;justify-content:space-between;margin-top:7px;}
+.ticks small{font-family:var(--mono);font-size:9.5px;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;}
+
+/* match */
+.match{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;background:var(--paper);transition:transform var(--dur-2) var(--ease-out),box-shadow var(--dur-2),border-color var(--dur-2);margin-bottom:10px;opacity:0;transform:translateX(14px);}
+.match.in{opacity:1;transform:none;}
+.match:hover{transform:translateX(4px);box-shadow:var(--e-2);border-color:var(--leaf2);}
+.match .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.match .nm{font-family:var(--display);font-weight:600;font-size:15px;}
+.match .price{font-family:var(--mono);font-weight:600;color:var(--green);font-size:14px;}
+.match .sub{font-size:12.5px;color:var(--gray);margin:3px 0 9px;}
+.match .meta{display:flex;gap:7px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);}
+.badge.grade{background:var(--leaf1);color:var(--green-ink);font-family:var(--display);font-weight:700;}
+.badge.green{background:var(--green);color:#fff;}.badge.gold{background:var(--gold);color:var(--green-ink);}
+.badge.soft{background:var(--green-100);color:var(--green-deep);}.badge.ok{background:var(--ok-wash);color:var(--ok);}
+.badge .d{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.badge.live .d{animation:pulse 1.8s var(--ease-io) infinite;}
+.tag{font-size:11px;font-weight:700;padding:4px 9px;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:4px;}
+.tag.surging{background:var(--danger-wash);color:var(--danger);}.tag.rising{background:#FBEFD3;color:var(--gold-deep);}
+.tag.stable{background:var(--cream-2);color:var(--gray);}.tag.first{background:var(--gold);color:var(--green-ink);}
+
+/* dispatch */
+.dispatch{background:var(--green);color:#fff;border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--e-3);position:relative;overflow:hidden;}
+.dispatch::before{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(224,166,46,.4),transparent 70%);}
+.dispatch .eyebrow{color:var(--gold);}
+.dispatch .route{display:flex;align-items:center;gap:12px;margin:12px 0;}
+.dispatch .stop{text-align:center;}.dispatch .stop .p{font-family:var(--display);font-weight:700;font-size:15px;}
+.dispatch .stop .s{font-family:var(--mono);font-size:9.5px;opacity:.75;text-transform:uppercase;letter-spacing:.08em;}
+.dispatch .dline{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--gold) 0 8px,transparent 8px 14px);position:relative;}
+.dispatch .dline::after{content:"🚚";position:absolute;top:50%;left:0;transform:translate(-50%,-55%);animation:drive 4s linear infinite;}
+
+/* ============ ARCHITECTURE DIAGRAM ============ */
+.arch{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:0;margin-top:12px;}
+@media(max-width:900px){.arch{grid-template-columns:1fr;gap:14px;}.arch .seam{display:none;}}
+.tier{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--e-1);position:relative;transition:transform var(--dur-2) var(--ease-out),box-shadow var(--dur-2);}
+.tier:hover{transform:translateY(-4px);box-shadow:var(--e-2);}
+.tier .tno{font-family:var(--mono);font-size:11px;color:var(--gold-deep);letter-spacing:.12em;}
+.tier h4{font-size:19px;margin:6px 0 8px;}
+.tier p{font-size:13px;color:var(--gray);}
+.tier .stackpill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:var(--r-pill);background:var(--green-100);color:var(--green-deep);margin:3px 4px 0 0;}
+.seam{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 14px;min-width:120px;}
+.seam .env{font-family:var(--mono);font-size:9.5px;color:var(--gold-deep);background:var(--paper);border:1px dashed var(--gold);border-radius:var(--r-pill);padding:3px 8px;margin-bottom:8px;white-space:nowrap;}
+.seam .flow{width:100%;height:2px;background:var(--line);position:relative;overflow:hidden;}
+.seam .flow::after{content:"";position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:flow 2.2s var(--ease-io) infinite;}
+
+/* ============ MI300X SPOTLIGHT (dark) ============ */
+.gpu-sec{background:radial-gradient(1200px 500px at 70% -10%,#123 0,var(--black) 55%);color:#eaf1ec;border-top:1px solid rgba(255,255,255,.08);}
+.gpu-sec .eyebrow{color:var(--gold);}
+.gpu-sec .sec-head h2{color:#fff;}
+.gpu-sec .sec-head p{color:#b8c7bf;}
+.gpu-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start;}
+@media(max-width:900px){.gpu-grid{grid-template-columns:1fr;}}
+.gpu-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:var(--r-lg);padding:24px;backdrop-filter:blur(4px);}
+.gpu-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.gpu-head .chip{font-family:var(--mono);font-size:11px;padding:5px 10px;border-radius:var(--r-xs);background:rgba(224,166,46,.14);color:var(--gold);border:1px solid rgba(224,166,46,.3);}
+.gpu-head .live{margin-left:auto;font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:7px;color:var(--leaf1);}
+.gpu-head .live .d{width:7px;height:7px;border-radius:50%;background:var(--leaf1);animation:pulse 1.6s var(--ease-io) infinite;}
+.vram-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:#cfe;margin-bottom:8px;}
+.vram{height:30px;border-radius:var(--r-sm);background:rgba(255,255,255,.06);overflow:hidden;display:flex;border:1px solid rgba(255,255,255,.08);}
+.vram .seg{height:100%;width:0;transition:width 1.6s var(--ease-out);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:rgba(0,0,0,.55);font-weight:600;overflow:hidden;white-space:nowrap;}
+.vram .seg.g1{background:var(--leaf1);}.vram .seg.g2{background:var(--leaf2);}.vram .seg.g3{background:var(--gold);}
+.vram-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;}
+.vram-legend .lg{display:flex;align-items:center;gap:7px;font-size:12px;color:#cfe;}
+.vram-legend .lg i{width:11px;height:11px;border-radius:3px;}
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;}
+.gauge{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-md);padding:16px;}
+.gauge .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9fb3a8;}
+.gauge .v{font-family:var(--display);font-weight:800;font-size:30px;color:#fff;line-height:1.1;margin-top:4px;}
+.gauge .v small{font-size:14px;font-weight:600;color:var(--gold);}
+.memo{border:1px solid rgba(255,255,255,.10);border-radius:var(--r-md);padding:18px;margin-top:0;}
+.memo .r{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px;}
+.memo .r:last-child{border:none;}
+.memo .r .lab{flex:1;color:#cfe;}
+.memo .r .no{color:#ff8a80;font-family:var(--mono);}
+.memo .r .yes{color:var(--leaf1);font-family:var(--mono);}
+.termino{font-family:var(--mono);font-size:12px;color:#9fe6b8;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-sm);padding:14px 16px;margin-top:18px;line-height:1.7;overflow:hidden;}
+.termino .p{color:var(--gold);}.termino .dim{color:#6f8377;}
+
+/* close */
+.close-sec{text-align:center;padding:110px 0;}
+.close-sec h2{font-size:clamp(34px,5.4vw,66px);max-width:18ch;margin:0 auto 18px;}
+.foot{padding:60px 0 80px;border-top:1px solid var(--line);text-align:center;}
+.foot svg{width:44px;height:44px;}.foot p{color:var(--gray);font-size:13.5px;margin-top:12px;}
+
+/* keyframes */
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,168,78,.35);}50%{box-shadow:0 0 0 8px rgba(79,168,78,0);}}
+@keyframes shimmer{0%{background-position:0 0;}50%{background-position:100% 0;}100%{background-position:0 0;}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-16px) rotate(3deg);}}
+@keyframes drive{0%{left:0;}100%{left:100%;}}
+@keyframes scrollx{to{transform:translateX(-50%);}}
+@keyframes flow{to{left:130%;}}
+@keyframes cue{0%,100%{opacity:.3;}50%{opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- leaf mark -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <clipPath id="lfc"><path d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/></clipPath>
+  <symbol id="leaf" viewBox="0 0 512 512">
+    <path style="fill:#8CC63F" d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/>
+    <g clip-path="url(#lfc)"><path style="fill:#4FA84E" d="M212,58 L520,58 L520,520 L332,470 Z"/></g>
+    <g style="stroke:#E0A62E" stroke-width="5" stroke-linecap="round" fill="none"><path d="M256,120 L312,172 M256,120 L206,214 M256,120 L256,68 M312,172 L298,252 M206,214 L298,252 M206,214 L226,300 M298,252 L312,318 M226,300 L312,318 M312,172 L352,150 M206,214 L168,232"/></g>
+    <g style="fill:#E0A62E"><circle cx="256" cy="120" r="8"/><circle cx="312" cy="172" r="8"/><circle cx="206" cy="214" r="8"/><circle cx="298" cy="252" r="8"/><circle cx="226" cy="300" r="7"/><circle cx="312" cy="318" r="7"/></g>
+    <path style="fill:#17572F;stroke:#FBFAF4;stroke-width:4" d="M188,386 L256,300 L324,386 Z"/><path style="fill:#E0A62E" d="M256,300 L244,326 L256,318 L268,326 Z"/>
+  </symbol>
+</svg>
+
+<div class="scrollbar" id="scrollbar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap">
+    <div class="brand"><svg viewBox="0 0 512 512"><use href="#leaf"/></svg> Ani</div>
+    <div class="links">
+      <a href="#problem">Problem</a>
+      <a href="#demo">Live demo</a>
+      <a href="#stack">The stack</a>
+      <a href="#mi300x">MI300X</a>
+    </div>
+    <a href="#demo" class="btn sm gold sheen magnetic">Run the demo <span class="ico arrow">→</span></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <canvas id="net-canvas"></canvas>
+  <svg class="floatleaf" viewBox="0 0 512 512"><use href="#leaf"/></svg>
+  <div class="wrap">
+    <span class="kicker" data-reveal><span class="dot"></span> Ani · 3 agents · one AMD MI300X · Track 3 Unicorn</span>
+    <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
+    <p class="lead" data-reveal class="d1">Benguet grows 80% of Metro Manila's vegetables — and up to half rots before it sells. Ani grades a harvest from a single photo, scores its spoilage urgency, and matches it to live NCR demand. Three AI agents, running privately on one AMD Instinct MI300X.</p>
+    <div class="cta-row" data-reveal class="d2">
+      <a href="#demo" class="btn lg gold sheen magnetic">See it grade a harvest <span class="ico arrow">→</span></a>
+      <a href="#stack" class="btn lg secondary magnetic">How the stack works</a>
+    </div>
+    <div class="meta" data-reveal class="d3">
+      <div class="m"><div class="n" data-count="80" data-suffix="%">0%</div><div class="l">of NCR veg from Benguet</div></div>
+      <div class="m"><div class="n" data-count="50" data-suffix="%">0%</div><div class="l">harvest lost to timing</div></div>
+      <div class="m"><div class="n" data-count="192" data-suffix="GB">0</div><div class="l">one card, three agents</div></div>
+    </div>
+  </div>
+  <div class="scrollcue"><span>Scroll</span><span class="line"></span></div>
+</header>
+
+<div class="marquee"><div class="track">
+  <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
+  <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
+</div></div>
+
+<!-- 01 PROBLEM -->
+<section class="block" id="problem">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">01 — The problem</span>
+      <h2>It isn't a growing problem. It's a coordination problem.</h2>
+      <p>Farmers harvest blind into gluts, prices crash, and produce is dumped — while there's no cold chain to hold what does sell. The waste is happening this season. Software can fix it now.</p>
+    </div>
+    <div class="grid g3" data-reveal>
+      <div class="stat"><div class="n" data-count="80" data-suffix="%">0</div><div class="l">of Metro Manila's vegetables are grown in Benguet</div><div class="src">SRC: WowCordillera · GMA</div></div>
+      <div class="stat"><div class="n" data-count="42" data-suffix="%">0</div><div class="l">of vegetables lost across harvest → transport → market</div><div class="src">SRC: DA · FAO research</div></div>
+      <div class="stat"><div class="n" data-count="4" data-prefix="₱">0</div><div class="l">per kilo — cabbage dumped below cost, used as fertilizer</div><div class="src">SRC: Rappler · Nordis 2026</div></div>
+    </div>
+    <div class="panel" data-reveal style="margin-top:22px">
+      <div class="subhead">Loss reduction — before vs after Ani (pilot simulation)</div>
+      <div class="bars">
+        <div class="bar-row"><div class="lbl"><span>Baseline waste, no matching</span><b>42%</b></div><div class="bar-track"><div class="bf warn" data-w="42"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>With Ani grade + demand matching</span><b>17%</b></div><div class="bar-track"><div class="bf" data-w="17"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Farmer income recovered</span><b>+31%</b></div><div class="bar-track"><div class="bf" data-w="31"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 LIVE DEMO (centerpiece) -->
+<section class="block" id="demo">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">02 — Tier 1 · the living system</span>
+      <h2>Watch three agents turn a photo into a sale</h2>
+      <p>This is the real product loop. Pick a harvest and run it — the grader, the demand oracle, and the router each do their job in seconds, all on one MI300X.</p>
+    </div>
+
+    <div class="console" data-reveal>
+      <div class="console-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="ttl">ani · harvest-grader</span>
+        <span class="live"><span class="d"></span> connected · MI300X</span>
+      </div>
+      <div class="console-body">
+        <!-- INPUT -->
+        <div class="console-in">
+          <div class="subhead">Post a harvest</div>
+          <div class="field">
+            <label>Crop</label>
+            <select class="select" id="cropSel">
+              <option value="pechay">Pechay</option>
+              <option value="cabbage">Cabbage (Scorpio)</option>
+              <option value="carrots">Carrots</option>
+              <option value="broccoli">Broccoli</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Volume (kg)</label>
+            <input class="input" id="qtyIn" type="number" value="450" min="1">
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label>Harvest photo</label>
+            <div class="drop" id="drop"><span class="leafico">🌿</span><div class="big">Drop or tap to capture</div><div class="muted" style="font-size:12.5px">graded on-device · JPG/PNG</div></div>
+            <div class="samples">
+              <span class="s on" data-ph="Pechay_B12.jpg">Pechay_B12.jpg</span>
+              <span class="s" data-ph="field_shot.jpg">field_shot.jpg</span>
+            </div>
+          </div>
+          <button class="btn lg sheen magnetic" id="runBtn" style="width:100%">⚡ Grade &amp; match harvest</button>
+          <button class="btn sm secondary magnetic" id="replayBtn" style="width:100%;margin-top:10px;display:none">Replay ↻</button>
+        </div>
+
+        <!-- OUTPUT -->
+        <div class="console-out">
+          <div class="out-empty" id="outEmpty">
+            <span class="em">🧺</span>
+            <div class="h">Ready when you are</div>
+            <div class="muted" style="font-size:13px;margin-top:4px">Press “Grade &amp; match” to run the pipeline</div>
+          </div>
+          <div class="out-stack" id="outStack">
+            <!-- agent trace -->
+            <div class="panel" style="padding:18px">
+              <div class="subhead" style="margin-bottom:12px">Agent trace · 3 models, one MI300X</div>
+              <div class="pipe" id="pipe">
+                <div class="pstep" data-step="0"><div class="rail"><div class="node">📸</div></div><div class="txt"><div class="h">Harvest Grader — fine-tuned Gemma (vision)</div><div class="d">Reads the photo; scores quality, ripeness, shelf-life.</div><div class="stat" id="s0">→ …</div></div></div>
+                <div class="pstep" data-step="1"><div class="rail"><div class="node">📊</div></div><div class="txt"><div class="h">Demand &amp; Price Oracle</div><div class="d">Matches the grade to live NCR market demand.</div><div class="stat" id="s1">→ …</div></div></div>
+                <div class="pstep" data-step="2"><div class="rail"><div class="node">🚚</div></div><div class="txt"><div class="h">Logistics Router</div><div class="d">Sequences dispatch, most-perishable first.</div><div class="stat" id="s2">→ …</div></div></div>
+              </div>
+            </div>
+            <!-- grade + fresh -->
+            <div class="grid g2" style="gap:16px">
+              <div class="grade-card">
+                <div class="grade-photo"><span class="badge green live"><span class="d"></span> graded on MI300X</span></div>
+                <div class="grade-body">
+                  <div class="grade-head">
+                    <div class="grade-score"><div class="num" id="gScore">0</div><div class="cap">score</div></div>
+                    <div><div class="t"><span id="gCrop">Pechay</span> · <span class="badge grade" id="gGrade">Grade A</span></div><div class="muted" style="font-size:12.5px" id="gRipe">Crisp, tight leaves</div></div>
+                  </div>
+                  <div class="suggestion" id="gSuggest">—</div>
+                </div>
+              </div>
+              <div class="panel" style="padding:18px">
+                <div class="row" style="justify-content:space-between;align-items:baseline"><div class="subhead" style="margin:0">Freshness window</div><div style="font-family:var(--display);font-weight:700;font-size:22px;color:var(--gold-deep)" id="fWin">—</div></div>
+                <div class="fresh-meter"><div class="val" id="fVal"></div></div>
+                <div class="ticks"><small>Fresh</small><small>Ripe</small><small>Sell now</small><small>Spoil</small></div>
+                <p class="muted" style="font-size:12.5px;margin-top:12px">The gradient is the spoilage clock — green when there's time, gold when it's time to move.</p>
+              </div>
+            </div>
+            <!-- match feed -->
+            <div class="panel" style="padding:18px">
+              <div class="subhead" style="margin-bottom:12px">Demand-match feed · live NCR buyers</div>
+              <div id="matchHost"></div>
+            </div>
+            <!-- dispatch -->
+            <div class="dispatch" id="dispatch">
+              <span class="eyebrow">Dispatch plan</span>
+              <h3 style="color:#fff;font-size:19px;margin-top:6px">Most-perishable first</h3>
+              <div class="route"><div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Divisoria</div><div class="s" id="dEta">6h · ₱44/kg</div></div></div>
+              <div class="row"><span class="badge gold" id="dLoad">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 THE STACK -->
+<section class="block" id="stack">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">03 — Under the hood</span>
+      <h2>Three tiers. Two env vars. One card.</h2>
+      <p>The UI you just used is only Tier 1. Behind it, a thin contract lets us run against a stub today and the MI300X at showtime — swapping backends is a single variable, never a rewrite.</p>
+    </div>
+    <div class="arch" data-reveal>
+      <div class="tier">
+        <div class="tno">TIER 1 · WEB / UI</div>
+        <h4>The product</h4>
+        <p>Next.js on a Hugging Face Docker Space. Captures the harvest, streams the agent trace, renders the result.</p>
+        <div style="margin-top:10px"><span class="stackpill">Next.js</span><span class="stackpill">React</span><span class="stackpill">Docker · 7860</span></div>
+      </div>
+      <div class="seam"><span class="env">INFERENCE_BASE_URL</span><div class="flow"></div></div>
+      <div class="tier">
+        <div class="tno">TIER 2 · INFERENCE</div>
+        <h4>The agentic brain</h4>
+        <p>FastAPI orchestrates the 3 agents behind one contract. Backend = stub · fireworks · mi300x.</p>
+        <div style="margin-top:10px"><span class="stackpill">FastAPI</span><span class="stackpill">OpenAI-compat</span><span class="stackpill">SSE</span></div>
+      </div>
+      <div class="seam"><span class="env">ANI_BASE_URL</span><div class="flow"></div></div>
+      <div class="tier" style="border-color:var(--gold);box-shadow:var(--e-gold)">
+        <div class="tno" style="color:var(--gold-deep)">TIER 3 · MODELS</div>
+        <h4>One MI300X</h4>
+        <p>vLLM on ROCm co-hosts the fine-tuned Gemma grader, reasoning, and embeddings in 192&nbsp;GB.</p>
+        <div style="margin-top:10px"><span class="stackpill">vLLM</span><span class="stackpill">ROCm</span><span class="stackpill">Gemma · LoRA</span></div>
+      </div>
+    </div>
+    <p class="muted" data-reveal style="margin-top:20px;font-size:14px;text-align:center">Every layer degrades gracefully to a stub — the demo never hard-fails in front of a judge.</p>
+  </div>
+</section>
+
+<!-- 04 MI300X SPOTLIGHT -->
+<section class="block gpu-sec" id="mi300x">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="eyebrow">04 — Tier 3 · why AMD is non-negotiable</span>
+      <h2>The whole stack fits on a single card</h2>
+      <p>192&nbsp;GB of HBM3 co-hosts all three models on one MI300X — so a farmer co-op runs Ani on-prem, private, and offline-capable. On an 80&nbsp;GB card, you'd need several machines.</p>
+    </div>
+    <div class="gpu-grid" data-reveal>
+      <div class="gpu-card">
+        <div class="gpu-head">
+          <span class="chip">AMD Instinct MI300X · gfx942 · ROCm</span>
+          <span class="live"><span class="d"></span> LIVE</span>
+        </div>
+        <div class="vram-label"><span>HBM3 memory</span><span><b id="vramUsed">171.4</b> / 192 GB</span></div>
+        <div class="vram">
+          <div class="seg g1" id="segG1" title="Gemma Grader (VLM)"></div>
+          <div class="seg g2" id="segG2" title="Gemma Reasoning"></div>
+          <div class="seg g3" id="segG3" title="Embeddings + KV cache"></div>
+        </div>
+        <div class="vram-legend">
+          <span class="lg"><i style="background:var(--leaf1)"></i> Gemma Grader · VLM</span>
+          <span class="lg"><i style="background:var(--leaf2)"></i> Gemma Reasoning</span>
+          <span class="lg"><i style="background:var(--gold)"></i> Embeddings + KV</span>
+        </div>
+        <div class="gauges">
+          <div class="gauge"><div class="k">Throughput</div><div class="v" id="gTok">2,410 <small>tok/s</small></div></div>
+          <div class="gauge"><div class="k">Board power</div><div class="v" id="gPwr">341 <small>W</small></div></div>
+          <div class="gauge"><div class="k">Temp · edge</div><div class="v" id="gTmp">62 <small>°C</small></div></div>
+          <div class="gauge"><div class="k">Concurrency</div><div class="v" id="gCon">31 <small>×</small></div></div>
+        </div>
+        <div class="termino" id="termino">
+          <div><span class="dim">$</span> <span class="p">vllm serve</span> ani/gemma-grader-lora --dtype bfloat16</div>
+          <div class="dim">INFO gfx942 detected · 192GB HBM3 · loading 3 models…</div>
+          <div><span class="p">READY</span> grader+reasoning+embeddings co-hosted · KV 2.06M tokens</div>
+        </div>
+      </div>
+      <div class="gpu-card">
+        <div class="subhead" style="color:#9fb3a8">Memory math — why one card</div>
+        <div class="memo">
+          <div class="r"><span class="lab">Grader + reasoning + embeddings</span><span class="mono" style="color:#fff">≈171 GB</span></div>
+          <div class="r"><span class="lab">NVIDIA H100 (80 GB)</span><span class="no">✕ won't fit</span></div>
+          <div class="r"><span class="lab">2× H100 (160 GB)</span><span class="no">✕ still short + split</span></div>
+          <div class="r"><span class="lab">AMD MI300X (192 GB)</span><span class="yes">✓ one card</span></div>
+        </div>
+        <p style="color:#b8c7bf;font-size:13.5px;margin-top:16px">Fewer machines means the co-op's pricing, contracts, and farmer photos never leave the cooperative — and Ani keeps working when rural connectivity doesn't. That's the moat, and the <b style="color:var(--gold)">Best AMD-Hosted Gemma</b> entry.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSE -->
+<section class="close-sec">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>The outcome</span>
+    <h2 data-reveal>Benguet won't dump another harvest.<br><span class="grad">Ani sells it — before it spoils.</span></h2>
+    <div class="row" data-reveal style="justify-content:center;margin-top:8px">
+      <a href="#demo" class="btn lg gold sheen magnetic">Run the demo again <span class="ico arrow">→</span></a>
+      <a href="#top" class="btn lg secondary magnetic">Back to top</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <svg viewBox="0 0 512 512"><use href="#leaf"/></svg>
+    <p>Ani · Tier 1→3 Showcase · AMD Developer Hackathon ACT II — Track 3.<br>Grade → Match → Dispatch · three agents, one AMD MI300X.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* scroll progress */
+  var bar = document.getElementById('scrollbar');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight); bar.style.width=(p*100)+'%'; }
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  /* reveal */
+  var io = new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el);});
+
+  /* count-up */
+  function countUp(el){var t=parseFloat(el.dataset.count),pre=el.dataset.prefix||'',suf=el.dataset.suffix||'';if(reduce){el.textContent=pre+t+suf;return;}var s=performance.now(),d=1400;(function tick(n){var p=Math.min((n-s)/d,1),e=1-Math.pow(1-p,3);el.textContent=pre+Math.round(e*t)+suf;if(p<1)requestAnimationFrame(tick);})(s);}
+  var co=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){countUp(e.target);co.unobserve(e.target);}});},{threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(function(el){co.observe(el);});
+
+  /* bar fills */
+  var fo=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var el=e.target;if(el.dataset.w!=null)el.style.width=el.dataset.w+'%';fo.unobserve(el);}});},{threshold:.4});
+  document.querySelectorAll('[data-w]').forEach(function(el){fo.observe(el);});
+
+  /* magnetic */
+  if(!reduce){document.querySelectorAll('.magnetic').forEach(function(b){b.addEventListener('pointermove',function(ev){var r=b.getBoundingClientRect();b.style.setProperty('--mx',((ev.clientX-r.left-r.width/2)*.3)+'px');b.style.setProperty('--my',((ev.clientY-r.top-r.height/2)*.4)+'px');});b.addEventListener('pointerleave',function(){b.style.setProperty('--mx','0px');b.style.setProperty('--my','0px');});});}
+
+  /* hero node-network */
+  var canvas=document.getElementById('net-canvas');
+  if(canvas&&!reduce){var ctx=canvas.getContext('2d'),W,H,dpr=Math.min(window.devicePixelRatio||1,2),pts=[],N=46,mouse={x:-999,y:-999};
+    function resize(){var h=canvas.parentElement.getBoundingClientRect();W=h.width;H=h.height;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+    function init(){pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35});}
+    function draw(){ctx.clearRect(0,0,W,H);for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;for(var j=i+1;j<pts.length;j++){var q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);if(d<130){ctx.strokeStyle='rgba(79,168,78,'+(1-d/130)*.28+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}var md=Math.sqrt(Math.pow(p.x-mouse.x,2)+Math.pow(p.y-mouse.y,2)),g=md<150;ctx.fillStyle=g?'rgba(224,166,46,.9)':'rgba(20,102,59,.5)';ctx.beginPath();ctx.arc(p.x,p.y,g?3.4:2.2,0,Math.PI*2);ctx.fill();}requestAnimationFrame(draw);}
+    window.addEventListener('resize',function(){resize();init();});
+    canvas.parentElement.addEventListener('pointermove',function(e){var r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;});
+    canvas.parentElement.addEventListener('pointerleave',function(){mouse.x=-999;mouse.y=-999;});
+    resize();init();draw();}
+
+  /* ---------- the interactive demo ---------- */
+  var DATA={
+    pechay:{name:'Pechay',grade:'A',score:92,ripe:'Crisp, tight leaves · minimal wilt',shelf:48,win:'2 days',fill:64,urgency:'high',
+      buyers:[['SM Supermalls commissary','Divisoria · needs 800kg Grade A by Thu',44,'first','▲ Surging','96% fit'],['Balintawak wholesaler','Balintawak · flexible volume · pays on pickup',38,'rising','▲ Rising','88% fit'],['Hotel group (QSR)','Makati · recurring weekly order',41,'stable','– Stable','81% fit']],
+      to:'Divisoria',eta:'6h · ₱44/kg',load:'1.2t matched'},
+    cabbage:{name:'Cabbage (Scorpio)',grade:'A',score:88,ripe:'Firm, market-ready head',shelf:96,win:'4 days',fill:42,urgency:'mid',
+      buyers:[['Balintawak Cloverleaf','Balintawak · weekend demand surging',24,'first','▲ Surging','94% fit'],['Divisoria wholesale cluster','Divisoria · steady bulk offtake',18,'stable','– Stable','86% fit'],['NCR supermarket DC','Makati · premium for Grade A',30,'rising','▲ Rising','80% fit']],
+      to:'Balintawak',eta:'5h · ₱24/kg',load:'2.4t matched'},
+    carrots:{name:'Carrots',grade:'A',score:90,ripe:'Mature · firm · low breakage',shelf:168,win:'7 days',fill:26,urgency:'low',
+      buyers:[['Nepa Q-Mart consolidator','Cubao · demand rising',55,'first','▲ Rising','92% fit'],['Divisoria wholesale','Divisoria · steady offtake',50,'stable','– Stable','84% fit'],['Supermarket DC','Makati · weekly order',58,'stable','– Stable','78% fit']],
+      to:'Cubao',eta:'6h · ₱55/kg',load:'3.0t matched'},
+    broccoli:{name:'Broccoli',grade:'B',score:74,ripe:'Tight florets · slight yellowing',shelf:60,win:'2.5 days',fill:58,urgency:'high',
+      buyers:[['Hotel group (QSR)','Makati · needs 400kg by Fri',120,'first','▲ Surging','90% fit'],['Divisoria specialty','Divisoria · premium produce',110,'rising','▲ Rising','83% fit'],['Balintawak wholesaler','Balintawak · flexible',95,'stable','– Stable','74% fit']]
+      ,to:'Makati',eta:'6h · ₱120/kg',load:'0.4t matched'}
+  };
+  var runBtn=document.getElementById('runBtn'),replayBtn=document.getElementById('replayBtn'),
+      outEmpty=document.getElementById('outEmpty'),outStack=document.getElementById('outStack'),
+      cropSel=document.getElementById('cropSel'),qtyIn=document.getElementById('qtyIn'),
+      matchHost=document.getElementById('matchHost'),drop=document.getElementById('drop'),
+      steps=document.querySelectorAll('#pipe .pstep');
+  var hasRun=false;
+
+  document.querySelectorAll('.samples .s').forEach(function(s){s.addEventListener('click',function(){document.querySelectorAll('.samples .s').forEach(function(x){x.classList.remove('on');});s.classList.add('on');drop.classList.add('armed');drop.querySelector('.big').textContent=s.dataset.ph;});});
+
+  function delay(ms){return new Promise(function(r){setTimeout(r,reduce?0:ms);});}
+
+  function setStep(i,state){steps[i].classList.remove('active','done');if(state)steps[i].classList.add(state);}
+
+  async function run(){
+    var d=DATA[cropSel.value]||DATA.pechay;
+    runBtn.classList.add('loading');
+    outEmpty.style.display='none'; outStack.classList.add('show');
+    // reset
+    steps.forEach(function(s){s.classList.remove('active','done');});
+    document.getElementById('s0').textContent='→ …';document.getElementById('s1').textContent='→ …';document.getElementById('s2').textContent='→ …';
+    document.getElementById('gScore').textContent='0';
+    document.getElementById('fVal').style.width='0';
+    matchHost.innerHTML='';
+    document.getElementById('dispatch').style.opacity='.25';
+
+    // Agent A
+    setStep(0,'active'); await delay(950);
+    document.getElementById('gCrop').textContent=d.name;
+    document.getElementById('gGrade').textContent='Grade '+d.grade;
+    document.getElementById('gRipe').textContent=d.ripe;
+    document.getElementById('gSuggest').textContent='“Best sold in '+d.to+' — '+(d.urgency==='high'?'move within hours; ':'')+'your grade commands top price.”';
+    // count score
+    (function(){var t=d.score,s=performance.now();(function tk(n){var p=Math.min((n-s)/900,1);document.getElementById('gScore').textContent=Math.round((1-Math.pow(1-p,3))*t);if(p<1)requestAnimationFrame(tk);})(s);})();
+    document.getElementById('fWin').textContent=d.win;
+    document.getElementById('fVal').style.width=d.fill+'%';
+    document.getElementById('s0').textContent='→ Grade '+d.grade+' · '+d.score+' · 0.4s';
+    setStep(0,'done');
+
+    // Agent D
+    setStep(1,'active'); await delay(900);
+    document.getElementById('s1').textContent='→ '+d.buyers.length+' buyers · ₱'+d.buyers[0][2]+'/kg peak';
+    for(var i=0;i<d.buyers.length;i++){
+      var b=d.buyers[i];
+      var el=document.createElement('div');el.className='match';
+      var fit = b[5];
+      el.innerHTML='<div class="top"><span class="nm">'+b[0]+'</span><span class="price">₱'+b[2]+'/kg</span></div><div class="sub">'+b[1]+'</div><div class="meta"><span class="tag '+b[3]+'">'+(b[3]==='first'?'★ First match':b[4])+'</span><span class="tag '+(b[4].indexOf('Surging')>-1?'surging':b[4].indexOf('Rising')>-1?'rising':'stable')+'">'+b[4]+'</span><span class="badge '+(i===0?'ok':'soft')+'" style="font-size:11px">'+(i===0?'<span class="d"></span> ':'')+fit+'</span></div>';
+      matchHost.appendChild(el);
+      await delay(260); el.classList.add('in');
+    }
+    setStep(1,'done');
+
+    // Router
+    setStep(2,'active'); await delay(850);
+    document.getElementById('dTo').textContent=d.to;
+    document.getElementById('dEta').textContent=d.eta;
+    document.getElementById('dLoad').textContent=d.load;
+    document.getElementById('dispatch').style.opacity='1';
+    document.getElementById('s2').textContent='→ La Trinidad → '+d.to+' · '+d.eta.split('·')[0].trim();
+    setStep(2,'done');
+
+    runBtn.classList.remove('loading');
+    replayBtn.style.display='block';
+    hasRun=true;
+  }
+  runBtn.addEventListener('click',run);
+  replayBtn.addEventListener('click',run);
+  // auto-run once when the console scrolls into view
+  var demoObs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&!hasRun){setTimeout(run,500);demoObs.unobserve(e.target);}});},{threshold:.4});
+  demoObs.observe(document.querySelector('.console'));
+
+  /* ---------- MI300X live telemetry ---------- */
+  var segG1=document.getElementById('segG1'),segG2=document.getElementById('segG2'),segG3=document.getElementById('segG3');
+  var gpuObs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){
+    segG1.style.width='34%';segG1.textContent='Grader 65GB';
+    segG2.style.width='31%';segG2.textContent='Reasoning 59GB';
+    segG3.style.width='24%';segG3.textContent='Emb+KV 47GB';
+    gpuObs.unobserve(e.target);
+  }});},{threshold:.4});
+  gpuObs.observe(document.getElementById('mi300x'));
+
+  if(!reduce){
+    function rnd(base,jit){return base+(Math.random()-.5)*jit;}
+    setInterval(function(){
+      document.getElementById('gTok').innerHTML=Math.round(rnd(2410,180)).toLocaleString()+' <small>tok/s</small>';
+      document.getElementById('gPwr').innerHTML=Math.round(rnd(341,14))+' <small>W</small>';
+      document.getElementById('gTmp').innerHTML=Math.round(rnd(62,3))+' <small>°C</small>';
+      document.getElementById('vramUsed').textContent=rnd(171.4,1.2).toFixed(1);
+    },1600);
+  }
+})();
+</script>
+</body>
+</html>
