@@ -1,0 +1,105 @@
+[ani] device= arch=gfx942:sramecc+:xnack- hip=7.2.53211
+[ani] model=google/gemma-3-27b-it epochs=1 seed=42
+[ani] dataset train=240 eval=30
+Fetching 12 files:   0%|          | 0/12 [00:00<?, ?it/s]Fetching 12 files: 100%|██████████| 12/12 [00:00<00:00, 34030.86it/s]
+Loading weights:   0%|          | 0/1247 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1247/1247 [00:00<00:00, 12476.65it/s]
+[transformers] Deprecated: `processor.image_token` will switch from returning `tokenizer.image_token` to `tokenizer.boi_token` in v5.11.
+[eval:base] 1/30 expected=A predicted=A
+[eval:base] 2/30 expected=A predicted=A
+[eval:base] 3/30 expected=A predicted=A
+[eval:base] 4/30 expected=A predicted=A
+[eval:base] 5/30 expected=A predicted=A
+[eval:base] 6/30 expected=A predicted=A
+[eval:base] 7/30 expected=A predicted=A
+[eval:base] 8/30 expected=A predicted=B
+[eval:base] 9/30 expected=A predicted=A
+[eval:base] 10/30 expected=A predicted=A
+[eval:base] 11/30 expected=B predicted=B
+[eval:base] 12/30 expected=B predicted=B
+[eval:base] 13/30 expected=B predicted=B
+[eval:base] 14/30 expected=B predicted=B
+[eval:base] 15/30 expected=B predicted=C
+[eval:base] 16/30 expected=B predicted=C
+[eval:base] 17/30 expected=B predicted=A
+[eval:base] 18/30 expected=B predicted=B
+[eval:base] 19/30 expected=B predicted=B
+[eval:base] 20/30 expected=B predicted=B
+[eval:base] 21/30 expected=C predicted=C
+[eval:base] 22/30 expected=C predicted=C
+[eval:base] 23/30 expected=C predicted=C
+[eval:base] 24/30 expected=C predicted=C
+[eval:base] 25/30 expected=C predicted=C
+[eval:base] 26/30 expected=C predicted=C
+[eval:base] 27/30 expected=C predicted=C
+[eval:base] 28/30 expected=C predicted=C
+[eval:base] 29/30 expected=C predicted=C
+[eval:base] 30/30 expected=C predicted=C
+[eval:base] accuracy=0.8667 correct=26/30 seconds=52.4
+trainable params: 36,507,648 || all params: 27,468,914,288 || trainable%: 0.1329
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+[train] epoch=1 example=8/240 step=1 loss=3.203595
+[train] epoch=1 example=16/240 step=2 loss=1.936944
+[train] epoch=1 example=24/240 step=3 loss=1.275306
+[train] epoch=1 example=32/240 step=4 loss=1.176731
+[train] epoch=1 example=40/240 step=5 loss=1.036417
+[train] epoch=1 example=48/240 step=6 loss=0.873639
+[train] epoch=1 example=56/240 step=7 loss=0.397655
+[train] epoch=1 example=64/240 step=8 loss=0.571312
+[train] epoch=1 example=72/240 step=9 loss=0.129220
+[train] epoch=1 example=80/240 step=10 loss=0.138814
+[train] epoch=1 example=88/240 step=11 loss=0.037727
+[train] epoch=1 example=96/240 step=12 loss=0.014809
+[train] epoch=1 example=104/240 step=13 loss=0.008298
+[train] epoch=1 example=112/240 step=14 loss=0.029439
+[train] epoch=1 example=120/240 step=15 loss=0.016090
+[train] epoch=1 example=128/240 step=16 loss=0.014197
+[train] epoch=1 example=136/240 step=17 loss=0.038356
+[train] epoch=1 example=144/240 step=18 loss=0.037604
+[train] epoch=1 example=152/240 step=19 loss=0.000864
+[train] epoch=1 example=160/240 step=20 loss=0.108638
+[train] epoch=1 example=168/240 step=21 loss=0.012908
+[train] epoch=1 example=176/240 step=22 loss=0.007968
+[train] epoch=1 example=184/240 step=23 loss=0.005708
+[train] epoch=1 example=192/240 step=24 loss=0.004699
+[train] epoch=1 example=200/240 step=25 loss=0.010030
+[train] epoch=1 example=208/240 step=26 loss=0.000855
+[train] epoch=1 example=216/240 step=27 loss=0.003331
+[train] epoch=1 example=224/240 step=28 loss=0.000079
+[train] epoch=1 example=232/240 step=29 loss=0.000108
+[train] epoch=1 example=240/240 step=30 loss=0.002675
+[ani] saved_adapter=/shared-docker/ani-artifacts/ani-gemma-grader-lora train_seconds=179.3
+[eval:tuned] 1/30 expected=A predicted=A
+[eval:tuned] 2/30 expected=A predicted=A
+[eval:tuned] 3/30 expected=A predicted=A
+[eval:tuned] 4/30 expected=A predicted=A
+[eval:tuned] 5/30 expected=A predicted=A
+[eval:tuned] 6/30 expected=A predicted=A
+[eval:tuned] 7/30 expected=A predicted=A
+[eval:tuned] 8/30 expected=A predicted=A
+[eval:tuned] 9/30 expected=A predicted=A
+[eval:tuned] 10/30 expected=A predicted=A
+[eval:tuned] 11/30 expected=B predicted=B
+[eval:tuned] 12/30 expected=B predicted=B
+[eval:tuned] 13/30 expected=B predicted=B
+[eval:tuned] 14/30 expected=B predicted=B
+[eval:tuned] 15/30 expected=B predicted=B
+[eval:tuned] 16/30 expected=B predicted=B
+[eval:tuned] 17/30 expected=B predicted=B
+[eval:tuned] 18/30 expected=B predicted=B
+[eval:tuned] 19/30 expected=B predicted=B
+[eval:tuned] 20/30 expected=B predicted=B
+[eval:tuned] 21/30 expected=C predicted=C
+[eval:tuned] 22/30 expected=C predicted=C
+[eval:tuned] 23/30 expected=C predicted=C
+[eval:tuned] 24/30 expected=C predicted=C
+[eval:tuned] 25/30 expected=C predicted=C
+[eval:tuned] 26/30 expected=C predicted=C
+[eval:tuned] 27/30 expected=C predicted=C
+[eval:tuned] 28/30 expected=C predicted=C
+[eval:tuned] 29/30 expected=C predicted=C
+[eval:tuned] 30/30 expected=C predicted=C
+[eval:tuned] accuracy=1.0000 correct=30/30 seconds=57.8
+[ani] metrics={"absolute_change": 0.1333333333333333, "adapter": "/shared-docker/ani-artifacts/ani-gemma-grader-lora", "base_accuracy": 0.8666666666666667, "base_accuracy_percent": 86.67, "base_model": "google/gemma-3-27b-it", "epochs": 1, "eval_examples": 30, "seed": 42, "train_examples": 240, "tuned_accuracy": 1.0, "tuned_accuracy_percent": 100.0}
+
+[serve] 2026-07-10T23:26:34+00:00 adapter=ani-grader base=google/gemma-3-27b-it vllm_models=base,ani-grader
+[production] HTTP=200 source=mi300x grade=B score=72 endpoint=ani-amd-hackathon.vercel.app/api/process
