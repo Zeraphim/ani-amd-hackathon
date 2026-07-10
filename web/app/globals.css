@@ -267,6 +267,7 @@ section.block{padding:96px 0;border-top:1px solid var(--line);position:relative;
 .map-stage{position:relative;height:min(72vh,640px);background:var(--cream-2);}
 .dispatch-map-canvas{position:absolute;inset:0;z-index:1;}
 .dispatch-map-canvas .leaflet-container{font-family:var(--body);background:var(--cream);}
+.dispatch-map-canvas .leaflet-control-attribution{display:none!important;}
 .dispatch-map-icon{background:transparent;border:none;}
 .map-pin{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;box-shadow:var(--e-2);}
 .map-pin span{width:12px;height:12px;border-radius:50%;display:block;}

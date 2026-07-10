@@ -20,8 +20,6 @@ export type DispatchMapProps = {
 
 const ROUTE_COLOR = "#4FA84E";
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-const TILE_ATTR =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
 function makeIcon(html: string, size: number, anchorY = size / 2): L.DivIcon {
   return L.divIcon({
@@ -64,12 +62,11 @@ export default function DispatchMap({ destinationName, eta, onDistance }: Dispat
 
     const map = L.map(container, {
       zoomControl: false,
-      attributionControl: true,
+      attributionControl: false,
     });
     mapRef.current = map;
 
     L.tileLayer(TILE_URL, {
-      attribution: TILE_ATTR,
       subdomains: "abcd",
       maxZoom: 19,
     }).addTo(map);
