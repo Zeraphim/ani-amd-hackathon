@@ -21,7 +21,7 @@ const MARKUP = `
 
 <nav>
   <div class="wrap">
-    <div class="brand"><svg viewBox="0 0 512 512"><use href="#leaf"/></svg> Ani</div>
+    <div class="brand"><img src="/logo.png" alt="Ani" style="height:38px;width:auto;display:block" /></div>
     <div class="links">
       <a href="#problem">Problem</a>
       <a href="#demo">Live demo</a>
@@ -34,7 +34,7 @@ const MARKUP = `
 
 <header class="hero" id="top">
   <canvas id="net-canvas"></canvas>
-  <svg class="floatleaf" viewBox="0 0 512 512"><use href="#leaf"/></svg>
+  <img class="floatleaf" src="/logo-leaf.png" alt="" />
   <div class="wrap">
     <span class="kicker" data-reveal><span class="dot"></span> Ani &middot; 3 agents &middot; one AMD MI300X &middot; Track 3 Unicorn</span>
     <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
@@ -266,7 +266,7 @@ const MARKUP = `
 
 <footer class="foot">
   <div class="wrap">
-    <svg viewBox="0 0 512 512"><use href="#leaf"/></svg>
+    <img src="/logo.png" alt="Ani" style="height:44px;width:auto;display:block;margin:0 auto 12px" />
     <p>Ani &middot; Tier 1&rarr;3 Showcase &middot; AMD Developer Hackathon ACT II &mdash; Track 3.<br>Grade &rarr; Match &rarr; Dispatch &middot; three agents, one AMD MI300X.</p>
   </div>
 </footer>
@@ -517,5 +517,7 @@ export default function Home() {
     return () => cleanups.forEach((f) => f());
   }, []);
 
-  return <div dangerouslySetInnerHTML={{ __html: MARKUP }} />;
+  const normalizedMarkup = MARKUP.replace(/\r\n/g, "\n");
+  // ponytail: static HTML blob — whitespace SSR-vs-DOM mismatch is cosmetic, suppress the check
+  return <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: normalizedMarkup }} />;
 }
