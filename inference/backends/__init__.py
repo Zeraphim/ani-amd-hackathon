@@ -16,6 +16,8 @@ def get_backend():
         # Same OpenAI-compatible client as fireworks, different base_url/model.
         # Point ANI_BASE_URL at your vLLM endpoint on the MI300X.
         from . import fireworks as mi300x  # identical interface
-        return mi300x
+    if BACKEND == "langgraph":
+        from . import langgraph_backend
+        return langgraph_backend
     from . import stub
     return stub
