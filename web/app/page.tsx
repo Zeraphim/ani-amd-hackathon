@@ -474,29 +474,40 @@ export default function Home() {
       matchPanel.classList.remove("show"); matchPanel.style.display = "none";
       dispatchEl.classList.remove("show"); dispatchEl.style.display = "none";
 
-      /* Agent A */
+      /* Agent A — trace only */
       setStep(0, "active");
       const grade = await getGrade(cropId, qty);
       await delay(950);
-      gid("gCrop").textContent = grade.crop;
-      gid("gGrade").textContent = "Grade " + grade.grade;
-      gid("gRipe").textContent = grade.ripeness;
-      gid("gSuggest").textContent = grade.suggestion;
-      gid("fWin").textContent = grade.freshnessWindow;
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
+      await delay(800);
 
-      revealPanel(gradeRow, "grid");
-      countTo(gid("gScore"), grade.score, 900);
-      gid("fVal").style.width = grade.freshnessFill + "%";
-      await delay(600);
-
-      /* Agent D */
+      /* Agent D — trace only */
       setStep(1, "active");
       const match = await getMatch(grade);
       await delay(900);
       gid("s1").textContent = "→ " + match.buyers.length + " buyers · ₱" + match.buyers[0].pricePerKg + "/kg peak";
       setStep(1, "done");
+      await delay(800);
+
+      /* Router — trace only */
+      setStep(2, "active");
+      await delay(850);
+      gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
+      setStep(2, "done");
+      await delay(800);
+
+      /* --- All trace steps done — cascade result panels --- */
+
+      gid("gCrop").textContent = grade.crop;
+      gid("gGrade").textContent = "Grade " + grade.grade;
+      gid("gRipe").textContent = grade.ripeness;
+      gid("gSuggest").textContent = grade.suggestion;
+      gid("fWin").textContent = grade.freshnessWindow;
+      revealPanel(gradeRow, "grid");
+      countTo(gid("gScore"), grade.score, 900);
+      gid("fVal").style.width = grade.freshnessFill + "%";
+      await delay(800);
 
       const host = gid("matchHost");
       host.innerHTML = "";
@@ -507,19 +518,16 @@ export default function Home() {
       for (const el of matchRows) {
         await delay(260); el.classList.add("in");
       }
-      await delay(600);
+      await delay(800);
 
-      /* Router */
-      setStep(2, "active"); await delay(850);
       gid("dTo").textContent = match.dispatch.to;
       gid("dEta").textContent = match.dispatch.eta;
       gid("dLoad").textContent = match.dispatch.load;
-      gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
-      setStep(2, "done");
-      await delay(600);
-
       revealPanel(dispatchEl, "block");
       await delay(600);
+
+      await delay(2000);
+      document.getElementById("stack")?.scrollIntoView(reduce ? { block: "start" } as any : { behavior: "smooth", block: "start" });
 
       runBtn.classList.remove("loading");
       replayBtn.style.display = "block";
