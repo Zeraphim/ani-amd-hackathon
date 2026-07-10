@@ -5,7 +5,7 @@ it only ever calls /grade and /match.
 """
 import os
 
-BACKEND = os.getenv("ANI_BACKEND", "stub").lower()
+BACKEND = os.getenv("ANI_BACKEND", "langgraph").lower()
 
 
 def get_backend():

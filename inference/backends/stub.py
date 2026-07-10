@@ -44,7 +44,7 @@ DATA = {
 }
 
 
-def grade(crop: str, quantity_kg: float) -> dict:
+def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
     crop_id = crop if crop in DATA else "pechay"
     d = DATA[crop_id]
     rush = "move within hours; " if d["urgency"] == "high" else ""
