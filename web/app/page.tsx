@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import DispatchMapModal from "@/components/DispatchMapModal";
 import { gradeStub, matchStub } from "@/lib/stub";
 
 // The showcase markup (from docs/ui/showcase.html), preserved exactly.
@@ -162,6 +163,7 @@ const MARKUP = `
               <h3 style="color:#fff;font-size:19px;margin-top:6px">Most-perishable first</h3>
               <div class="route"><div class="stop"><div class="p">La Trinidad</div><div class="s">origin</div></div><div class="dline"></div><div class="stop"><div class="p" id="dTo">Divisoria</div><div class="s" id="dEta">6h &middot; &#8369;44/kg</div></div></div>
               <div class="row"><span class="badge gold" id="dLoad">1.2t matched</span><span class="badge" style="background:rgba(255,255,255,.15);color:#fff">ETA 6h</span></div>
+              <button class="btn sm gold sheen magnetic" id="mapTrackBtn" type="button" style="margin-top:14px;width:100%">&#128506; Track live route <span class="ico arrow">&rarr;</span></button>
             </div>
           </div>
         </div>
@@ -471,6 +473,11 @@ export default function Home() {
       gid("dLoad").textContent = match.dispatch.load;
       gid("dispatch").style.opacity = "1";
       gid("s2").textContent = "→ La Trinidad → " + match.dispatch.to + " · " + match.dispatch.eta.split("·")[0].trim();
+      window.dispatchEvent(
+        new CustomEvent("ani:map-route", {
+          detail: { destination: match.dispatch.to, eta: match.dispatch.eta },
+        })
+      );
       setStep(2, "done");
 
       runBtn.classList.remove("loading");
@@ -479,6 +486,7 @@ export default function Home() {
     }
     on(runBtn, "click", run);
     on(replayBtn, "click", run);
+    on(gid("mapTrackBtn"), "click", () => window.dispatchEvent(new CustomEvent("ani:map-open")));
 
     const console_ = document.querySelector(".console");
     if (console_) {
@@ -517,5 +525,10 @@ export default function Home() {
     return () => cleanups.forEach((f) => f());
   }, []);
 
-  return <div dangerouslySetInnerHTML={{ __html: MARKUP }} />;
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{ __html: MARKUP }} />
+      <DispatchMapModal />
+    </>
+  );
 }
