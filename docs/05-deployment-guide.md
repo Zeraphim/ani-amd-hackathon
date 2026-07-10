@@ -127,7 +127,16 @@ card. Tier 1 on Vercel is **not touched** — only env vars change.
 1. Log into [devcloud.amd.com](https://devcloud.amd.com).
 2. Launch a **1x MI300X** instance (192 GB HBM3) — the small configuration is enough for one
    Gemma model. It comes with ROCm + Docker pre-installed.
-3. Note the instance's public IP or hostname, and SSH in.
+3. Once the instance is running, the AMD DevCloud portal will show:
+   - **Instance name** (e.g., `0.23.0-gpu-mi300x1-192gb-devcloud-atl1`)
+   - **Public IPv4** (reachable from the internet — you'll use this for SSH)
+   - **Private IP** (used only for internal node-to-node communication on the cloud VLAN — ignore for SSH)
+4. SSH into the instance using the public IPv4:
+   ```bash
+   ssh -p 2222 amdepyc@<PUBLIC_IPV4>
+   ```
+   *AMD DevCloud instances listen on **port 2222** (not the default port 22). The username is `amdepyc`.*
+   If you set up an SSH key in the DevCloud portal, it works automatically. If you used a password, you'll be prompted for it.
 
 ### Step 2 — Serve Gemma with vLLM on the card
 The repo already has this scripted:

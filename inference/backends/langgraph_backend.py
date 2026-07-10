@@ -186,6 +186,33 @@ workflow.add_edge("router", END)
 ani_app = workflow.compile()
 
 # Provide wrapper functions to easily drop into FastAPI if needed
+def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
+    state = {
+        "crop_type": crop,
+        "quantity": int(quantity_kg),
+        "image_data": image_data
+    }
+    result = harvest_grader_node(state)
+    result["quantity_kg"] = quantity_kg
+    return result
+
+def match(grade_dict: dict) -> dict:
+    state = {
+        "crop_type": grade_dict.get("crop", "Unknown"),
+        "quantity": grade_dict.get("quantity_kg", 450),
+        "grade": grade_dict.get("grade", "A")
+    }
+    
+    oracle_res = demand_oracle_node(state)
+    state.update(oracle_res)
+    router_res = logistics_router_node(state)
+    
+    return {
+        "buyers": oracle_res["buyers"],
+        "dispatch": router_res["dispatch"],
+        "source": "langgraph"
+    }
+
 def process_harvest(crop: str, quantity_kg: float, image_data: str = "") -> dict:
     initial_state = {
         "crop_type": crop,
@@ -194,4 +221,20 @@ def process_harvest(crop: str, quantity_kg: float, image_data: str = "") -> dict
     }
     
     final_state = ani_app.invoke(initial_state)
-    return final_state
+    
+    # We need to map final_state back to the shape expected by the frontend
+    return {
+        "cropId": final_state.get("cropId", crop.lower().replace(" ", "-")),
+        "crop": final_state.get("crop", crop),
+        "grade": final_state.get("grade", "A"),
+        "score": final_state.get("score", 0),
+        "ripeness": final_state.get("ripeness", ""),
+        "shelfLifeHours": final_state.get("shelfLifeHours", 0),
+        "freshnessWindow": final_state.get("freshnessWindow", ""),
+        "freshnessFill": final_state.get("freshnessFill", 0),
+        "urgency": final_state.get("urgency", "low"),
+        "suggestion": final_state.get("suggestion", ""),
+        "buyers": final_state.get("buyers", []),
+        "dispatch": final_state.get("dispatch", {}),
+        "source": "langgraph"
+    }
