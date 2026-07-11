@@ -16,6 +16,8 @@ const MARKUP = `
     <g style="fill:#E0A62E"><circle cx="256" cy="120" r="8"/><circle cx="312" cy="172" r="8"/><circle cx="206" cy="214" r="8"/><circle cx="298" cy="252" r="8"/><circle cx="226" cy="300" r="7"/><circle cx="312" cy="318" r="7"/></g>
     <path style="fill:#17572F;stroke:#FBFAF4;stroke-width:4" d="M188,386 L256,300 L324,386 Z"/><path style="fill:#E0A62E" d="M256,300 L244,326 L256,318 L268,326 Z"/>
   </symbol>
+  <symbol id="ic-linkedin" viewBox="0 0 24 24"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></symbol>
+  <symbol id="ic-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6 0-.3 0-1-.01-1.9-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.75.08-.73.08-.73 1.2.08 1.83 1.24 1.83 1.24 1.07 1.83 2.81 1.3 3.5.99.1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.95 0-1.32.47-2.39 1.24-3.23-.13-.3-.54-1.53.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.82 1.1.82 2.22 0 1.61-.02 2.9-.02 3.3 0 .32.22.7.82.58A12 12 0 0 0 12 .3z"/></symbol>
 </svg>
 
 <div class="scrollbar" id="scrollbar"></div>
@@ -312,13 +314,14 @@ const MARKUP = `
   <div class="wrap">
     <div class="sec-head" data-reveal style="text-align:center;margin-inline:auto">
       <span class="eyebrow">The team</span>
-      <h2>Built by four, overnight.</h2>
+      <h2>Five Builders, One Goal</h2>
     </div>
     <div class="team-grid" data-reveal>
-      <div class="team-card"><div class="avatar">JD</div><div class="name">JC Diamante</div><div class="role">Role &mdash; edit me</div></div>
-      <div class="team-card"><div class="avatar">AL</div><div class="name">Andre D. Lacra</div><div class="role">Role &mdash; edit me</div></div>
-      <div class="team-card"><div class="avatar">JA</div><div class="name">Jan A&ntilde;onuevo</div><div class="role">Role &mdash; edit me</div></div>
-      <div class="team-card"><div class="avatar">JM</div><div class="name">Jake Manahan</div><div class="role">Role &mdash; edit me</div></div>
+      <div class="team-card"><div class="avatar">AV</div><div class="name">Angelo Sebaxtian Vasquez</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/angelo-sebaxtian-v-700625260/" target="_blank" rel="noopener noreferrer" aria-label="Angelo Sebaxtian Vasquez on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/BazzSHOCKCoder" target="_blank" rel="noopener noreferrer" aria-label="Angelo Sebaxtian Vasquez on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">AL</div><div class="name">Andre Lacra</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/andre-lacra-39292b279/" target="_blank" rel="noopener noreferrer" aria-label="Andre Lacra on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/Andyzxc4" target="_blank" rel="noopener noreferrer" aria-label="Andre Lacra on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">JD</div><div class="name">JC Diamante</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/jcdiamante/" target="_blank" rel="noopener noreferrer" aria-label="JC Diamante on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/Zeraphim" target="_blank" rel="noopener noreferrer" aria-label="JC Diamante on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">JA</div><div class="name">Jan A&ntilde;onuevo</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/jananonuevo/" target="_blank" rel="noopener noreferrer" aria-label="Jan A&ntilde;onuevo on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/jananonuevo" target="_blank" rel="noopener noreferrer" aria-label="Jan A&ntilde;onuevo on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">JM</div><div class="name">Jake Manahan</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/jake-m-a93a58235" target="_blank" rel="noopener noreferrer" aria-label="Jake Manahan on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/mcjakey1" target="_blank" rel="noopener noreferrer" aria-label="Jake Manahan on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
     </div>
   </div>
 </section>

@@ -274,7 +274,10 @@ section.block{padding:96px 0;border-top:1px solid var(--line);position:relative;
 .team-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e-2);padding:26px 18px;text-align:center;}
 .team-card .avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2f7d3f,#155a30);color:#fff;font-family:var(--display);font-weight:600;font-size:19px;display:grid;place-items:center;margin:0 auto 14px;}
 .team-card .name{font-family:var(--display);font-weight:600;font-size:16.5px;}
-.team-card .role{color:var(--gray);font-size:13px;margin-top:4px;}
+.team-card .socials{display:flex;gap:10px;justify-content:center;margin-top:12px;}
+.team-card .soc{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gray);border:1px solid var(--line);transition:color var(--dur-2) var(--ease-io),border-color var(--dur-2) var(--ease-io),transform var(--dur-2) var(--ease-io);}
+.team-card .soc:hover{color:var(--green);border-color:var(--green);transform:translateY(-2px);}
+.team-card .soc svg{width:16px;height:16px;fill:currentColor;}
 .foot{padding:60px 0 80px;border-top:1px solid var(--line);text-align:center;}
 .foot svg{width:44px;height:44px;}.foot p{color:var(--gray);font-size:13.5px;margin-top:12px;}
 
