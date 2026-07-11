@@ -12,6 +12,8 @@ Team-facing documentation for the Ani submission. Suggested reading order:
    current vs target state, and the seams between them.
 5. **[02-roadmap.md](./02-roadmap.md)** — the working checklist: what exists now (Phase 0) and
    what's left, phase by phase, to reach the end goal.
+6. **[07-mi300x-local-runbook.md](./07-mi300x-local-runbook.md)** — the current, secret-free
+   procedure for developing locally against the MI300X and handing it off to Vercel.
 
 Related strategy docs live one level up in the project root: `../backwards-to-champion.md`,
 `../site-assessment-and-moat.md`, `../ani-submission-framing.md`,

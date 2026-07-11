@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import DispatchMapModal from "@/components/DispatchMapModal";
-import { gradeStub, matchStub } from "@/lib/stub";
+import { matchStub, analyzeStub } from "@/lib/stub";
 
 // The showcase markup (from docs/ui/showcase.html), preserved exactly.
 // Styles live in globals.css; behavior is wired in the effect below.
@@ -126,28 +126,43 @@ const MARKUP = `
       <div class="console-body">
         <div class="console-in">
           <div class="subhead">Post a harvest</div>
-          <div class="field">
-            <label>Crop</label>
-            <input class="input" id="cropSel" type="text" placeholder="e.g. Heirloom Tomatoes" defaultValue="Pechay" />
-          </div>
-          <div class="field">
-            <label>Location (Origin)</label>
-            <input class="input" id="locIn" type="text" placeholder="e.g. Cebu City" defaultValue="La Trinidad, Benguet" />
-          </div>
-          <div class="field">
-            <label>Volume (kg)</label>
-            <input class="input" id="qtyIn" type="number" defaultValue="450" min="1">
-          </div>
-          <div class="field" style="margin-bottom:12px">
+
+          <!-- 1 · Photo first — the grader reads it, then fills the rest -->
+          <div class="field" style="margin-bottom:14px">
             <label>Harvest photo</label>
-            <label for="imageIn" class="drop" id="dropLabel" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-              <span class="leafico">&#127807;</span>
-              <div class="big" id="imageNameDisplay">Tap to select photo</div>
-              <div class="muted" style="font-size:12.5px">JPG/PNG</div>
-            </label>
+            <div class="photo-slot" id="photoSlot">
+              <label for="imageIn" class="drop" id="dropLabel">
+                <span class="leafico">&#129382;</span>
+                <div class="big" id="imageNameDisplay">Tap to add a photo</div>
+                <div class="muted" style="font-size:12.5px">JPG / PNG &middot; the grader reads it</div>
+              </label>
+              <img class="preview-img" id="previewImg" alt="" />
+              <div class="scan-line"></div>
+              <div class="scan-corners"><span></span><span></span><span></span><span></span></div>
+              <div class="photo-check">&#10003; Photo read</div>
+              <button type="button" class="photo-retake" id="retakeBtn">Retake</button>
+              <div class="analyzing-pill"><span class="dd"></span> Gemma vision reading photo&hellip;</div>
+            </div>
             <input type="file" id="imageIn" accept="image/*" style="display:none;" />
           </div>
-          <button class="btn lg sheen magnetic" id="runBtn" style="width:100%">&#9889; Grade &amp; match harvest</button>
+
+          <!-- 2 · AI-detected, still editable -->
+          <div class="field detected" id="cropField">
+            <div class="field-head"><label>Crop <span class="ai-badge"><span class="spark">&#10022;</span> AI</span></label><span class="edit-hint">tap to edit</span></div>
+            <input class="input" id="cropSel" type="text" placeholder="Detected from photo" />
+          </div>
+          <div class="field detected" id="volField">
+            <div class="field-head"><label>Volume (kg) <span class="ai-badge"><span class="spark">&#10022;</span> AI estimate</span></label><span class="edit-hint">tap to edit</span></div>
+            <input class="input" id="qtyIn" type="number" min="1" placeholder="Estimated from photo" />
+          </div>
+
+          <!-- 3 · Manual origin -->
+          <div class="field detected" id="locField" style="margin-bottom:16px">
+            <div class="field-head"><label>&#128205; Location (origin)</label></div>
+            <input class="input" id="locIn" type="text" placeholder="e.g. Cebu City" value="La Trinidad, Benguet" />
+          </div>
+
+          <button class="btn lg sheen magnetic" id="runBtn" style="width:100%" disabled>&#9889; Grade &amp; match harvest</button>
           <button class="btn sm secondary magnetic" id="replayBtn" style="width:100%;margin-top:10px;display:none">Replay &#8635;</button>
         </div>
         <div class="console-out">
@@ -484,12 +499,123 @@ export default function Home() {
       return el;
     };
 
-    async function getProcess(cropId: string, qty: number, imageData: string, location: string) {
+    /* ---- photo-first: analyze on upload, cache the grade ---- */
+    let analyzed: any = null; // one vision pass result (grade + detected crop/volume)
+    const sourceLabels: Record<string, string> = {
+      mi300x: "connected · MI300X",
+      fireworks: "connected · Fireworks",
+      langgraph: "connected · LangGraph",
+      stub: "safe fallback · stub",
+    };
+    // detected crop text -> id; unknown crops degrade to their slug (backend falls back to pechay data)
+    const mapCropId = (name: string) => {
+      const v = (name || "").trim().toLowerCase();
+      const known = ["pechay", "cabbage", "carrots", "broccoli"];
+      const hit = known.find((k) => v.startsWith(k) || v.includes(k));
+      return hit || v.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pechay";
+    };
+    const typeInto = async (el: HTMLInputElement, text: string, per = 40) => {
+      if (reduce) { el.value = text; return; }
+      el.value = "";
+      for (let i = 0; i < text.length; i++) { el.value += text[i]; await delay(per); }
+    };
+    const countInto = (el: HTMLInputElement, target: number, dur = 800) =>
+      new Promise<void>((resolve) => {
+        if (reduce) { el.value = String(target); resolve(); return; }
+        const s = performance.now();
+        const tk = (n: number) => {
+          const p = Math.min((n - s) / dur, 1);
+          el.value = String(Math.round((1 - Math.pow(1 - p, 3)) * target));
+          if (p < 1) requestAnimationFrame(tk); else { el.value = String(target); resolve(); }
+        };
+        requestAnimationFrame(tk);
+      });
+    const resizeImage = (file: File) =>
+      new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const MAX = 800; let width = img.width, height = img.height;
+            if (width > height) { if (width > MAX) { height *= MAX / width; width = MAX; } }
+            else { if (height > MAX) { width *= MAX / height; height = MAX; } }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext("2d"); if (ctx) ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", 0.7));
+          };
+          img.src = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+
+    async function getAnalyze(imageData: string, location: string) {
       try {
-        const r = await fetch("/api/process", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ crop: cropId, quantityKg: qty, image_data: imageData, location }) });
+        const r = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ image_data: imageData, location }) });
         if (r.ok) return await r.json();
       } catch {}
-      return gradeStub(cropId, qty);
+      return analyzeStub();
+    }
+
+    function resetPhoto() {
+      analyzed = null;
+      const slot = gid("photoSlot");
+      slot.classList.remove("has", "scanning", "done");
+      gid("previewImg").src = "";
+      (gid("imageIn") as HTMLInputElement).value = "";
+      gid("imageNameDisplay").textContent = "Tap to add a photo";
+      ["cropField", "volField", "locField"].forEach((id) => gid(id).classList.remove("in", "filled", "filling"));
+      (document.getElementById("cropSel") as HTMLInputElement).value = "";
+      (document.getElementById("qtyIn") as HTMLInputElement).value = "";
+      runBtn.disabled = true; replayBtn.style.display = "none";
+      outStack.classList.remove("show"); outEmpty.style.display = "";
+    }
+
+    async function analyzeImage(file: File) {
+      const slot = gid("photoSlot"), preview = gid("previewImg");
+      const raw = await resizeImage(file);
+      preview.src = raw;
+      slot.classList.add("has");
+      gid("imageNameDisplay").textContent = file.name;
+      runBtn.disabled = true; replayBtn.style.display = "none";
+
+      await delay(120);
+      slot.classList.add("scanning");
+      const loc = (document.getElementById("locIn") as HTMLInputElement).value;
+      const resPromise = getAnalyze(raw, loc);
+      await delay(1500);
+      slot.classList.remove("scanning");
+      const res = await resPromise;
+
+      // photo wasn't a crop (or the call failed) -> surface the existing modal, let them retake
+      if (!res || res.isCrop === false || res.error) {
+        const msg = (res && (res.error || "That photo doesn't look like a harvest — try another shot.")) || "Couldn't read that photo. Try again.";
+        const errModal = gid("errorModal");
+        if (errModal) { gid("errorModalMsg").textContent = msg; errModal.style.display = "flex"; }
+        resetPhoto();
+        return;
+      }
+
+      analyzed = res;
+      slot.classList.add("done");
+      const backendStatusText = gid("backendStatusText");
+      const source = sourceLabels[res.source] ? res.source : "stub";
+      if (backendStatusText) backendStatusText.textContent = sourceLabels[source];
+
+      const cropField = gid("cropField"), volField = gid("volField"), locField = gid("locField");
+      const cropInput = document.getElementById("cropSel") as HTMLInputElement;
+      const qtyInput = document.getElementById("qtyIn") as HTMLInputElement;
+
+      cropField.classList.add("in", "filling");
+      await typeInto(cropInput, res.crop, 38);
+      cropField.classList.remove("filling"); cropField.classList.add("filled");
+      await delay(180);
+      volField.classList.add("in", "filling");
+      await countInto(qtyInput, Math.round(res.volumeKg), 800);
+      volField.classList.remove("filling"); volField.classList.add("filled");
+      await delay(180);
+      locField.classList.add("in");
+      runBtn.disabled = false;
     }
     async function getMatch(grade: any, location: string) {
       try {
@@ -500,42 +626,23 @@ export default function Home() {
     }
 
     async function run() {
-      if (busy) return; busy = true;
-      const cropId = (document.getElementById("cropSel") as HTMLInputElement).value;
+      if (busy) return;
+      if (!analyzed) { alert("Add a harvest photo first — the grader reads it to fill the rest."); return; }
+      busy = true;
+      const cropInput = (document.getElementById("cropSel") as HTMLInputElement).value;
       const qty = parseInt((document.getElementById("qtyIn") as HTMLInputElement).value);
       const loc = (document.getElementById("locIn") as HTMLInputElement).value;
-      
-      if (!cropId || !cropId.trim()) { alert("Please enter a valid crop."); busy = false; return; }
+
+      if (!cropInput || !cropInput.trim()) { alert("Please enter a valid crop."); busy = false; return; }
       if (!loc || !loc.trim()) { alert("Please enter a valid location."); busy = false; return; }
       if (isNaN(qty) || qty <= 0) { alert("Please enter a valid weight greater than 0."); busy = false; return; }
 
-      const fileInput = document.getElementById("fileInput") as HTMLInputElement;
-      let imageData = "";
-      if (imageIn && imageIn.files && imageIn.files[0]) {
-        const file = imageIn.files[0];
-        imageData = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement("canvas");
-              const MAX_WIDTH = 800;
-              const MAX_HEIGHT = 800;
-              let width = img.width; let height = img.height;
-              if (width > height) {
-                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-              } else {
-                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-              }
-              canvas.width = width; canvas.height = height;
-              const ctx = canvas.getContext("2d");
-              if (ctx) ctx.drawImage(img, 0, 0, width, height);
-              resolve(canvas.toDataURL("image/jpeg", 0.7));
-            };
-            img.src = e.target?.result as string;
-          };
-          reader.readAsDataURL(file);
-        });
+      // Reuse the vision pass from upload. If the farmer corrected the crop, re-key
+      // so match + dispatch follow the edit — no second MI300X pass.
+      const grade: any = { ...analyzed, quantityKg: qty };
+      if (cropInput.trim() !== analyzed.crop) {
+        grade.crop = cropInput.trim();
+        grade.cropId = mapCropId(cropInput);
       }
 
       runBtn.classList.add("loading");
@@ -548,42 +655,15 @@ export default function Home() {
       matchPanel.classList.remove("show"); matchPanel.style.display = "none";
       dispatchEl.classList.remove("show"); dispatchEl.style.display = "none";
 
-      /* Agent A — trace only */
+      /* Agent A — grade already computed at upload; replay it in the trace */
       setStep(0, "active");
-      const grade = await getProcess(cropId, qty, imageData, loc);
-      await delay(950);
-
-      if (grade && grade.error) {
-        const errMsg = grade.error;
-        const errModal = document.getElementById("errorModal");
-        if (errModal) {
-          document.getElementById("errorModalMsg")!.textContent = errMsg;
-          errModal.style.display = "flex";
-        }
-
-        gid("s0").textContent = "→ Error: " + errMsg;
-        gid("s0").style.color = "var(--danger)";
-        setStep(0, "done");
-        runBtn.classList.remove("loading");
-        busy = false;
-        return;
-      }
-
-      const sourceLabels: Record<string, string> = {
-        mi300x: "connected · MI300X",
-        fireworks: "connected · Fireworks",
-        langgraph: "connected · LangGraph",
-        stub: "safe fallback · stub",
-      };
+      await delay(650);
       const source = sourceLabels[grade.source] ? grade.source : "stub";
-      const backendStatusText = gid("backendStatusText");
       const gradeSourceText = gid("gradeSourceText");
-      if (backendStatusText) backendStatusText.textContent = sourceLabels[source];
       if (gradeSourceText) gradeSourceText.textContent = source === "mi300x" ? "graded on MI300X" : `source · ${source}`;
-
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
-      await delay(800);
+      await delay(700);
 
       /* Agent D — trace only */
       setStep(1, "active");
@@ -646,18 +726,11 @@ export default function Home() {
     on(replayBtn, "click", run);
     on(gid("mapTrackBtn"), "click", () => window.dispatchEvent(new CustomEvent("ani:map-open")));
     
-    on(gid("imageIn"), "change", (e: Event) => {
+    on(gid("imageIn"), "change", async (e: Event) => {
       const target = e.target as HTMLInputElement;
-      if (target.files && target.files.length > 0) {
-        gid("imageNameDisplay").textContent = target.files[0].name;
-        gid("dropLabel").style.borderColor = "var(--green-main)";
-        gid("dropLabel").style.backgroundColor = "var(--green-muted)";
-      } else {
-        gid("imageNameDisplay").textContent = "Tap to select photo";
-        gid("dropLabel").style.borderColor = "var(--border)";
-        gid("dropLabel").style.backgroundColor = "transparent";
-      }
+      if (target.files && target.files[0]) await analyzeImage(target.files[0]);
     });
+    on(gid("retakeBtn"), "click", (e: Event) => { e.preventDefault(); resetPhoto(); });
 
     return () => cleanups.forEach((f) => f());
   }, []);

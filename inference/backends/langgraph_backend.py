@@ -62,6 +62,24 @@ class GraderOutput(BaseModel):
     suggestion: str
 
 
+class AnalyzeOutput(BaseModel):
+    # Photo-first: identify + estimate + grade in one vision pass.
+    is_crop: bool
+    error_message: str
+    crop: str
+    cropConfidence: int
+    volumeKg: float
+    volumeConfidence: int
+    grade: str
+    score: float
+    ripeness: str
+    shelfLifeHours: int
+    freshnessWindow: str
+    freshnessFill: int
+    urgency: str
+    suggestion: str
+
+
 def _client() -> OpenAI:
     return OpenAI(base_url=BASE_URL, api_key=FIREWORKS_API_KEY or "sk-none")
 
@@ -245,6 +263,63 @@ def grade(
     if not result.get("is_crop", True):
         result["error"] = result.get("error_message", "Invalid crop image.")
     return result
+
+
+ANALYZE_PROMPT = (
+    "You are an expert crop grader for Philippine highland (Benguet) vegetables. "
+    "In one pass, read this harvest photo. First confirm it shows an edible crop, "
+    "vegetable, or fruit; if not, set is_crop to false and explain in error_message. "
+    "Otherwise identify the crop, estimate the total harvest volume in kilograms from "
+    "what's visible (a rough estimate from crate/pile size and typical density, not a "
+    "measurement), and grade it. Overripe but edible crops stay valid at a lower grade. "
+    "Return the AnalyzeOutput JSON schema."
+)
+
+
+def analyze(image_data: str = "", location: str = "La Trinidad, Benguet") -> dict:
+    """Photo-first: detect crop + estimate volume + grade in a single vision call."""
+    try:
+        messages = [{"role": "user", "content": [{"type": "text", "text": ANALYZE_PROMPT}]}]
+        if image_data:
+            messages[0]["content"].append({"type": "image_url", "image_url": {"url": image_data}})
+        response = _client().chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            response_format={"type": "json_object", "schema": AnalyzeOutput.model_json_schema()},
+            temperature=0.1,
+        )
+        data = json.loads(response.choices[0].message.content or "{}")
+        AnalyzeOutput.model_validate(data)
+
+        if not data.get("is_crop", True):
+            fb = stub.analyze(image_data, location)
+            return {**fb, "isCrop": False, "error": data.get("error_message", "That photo doesn't look like a harvest."), "source": "langgraph"}
+
+        detected = str(data.get("crop") or "Pechay").strip()
+        crop_id = _crop_id(detected)  # unknown -> pechay for match keying
+        # open detection + degrade: keep the model's detected name for display
+        display = stub.DATA.get(crop_id, {}).get("name") or detected.title()
+        return {
+            "isCrop": True,
+            "error": "",
+            "cropId": crop_id,
+            "crop": display,
+            "cropConfidence": int(data.get("cropConfidence", 80)),
+            "volumeKg": round(float(data.get("volumeKg", 450) or 450), 1),
+            "volumeConfidence": int(data.get("volumeConfidence", 60)),
+            "grade": data["grade"],
+            "score": data["score"],
+            "ripeness": data["ripeness"],
+            "shelfLifeHours": data["shelfLifeHours"],
+            "freshnessWindow": data["freshnessWindow"],
+            "freshnessFill": data["freshnessFill"],
+            "urgency": data["urgency"],
+            "suggestion": data["suggestion"],
+            "source": "langgraph",
+        }
+    except Exception as error:  # noqa: BLE001
+        print(f"[langgraph.analyze] fallback to stub: {error}")
+        return stub.analyze(image_data, location)
 
 
 def match(grade_dict: dict, location: str = "La Trinidad, Benguet") -> dict:
