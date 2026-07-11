@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ani Roadmap Checks"
+  short_description: "Update Ani roadmap checks from evidence"
+  default_prompt: "Audit and update Ani roadmap checkboxes from current repository, receipts, builds, and live deployment evidence."

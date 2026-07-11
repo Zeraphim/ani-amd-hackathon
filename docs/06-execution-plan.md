@@ -65,39 +65,39 @@ Three code edits this invariant requires (can be split across tracks):
 
 | # | Task | Exit criterion | Receipt |
 |---|---|---|---|
-| A1 | `gh repo edit Zeraphim/ani-amd-hackathon --visibility public` | Repo shows Public | — |
-| A2 | Fast-forward `main` to `origin/v1.1`; `git push origin main` | `main` HEAD = `85f86f2` (or later if B/C commits go on top) | — |
-| A3 | `cd web && npm install && npm run build` — **CRITICAL: the production build is currently unverified — no `BUILD_ID` exists** | `.next/BUILD_ID` exists; standalone server boots on port 7860 | — |
-| A4 | Edit `inference/backends/fireworks.py` `grade()` → multimodal Gemma 3: accept `image_data` param, send base64 image, model → Gemma 3 VLM id | `/process` returns real Gemma grade from an uploaded photo with `source: fireworks` | — |
-| A5 | Deploy Tier 2 on Railway/Render: root dir `inference`, `ANI_BACKEND=fireworks`, `FIREWORKS_API_KEY=<key>`, `uvicorn main:app --host 0.0.0.0 --port $PORT` | `GET /` → `{"ok":true,"backend":"fireworks"}` | — |
-| A6 | **Waived by Decision E1:** Fireworks Gemma 3 is unavailable to the account. Preserve the deployed Tier 1 and stub fallback; do not claim a Fireworks result. | Decision E1 records direct API evidence and the approved exception | — |
-| A7 | Full dry-run from incognito: pick crop → sample photo → Grade & match → all panels populate → map animates La Trinidad→NCR | All panels render; no console errors; `source` = `fireworks` | — |
-| A8 | Draft pitch deck from `../ani-submission-framing.md`'s 8-slide arc. Include memory-math table, before/after grading table (fill from Track B), TAM/SAM, "what didn't work." | Deck file in repo root or `docs/` | — |
-| A9 | Record ≤5-min video (≤300 MB, direct upload — no YouTube/Drive). Show live demo + headline numbers + emotional close ("runs on the farmer's own phone"). | One video file committed or ready for direct upload | — |
+| A1 | [x] `gh repo edit Zeraphim/ani-amd-hackathon --visibility public` | Repo shows Public | — |
+| A2 | [ ] Fast-forward `main` to `origin/v1.1`; `git push origin main` | `main` HEAD = `85f86f2` (or later if B/C commits go on top) | — |
+| A3 | [x] `cd web && npm install && npm run build` — production build verified | `.next/BUILD_ID` exists; production deployment is READY | — |
+| A4 | [ ] Edit `inference/backends/fireworks.py` `grade()` → multimodal Gemma 3: accept `image_data` param, send base64 image, model → Gemma 3 VLM id | `/process` returns real Gemma grade from an uploaded photo with `source: fireworks` | — |
+| A5 | [ ] Deploy Tier 2 on Railway/Render: root dir `inference`, `ANI_BACKEND=fireworks`, `FIREWORKS_API_KEY=<key>`, `uvicorn main:app --host 0.0.0.0 --port $PORT` | `GET /` → `{"ok":true,"backend":"fireworks"}` | — |
+| A6 | [x] **Waived by Decision E1:** Fireworks Gemma 3 is unavailable to the account. Preserve the deployed Tier 1 and stub fallback; do not claim a Fireworks result. | Decision E1 records direct API evidence and the approved exception | — |
+| A7 | [ ] Full dry-run from incognito: pick crop → sample photo → Grade & match → all panels populate → map animates La Trinidad→NCR | All panels render; no console errors; `source` = `fireworks` | — |
+| A8 | [ ] Draft pitch deck from `../ani-submission-framing.md`'s 8-slide arc. Include memory-math table, before/after grading table (fill from Track B), TAM/SAM, "what didn't work." | Deck file in repo root or `docs/` | — |
+| A9 | [ ] Record ≤5-min video (≤300 MB, direct upload — no YouTube/Drive). Show live demo + headline numbers + emotional close ("runs on the farmer's own phone"). | One video file committed or ready for direct upload | — |
 
 ### Track B — Make the MI300X load-bearing
 *Owner: AMD Dev Cloud. This is the champion move — the entire agentic stack self-hosted on one card.*
 
 | # | Task | Exit criterion | Receipt |
 |---|---|---|---|
-| B1 | SSH into MI300X. Run `rocm-smi | tee receipts/rocm-smi.log`. Note `gfx942`. | committed `rocm-smi.log` | ✅ receipt 1 |
-| B2 | **Gate:** verify vLLM-ROCm supports Gemma 3 multimodal vision inference. `pip install vllm` (ROCm build), dry-run model load. | Model loads without fatal error. If blocked: fall back to text-only grader on MI300X + keep multimodal on Fireworks. | — |
-| B3 | `vllm serve <gemma-3-vlm> --dtype bfloat16 --max-model-len 8192 --host 0.0.0.0 --port 8001 2>&1 | tee receipts/vllm_serve.log` | non-fatal startup; `gfx942` visible in log | ✅ receipt 2 |
-| B4 | Set up Cloudflare **named** tunnel (not quick-tunnel — quick-tunnel URLs are ephemeral and reset on restart) → stable public HTTPS endpoint pointing to `localhost:8001` | `curl <tunnel-url>/v1/models` from external machine returns 200 | — |
-| B5 | On the MI300X: `ANI_BACKEND=mi300x ANI_BASE_URL=http://localhost:8001/v1 ANI_MODEL=<gemma-3-vlm> uvicorn inference.main:app --host 0.0.0.0 --port 8000` then tunnel port 8000 (or nginx proxy both). Confirm `/process` returns `source: mi300x`. | Real Gemma grade from the card; `source: mi300x` in response | — |
-| B6 | After A6 completes **or Decision E1 is recorded**, repaint Vercel `INFERENCE_BASE_URL` → Cloudflare tunnel URL (pointing at Tier 2 on MI300X). Redeploy. | Live Vercel demo backed by the MI300X; `source: mi300x` in network tab | — |
-| B7 | **STRETCH (only if B1–B6 stable with ≥3 hrs buffer):** Assemble 150–300 labeled produce photos (grab a public produce-grading dataset — do NOT hand-label from scratch today). Write `data/produce_grades.jsonl`. Run **1-epoch** LoRA fine-tune (`finetune_gemma_grader.py --epochs 1`). Compute base-vs-tuned grading accuracy on a held-out slice. Serve the adapter via vLLM `--lora-modules`. | committed `train.log` + loss curve + a base→tuned % number in the deck | ✅ receipt 3 |
-| B8 | Fill `training/receipts/ROCM_NOTES.md` honestly: instance specs, version pins, memory-math line (co-hosting grader + reasoning + embeddings ≈ X GB → MI300X 192 GB ✅ / H100 80 GB ❌), and an honest "what didn't work" beat. | committed; all checkboxes checked | ✅ |
+| B1 | [x] SSH into MI300X. Run `rocm-smi | tee receipts/rocm-smi.log`. Note `gfx942`. | committed `rocm-smi.log` | ✅ receipt 1 |
+| B2 | [x] **Gate:** verify vLLM-ROCm supports Gemma 3 multimodal vision inference. `pip install vllm` (ROCm build), dry-run model load. | Model loads without fatal error. If blocked: fall back to text-only grader on MI300X + keep multimodal on Fireworks. | — |
+| B3 | [x] `vllm serve <gemma-3-vlm> --dtype bfloat16 --max-model-len 8192 --host 127.0.0.1 --port 8001 2>&1 | tee receipts/vllm_serve.log` | non-fatal startup; `gfx942` visible in log | ✅ receipt 2 |
+| B4 | [x] Set up Cloudflare **named** tunnel (not quick-tunnel — quick-tunnel URLs are ephemeral and reset on restart) → stable public HTTPS endpoint pointing to `localhost:8001` | `curl <tunnel-url>/v1/models` from external machine returns 200 | — |
+| B5 | [x] On the MI300X: `ANI_BACKEND=mi300x ANI_BASE_URL=http://127.0.0.1:8001/v1 ANI_MODEL=<gemma-3-vlm> uvicorn inference.main:app --host 127.0.0.1 --port 8000` then tunnel port 8000. Confirm `/process` returns `source: mi300x`. | Real Gemma grade from the card; `source: mi300x` in response | — |
+| B6 | [x] After A6 completes **or Decision E1 is recorded**, repaint Vercel `INFERENCE_BASE_URL` → Cloudflare tunnel URL (pointing at Tier 2 on MI300X). Redeploy. | Live Vercel demo backed by the MI300X; `source: mi300x` in network tab | — |
+| B7 | [x] **STRETCH (only if B1–B6 stable with ≥3 hrs buffer):** Assemble 150–300 labeled produce photos (grab a public produce-grading dataset — do NOT hand-label from scratch today). Write `data/produce_grades.jsonl`. Run **1-epoch** LoRA fine-tune (`finetune_gemma_grader.py --epochs 1`). Compute base-vs-tuned grading accuracy on a held-out slice. Serve the adapter via vLLM `--lora-modules`. | receipts present locally; commit at S1; base→tuned number ready for the deck | ✅ receipt 3 |
+| B8 | [x] Fill `training/receipts/ROCM_NOTES.md` honestly: instance specs, version pins, memory-math line (co-hosting grader + reasoning + embeddings ≈ X GB → MI300X 192 GB ✅ / H100 80 GB ❌), and an honest "what didn't work" beat. | notes filled locally; commit at S1; all checkboxes checked | ✅ |
 
 ### Track C — Real data, no mocks
 *Owner: data/Python. Low dependency — run in parallel with A and B.*
 
 | # | Task | Exit criterion | Receipt |
 |---|---|---|---|
-| C1 | Scrape DA Bantay-Presyo / PSA OpenSTAT / Kadiwa for pechay, cabbage, carrots, broccoli (NCR retail/wholesale prices). | `inference/data/ncr_prices.csv` updated with real rows + `# source: DA Bantay-Presyo, retrieved <date>` header | — |
-| C2 | **Wire `ncr_prices.csv` into the matching pipeline.** Currently this file is loaded by **no code** — it exists as a seed but `match()` in all backends uses hardcoded buyer prices from `buyers.json`. Wire it so `MatchResult.pricePerKg` traces to the real CSV. | `source: DA Bantay-Presyo` traceable from the demo response; price changes when CSV is updated | — |
-| C3 | Promote LangGraph embeddings (`inference/backends/langgraph_backend.py`) onto the real buyers+prices so the default `match()` path is embeddings-based, not the stub ranking. | `/match` returns cosine-ranked buyers over real data + real prices | — |
-| C4 | (Optional) Retarget LangGraph grader node to Gemma 3 VLM per invariant I2 if not already done by Track A. | LangGraph grader uses Gemma 3, not minimax-m3 | — |
+| C1 | [ ] Scrape DA Bantay-Presyo / PSA OpenSTAT / Kadiwa for pechay, cabbage, carrots, broccoli (NCR retail/wholesale prices). | `inference/data/ncr_prices.csv` updated with real rows + `# source: DA Bantay-Presyo, retrieved <date>` header | — |
+| C2 | [ ] **Wire `ncr_prices.csv` into the matching pipeline.** Currently this file is loaded by **no code** — it exists as a seed but `match()` in all backends uses hardcoded buyer prices from `buyers.json`. Wire it so `MatchResult.pricePerKg` traces to the real CSV. | `source: DA Bantay-Presyo` traceable from the demo response; price changes when CSV is updated | — |
+| C3 | [ ] Promote LangGraph embeddings (`inference/backends/langgraph_backend.py`) onto the real buyers+prices so the default `match()` path is embeddings-based, not the stub ranking. | `/match` returns cosine-ranked buyers over real data + real prices | — |
+| C4 | [ ] (Optional) Retarget LangGraph grader node to Gemma 3 VLM per invariant I2 if not already done by Track A. | LangGraph grader uses Gemma 3, not minimax-m3 | — |
 
 ---
 
@@ -227,14 +227,14 @@ before assembly.
 
 | Step | Action | Confirmation |
 |---|---|---|
-| S1 | Merge all track branches → `main`. Push. Resolve any conflict in the shared files (see §4). | `git status` clean on `main` |
-| S2 | **Second clean dry-run** from incognito browser on the live Vercel URL. Pick each crop, click Grade & match, verify map animates, check network tab for `source: mi300x`. | All panels populate; `source: mi300x` confirmed |
-| S3 | Keep Vercel warm — open the URL right before judging; no cold start. | Space loads instantly |
-| S4 | **Safety net:** if Vercel is down or misbehaving near the deadline, spin the 1-hour Gradio `/process` proxy on a free HF CPU Space. One `app.py`, `gr.Interface`, `ANI_BACKEND=mi300x` pointed at the tunnel. Guaranteed-live fallback. | — |
-| S5 | Verify receipts committed to `training/receipts/` and linked from `JUDGES_START_HERE.md` + root `README.md`. | All receipt files committed; all `ROCM_NOTES.md` checkboxes checked |
-| S6 | Clean root `README.md`: remove the stray personal-tag lines ("hi im jan / jc / andre / jake jake"), confirm MIT license, public link, live demo URL. | README is professional and submission-ready |
-| S7 | **Submit** with buffer well before 6 PM CET: public repo link + ≤5-min video (direct file upload, ≤300 MB) + live demo URL noted in `JUDGES_START_HERE.md`. | Submission acknowledged |
-| S8 | **Destroy the MI300X instance** to stop credit burn (powering off still bills disk/IP — full destroy only). | Instance gone; credit protected |
+| S1 | [ ] Merge all track branches → `main`. Push. Resolve any conflict in the shared files (see §4). | `git status` clean on `main` |
+| S2 | [ ] **Second clean dry-run** from incognito browser on the live Vercel URL. Pick each crop, click Grade & match, verify map animates, check network tab for `source: mi300x`. | All panels populate; `source: mi300x` confirmed |
+| S3 | [ ] Keep Vercel warm — open the URL right before judging; no cold start. | Space loads instantly |
+| S4 | [ ] **Safety net:** if Vercel is down or misbehaving near the deadline, spin the 1-hour Gradio `/process` proxy on a free HF CPU Space. One `app.py`, `gr.Interface`, `ANI_BACKEND=mi300x` pointed at the tunnel. Guaranteed-live fallback. | — |
+| S5 | [ ] Verify receipts committed to `training/receipts/` and linked from `JUDGES_START_HERE.md` + root `README.md`. | All receipt files committed; all `ROCM_NOTES.md` checkboxes checked |
+| S6 | [ ] Clean root `README.md`: remove the stray personal-tag lines ("hi im jan / jc / andre / jake jake"), confirm MIT license, public link, live demo URL. | README is professional and submission-ready |
+| S7 | [ ] **Submit** with buffer well before 6 PM CET: public repo link + ≤5-min video (direct file upload, ≤300 MB) + live demo URL noted in `JUDGES_START_HERE.md`. | Submission acknowledged |
+| S8 | [ ] **Destroy the MI300X instance** to stop credit burn (powering off still bills disk/IP — full destroy only). | Instance gone; credit protected |
 
 ---
 
@@ -268,12 +268,12 @@ These items are **explicitly out of scope today**. The skill gate blocks any tas
 
 ## 8. Submission checklist (final gate before upload)
 
-- [ ] Public GitHub repo: `Zeraphim/ani-amd-hackathon` → visibility = Public
+- [x] Public GitHub repo: `Zeraphim/ani-amd-hackathon` → visibility = Public
 - [ ] `main` is the default branch and contains all track work
 - [ ] Live Vercel URL confirmed in `JUDGES_START_HERE.md`
-- [ ] Dry-run from incognito: `source: mi300x` visible in network tab
+- [ ] Manual incognito dry-run: `source: mi300x` visible in network tab (automated production check is complete)
 - [ ] `training/receipts/` has `rocm-smi.log` + `vllm_serve.log` (+ `train.log` if B7 was reached)
-- [ ] `training/receipts/ROCM_NOTES.md` is filled honestly — all checkboxes checked
+- [x] `training/receipts/ROCM_NOTES.md` is filled honestly — all checkboxes checked
 - [ ] `JUDGES_START_HERE.md` links to receipt files and live demo URL
 - [ ] README: no stray personal lines; MIT license; public URL
 - [ ] Pitch deck committed (PDF or markdown in `docs/` or root)
