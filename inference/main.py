@@ -41,6 +41,11 @@ class ProcessReq(BaseModel):
     image_data: str = ""
 
 
+class AnalyzeReq(BaseModel):
+    image_data: str = ""
+    location: str = "La Trinidad, Benguet"
+
+
 @app.get("/")
 def health():
     from backends import BACKEND
@@ -62,3 +67,12 @@ def match(req: MatchReq):
 def process(req: ProcessReq):
     print(f"\n[MAIN] Process complete pipeline for crop: '{req.crop}' from '{req.location}'")
     return backend.process_harvest(req.crop, req.quantity_kg, req.image_data, req.location)
+
+
+@app.post("/analyze")
+def analyze(req: AnalyzeReq):
+    """Photo-first entry point: one vision pass reads the photo and returns the
+    full grade PLUS the detected crop and an estimated volume. The web tier caches
+    this and reuses the grade for /match, so 'Grade & match' costs no extra pass."""
+    print(f"\n[MAIN] Analyze photo (image: {'YES' if req.image_data else 'NO'}) from '{req.location}'")
+    return backend.analyze(req.image_data, req.location)

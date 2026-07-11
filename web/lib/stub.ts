@@ -1,7 +1,7 @@
 // Built-in stub backend — the same Benguet/NCR data the showcase uses, so the app
 // looks identical whether it runs on the stub, Fireworks, or the MI300X.
 
-import type { GradeCard, MatchResult, BuyerMatch, Dispatch, Urgency, Grade, Trend } from "./types";
+import type { GradeCard, MatchResult, BuyerMatch, Dispatch, Urgency, Grade, Trend, AnalyzeResult } from "./types";
 
 interface CropData {
   name: string;
@@ -76,6 +76,20 @@ export function gradeStub(cropId: string, _quantityKg: number): GradeCard {
     urgency: d.urgency,
     suggestion: `“Best sold in ${d.to} — ${rush}your grade commands top price.”`,
     source: "stub",
+  };
+}
+
+// Photo-first fallback. The stub can't actually see the image, so it "detects"
+// the default Benguet harvest (pechay) and returns a plausible volume estimate.
+// This keeps the demo alive when the inference tier is unreachable.
+export function analyzeStub(cropId = "pechay", volumeKg = 450): AnalyzeResult {
+  const grade = gradeStub(cropId, volumeKg);
+  return {
+    ...grade,
+    cropConfidence: 94,
+    volumeKg,
+    volumeConfidence: 82,
+    isCrop: true,
   };
 }
 

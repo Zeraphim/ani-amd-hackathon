@@ -116,6 +116,117 @@ def grade(
         return stub.grade(crop, quantity_kg, image_data, location)
 
 
+ANALYZE_SYS = (
+    "You are Ani's harvest grader for Philippine highland (Benguet) vegetables. "
+    "Look at the harvest photo and, in ONE pass, do all of the following. "
+    "First confirm the photo shows an edible crop, vegetable, or fruit; if it does "
+    "not, set isCrop to false and explain briefly in error, and you may leave the "
+    "other fields at safe defaults. Otherwise identify the crop, estimate the total "
+    "harvest volume in kilograms from what is visible (this is a rough estimate, not "
+    "a measurement — infer from crate/pile size and typical density), and grade it. "
+    "Return ONLY a JSON object with these exact keys: isCrop (boolean), error (string, "
+    "empty when isCrop is true), crop (short common name of the detected crop), "
+    "cropConfidence (integer 0-100), volumeKg (positive number), volumeConfidence "
+    "(integer 0-100), grade (A|B|C), score (integer 0-100), ripeness (short string), "
+    "shelfLifeHours (positive integer), freshnessWindow (short string such as '2 days'), "
+    "freshnessFill (integer 0-100), urgency (high|mid|low), and suggestion (one actionable "
+    "sentence). Do not add markdown or extra keys."
+)
+
+
+def _normalize_analyze(data: dict) -> dict:
+    is_crop = bool(data.get("isCrop", True))
+    if not is_crop:
+        return {
+            "isCrop": False,
+            "error": str(data.get("error") or "That photo doesn't look like a harvest.").strip(),
+            "cropId": "pechay",
+            "crop": "",
+            "cropConfidence": 0,
+            "volumeKg": 0,
+            "volumeConfidence": 0,
+            "grade": "C",
+            "score": 0,
+            "ripeness": "",
+            "shelfLifeHours": 1,
+            "freshnessWindow": "—",
+            "freshnessFill": 0,
+            "urgency": "high",
+            "suggestion": "",
+            "source": SOURCE,
+        }
+
+    detected = str(data.get("crop") or "").strip() or "Pechay"
+    crop_id = _crop_id(detected)
+    # Open detection + degrade: unknown crops keep their detected name; match/dispatch
+    # fall back to pechay data via the stub keyed on cropId.
+    display = stub.DATA.get(crop_id, {}).get("name") or detected.title()
+
+    grade_value = str(data.get("grade", "")).strip().upper()
+    if grade_value not in {"A", "B", "C"}:
+        raise ValueError(f"invalid grade: {grade_value!r}")
+    urgency = str(data.get("urgency", "")).strip().lower()
+    if urgency not in {"high", "mid", "low"}:
+        raise ValueError(f"invalid urgency: {urgency!r}")
+
+    shelf_life = _clamp_int(data["shelfLifeHours"], 1, 720)
+    freshness_window = str(data.get("freshnessWindow") or "").strip()
+    if not freshness_window:
+        days = shelf_life / 24
+        freshness_window = f"{days:g} days" if days != 1 else "1 day"
+    ripeness = str(data.get("ripeness") or "").strip()
+    suggestion = str(data.get("suggestion") or "").strip()
+    if not ripeness or not suggestion:
+        raise ValueError("ripeness and suggestion are required")
+
+    volume = float(data.get("volumeKg", 0) or 0)
+    if volume <= 0:
+        raise ValueError("volumeKg must be positive")
+
+    return {
+        "isCrop": True,
+        "error": "",
+        "cropId": crop_id,
+        "crop": display,
+        "cropConfidence": _clamp_int(data.get("cropConfidence", 80), 0, 100),
+        "volumeKg": round(volume, 1),
+        "volumeConfidence": _clamp_int(data.get("volumeConfidence", 60), 0, 100),
+        "grade": grade_value,
+        "score": _clamp_int(data["score"], 0, 100),
+        "ripeness": ripeness,
+        "shelfLifeHours": shelf_life,
+        "freshnessWindow": freshness_window,
+        "freshnessFill": _clamp_int(data["freshnessFill"], 0, 100),
+        "urgency": urgency,
+        "suggestion": suggestion,
+        "source": SOURCE,
+    }
+
+
+def analyze(image_data: str = "", location: str = "La Trinidad, Benguet") -> dict:
+    try:
+        user_content = [
+            {"type": "text", "text": "Analyze this harvest photo: identify the crop, estimate volume in kg, and grade it."}
+        ]
+        if image_data:
+            user_content.append({"type": "image_url", "image_url": {"url": image_data}})
+
+        resp = _client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": ANALYZE_SYS},
+                {"role": "user", "content": user_content},
+            ],
+            temperature=0.1,
+            response_format={"type": "json_object"},
+        )
+        data = json.loads(resp.choices[0].message.content or "{}")
+        return _normalize_analyze(data)
+    except Exception as e:  # noqa: BLE001
+        print(f"[fireworks.analyze] fallback to stub: {e}")
+        return stub.analyze(image_data, location)
+
+
 def match(grade: dict, location: str = "La Trinidad, Benguet") -> dict:
     # Phase 0: reuse the grounded stub ranking (seeded from real DA/PSA prices),
     # tagged with the live source. Phase 3 upgrades this to embeddings + rerank.

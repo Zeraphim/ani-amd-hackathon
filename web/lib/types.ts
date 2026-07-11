@@ -41,3 +41,14 @@ export interface MatchResult {
   dispatch: Dispatch;
   source: Source;
 }
+
+// Photo-first analysis: one vision pass on upload returns the full grade PLUS
+// what the model read from the photo (crop identity + volume estimate). The web
+// tier caches this and reuses the grade for "Grade & match" — no second pass.
+export interface AnalyzeResult extends GradeCard {
+  cropConfidence: number; // 0-100 — how sure the grader is about the crop identity
+  volumeKg: number; // estimated harvest volume from the photo (editable by the farmer)
+  volumeConfidence: number; // 0-100 — rough; single-photo volume is an estimate, not a measurement
+  isCrop: boolean; // false when the photo isn't an edible crop
+  error?: string; // populated when isCrop is false
+}

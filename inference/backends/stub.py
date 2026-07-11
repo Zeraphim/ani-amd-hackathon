@@ -68,6 +68,21 @@ def grade(
     }
 
 
+def analyze(image_data: str = "", location: str = "La Trinidad, Benguet") -> dict:
+    """Photo-first fallback. The stub can't see the image, so it 'reads' the
+    default Benguet harvest (pechay) and returns a plausible volume estimate.
+    Keeps the demo alive when no real vision backend is reachable."""
+    g = grade("pechay", 450, image_data, location)
+    return {
+        **g,
+        "cropConfidence": 94,
+        "volumeKg": 450,
+        "volumeConfidence": 82,
+        "isCrop": True,
+        "error": "",
+    }
+
+
 def match(grade: dict, location: str = "La Trinidad, Benguet") -> dict:
     d = DATA.get((grade or {}).get("cropId"), DATA["pechay"])
     buyers = [
