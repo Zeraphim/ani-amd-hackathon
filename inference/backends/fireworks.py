@@ -82,7 +82,12 @@ def _normalize_grade(data: dict, crop: str) -> dict:
     }
 
 
-def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
+def grade(
+    crop: str,
+    quantity_kg: float,
+    image_data: str = "",
+    location: str = "La Trinidad, Benguet",
+) -> dict:
     try:
         user_content = [
             {
@@ -108,18 +113,23 @@ def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
         return _normalize_grade(data, crop)
     except Exception as e:  # noqa: BLE001
         print(f"[fireworks.grade] fallback to stub: {e}")
-        return stub.grade(crop, quantity_kg, image_data)
+        return stub.grade(crop, quantity_kg, image_data, location)
 
 
-def match(grade: dict) -> dict:
+def match(grade: dict, location: str = "La Trinidad, Benguet") -> dict:
     # Phase 0: reuse the grounded stub ranking (seeded from real DA/PSA prices),
     # tagged with the live source. Phase 3 upgrades this to embeddings + rerank.
-    result = stub.match(grade)
+    result = stub.match(grade, location)
     result["source"] = "stub" if (grade or {}).get("source") == "stub" else SOURCE
     return result
 
 
-def process_harvest(crop: str, quantity_kg: float, image_data: str = "") -> dict:
-    grade_result = grade(crop, quantity_kg, image_data)
-    match_result = match(grade_result)
+def process_harvest(
+    crop: str,
+    quantity_kg: float,
+    image_data: str = "",
+    location: str = "La Trinidad, Benguet",
+) -> dict:
+    grade_result = grade(crop, quantity_kg, image_data, location)
+    match_result = match(grade_result, location)
     return {**grade_result, **match_result}

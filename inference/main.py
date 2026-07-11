@@ -24,16 +24,19 @@ backend = get_backend()
 
 class GradeReq(BaseModel):
     crop: str
+    location: str = "La Trinidad, Benguet"
     quantity_kg: float = 400
     image_data: str = ""
 
 
 class MatchReq(BaseModel):
     grade: dict
+    location: str = "La Trinidad, Benguet"
 
 
 class ProcessReq(BaseModel):
     crop: str
+    location: str = "La Trinidad, Benguet"
     quantity_kg: float = 400
     image_data: str = ""
 
@@ -46,15 +49,16 @@ def health():
 
 @app.post("/grade")
 def grade(req: GradeReq):
-    print(f"\n[MAIN] Received grade request for crop: '{req.crop}' with image: {'YES' if req.image_data else 'NO'}")
-    return backend.grade(req.crop, req.quantity_kg, req.image_data)
+    print(f"\n[MAIN] Received grade request for crop: '{req.crop}' from '{req.location}' with image: {'YES' if req.image_data else 'NO'}")
+    return backend.grade(req.crop, req.quantity_kg, req.image_data, req.location)
 
 
 @app.post("/match")
 def match(req: MatchReq):
-    return backend.match(req.grade)
+    return backend.match(req.grade, req.location)
 
 
 @app.post("/process")
 def process(req: ProcessReq):
-    return backend.process_harvest(req.crop, req.quantity_kg, req.image_data)
+    print(f"\n[MAIN] Process complete pipeline for crop: '{req.crop}' from '{req.location}'")
+    return backend.process_harvest(req.crop, req.quantity_kg, req.image_data, req.location)
