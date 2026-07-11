@@ -1,0 +1,60 @@
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image275 (4).png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image1395 (2).png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image331 (3).png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image333 (4).png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image457.png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 92,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image365.png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image477.png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 92,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image59 (4).png", "expected": "A", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image1435.png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Fresh/Image373 (2).png", "expected": "A", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 95,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image973.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image1655.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image207.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image77.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image375.png", "expected": "B", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 45,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image3009.png", "expected": "B", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 35,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image841.png", "expected": "B", "predicted": "A", "response": "```json\n{\n  \"grade\": \"A\",\n  \"score\": 92,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image1721.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image1617.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Mild/Image945.png", "expected": "B", "predicted": "B", "response": "```json\n{\n  \"grade\": \"B\",\n  \"score\": 75,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image77 (2).png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 15,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image2065.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 10,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image213.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 35,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image791.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 25,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image235.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 35,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image4313.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 15,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image1719.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 15,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image689.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 35,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image859.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 20,\n  \""}
+{"stage": "base", "image": "data/raw/FruQ-DB/Rotten/Image555.png", "expected": "C", "predicted": "C", "response": "```json\n{\n  \"grade\": \"C\",\n  \"score\": 35,\n  \""}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image275 (4).png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image1395 (2).png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image331 (3).png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image333 (4).png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image457.png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image365.png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image477.png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image59 (4).png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image1435.png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Fresh/Image373 (2).png", "expected": "A", "predicted": "A", "response": "{\"freshnessFill\":90,\"freshnessWindow\":\"3 days\",\"grade\":\"A\",\"ripeness\":\"fresh"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image973.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image1655.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image207.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image77.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image375.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image3009.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image841.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image1721.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image1617.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Mild/Image945.png", "expected": "B", "predicted": "B", "response": "{\"freshnessFill\":55,\"freshnessWindow\":\"1.5 days\",\"grade\":\"B\",\"ripeness"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image77 (2).png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image2065.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image213.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image791.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image235.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image4313.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image1719.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image689.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image859.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}
+{"stage": "tuned", "image": "data/raw/FruQ-DB/Rotten/Image555.png", "expected": "C", "predicted": "C", "response": "{\"freshnessFill\":20,\"freshnessWindow\":\"same day\",\"grade\":\"C\",\"ripeness\":\"over"}

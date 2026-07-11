@@ -1,0 +1,231 @@
+2026-07-10T23:22:11+00:00
+model=google/gemma-3-27b-it
+image=vllm/vllm-openai-rocm:v0.23.0
+port=8001
+gpu_memory_utilization=0.80
+lora=/shared-docker/ani-artifacts/ani-gemma-grader-lora
+vllm=0.23.0 transformers=5.12.0 torch=2.10.0+git8514f05 hip=7.2.53211
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:339] 
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:339]        █     █     █▄   ▄█
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:339]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.23.0
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:339]   █▄█▀ █     █     █     █  model   google/gemma-3-27b-it
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:339]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:339] 
+(APIServer pid=1) INFO 07-10 23:22:38 [api_utils.py:273] non-default args: {'model_tag': 'google/gemma-3-27b-it', 'lora_modules': [LoRAModulePath(name='ani-grader', path='/shared-docker/ani-artifacts/ani-gemma-grader-lora', base_model_name=None, is_3d_lora_weight=False)], 'host': '127.0.0.1', 'port': 8001, 'api_key': ['[REDACTED]'], 'model': 'google/gemma-3-27b-it', 'dtype': 'bfloat16', 'max_model_len': 8192, 'gpu_memory_utilization': 0.8, 'limit_mm_per_prompt': {'image': 1}, 'enable_lora': True, 'max_num_seqs': 8}
+(APIServer pid=1) INFO 07-10 23:22:45 [model.py:611] Resolved architecture: Gemma3ForConditionalGeneration
+(APIServer pid=1) INFO 07-10 23:22:45 [model.py:1745] Using max model len 8192
+(APIServer pid=1) INFO 07-10 23:22:47 [scheduler.py:239] Chunked prefill is enabled with max_num_batched_tokens=8192.
+(APIServer pid=1) INFO 07-10 23:22:47 [vllm.py:999] Asynchronous scheduling is enabled.
+(APIServer pid=1) INFO 07-10 23:22:47 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1) [transformers] Deprecated: `processor.image_token` will switch from returning `tokenizer.image_token` to `tokenizer.boi_token` in v5.11.
+(EngineCore pid=167) INFO 07-10 23:23:04 [core.py:113] Initializing a V1 LLM engine (v0.23.0) with config: model='google/gemma-3-27b-it', speculative_config=None, tokenizer='google/gemma-3-27b-it', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False), seed=0, served_model_name=google/gemma-3-27b-it, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['+sparse_attn_indexer', 'none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::qwen_gdn_attention_core', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_mla_dual_rms_norm': False, 'fuse_rope_kvcache': False}, 'max_cudagraph_capture_size': 16, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=167) INFO 07-10 23:23:06 [parallel_state.py:1568] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://129.212.177.83:43285 backend=nccl
+(EngineCore pid=167) INFO 07-10 23:23:06 [parallel_state.py:1903] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(EngineCore pid=167) [transformers] Deprecated: `processor.image_token` will switch from returning `tokenizer.image_token` to `tokenizer.boi_token` in v5.11.
+(EngineCore pid=167) INFO 07-10 23:23:15 [gpu_model_runner.py:5092] Starting to load model google/gemma-3-27b-it...
+(EngineCore pid=167) INFO 07-10 23:23:16 [interfaces.py:172] Contains out of vocabulary multimodal tokens? False
+(EngineCore pid=167) INFO 07-10 23:23:16 [rocm.py:637] Using Flash Attention backend for ViT model.
+(EngineCore pid=167) INFO 07-10 23:23:16 [mm_encoder_attention.py:372] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention.
+(EngineCore pid=167) WARNING 07-10 23:23:16 [activation.py:728] [ROCm] PyTorch's native GELU with tanh approximation is unstable. Falling back to GELU(approximate='none').
+(EngineCore pid=167) INFO 07-10 23:23:16 [vllm.py:999] Asynchronous scheduling is enabled.
+(EngineCore pid=167) INFO 07-10 23:23:16 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(EngineCore pid=167) INFO 07-10 23:23:16 [rocm.py:583] Found incompatible backend(s) [TURBOQUANT] with AttentionType.DECODER. Overriding with ROCM_ATTN out of potential backends: ['ROCM_ATTN', 'ROCM_AITER_UNIFIED_ATTN', 'TRITON_ATTN'].
+(EngineCore pid=167) WARNING 07-10 23:23:16 [activation.py:349] [ROCm] PyTorch's native GELU with tanh approximation is unstable with torch.compile. For native implementation, fallback to 'none' approximation. The custom kernel implementation is unaffected.
+(EngineCore pid=167) WARNING 07-10 23:23:16 [compilation.py:1312] Op 'sparse_attn_indexer' not present in model, enabling with '+sparse_attn_indexer' has no effect
+(EngineCore pid=167) INFO 07-10 23:23:17 [weight_utils.py:922] Filesystem type for checkpoints: EXT4. Checkpoint size: 51.10 GiB. Available RAM: 224.57 GiB.
+(EngineCore pid=167) INFO 07-10 23:23:17 [weight_utils.py:945] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=167) Loading safetensors checkpoint shards:   0% Completed | 0/12 [00:00<?, ?it/s]
+(EngineCore pid=167) Loading safetensors checkpoint shards:   8% Completed | 1/12 [00:01<00:17,  1.62s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  17% Completed | 2/12 [00:03<00:16,  1.68s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  25% Completed | 3/12 [00:05<00:15,  1.69s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  33% Completed | 4/12 [00:06<00:13,  1.70s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  42% Completed | 5/12 [00:08<00:11,  1.70s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  50% Completed | 6/12 [00:10<00:10,  1.70s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  58% Completed | 7/12 [00:11<00:08,  1.69s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  67% Completed | 8/12 [00:13<00:06,  1.69s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  75% Completed | 9/12 [00:15<00:05,  1.69s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  83% Completed | 10/12 [00:16<00:03,  1.69s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards:  92% Completed | 11/12 [00:18<00:01,  1.70s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards: 100% Completed | 12/12 [00:18<00:00,  1.27s/it]
+(EngineCore pid=167) Loading safetensors checkpoint shards: 100% Completed | 12/12 [00:18<00:00,  1.57s/it]
+(EngineCore pid=167) 
+(EngineCore pid=167) INFO 07-10 23:23:35 [default_loader.py:397] Loading weights took 18.91 seconds
+(EngineCore pid=167) INFO 07-10 23:23:36 [punica_selector.py:20] Using PunicaWrapperGPU.
+(EngineCore pid=167) INFO 07-10 23:23:36 [model_manager.py:196] Gemma3ForConditionalGeneration supports adding LoRA to the tower modules. If needed, please set `enable_tower_connector_lora=True`.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.0.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.0.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.0.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.0.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.1.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.1.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.1.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.1.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.2.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.2.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.2.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.2.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.3.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.3.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.3.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.3.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.4.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.4.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.4.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.4.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.5.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.5.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.5.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.5.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.6.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.6.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.6.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.6.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.7.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.7.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.7.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.7.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.8.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.8.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.8.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.8.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.9.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.9.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.9.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.9.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.10.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.10.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.10.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.10.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.11.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.11.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.11.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.11.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.12.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.12.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.12.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.12.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.13.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.13.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.13.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.13.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.14.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.14.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.14.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.14.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.15.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.15.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.15.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.15.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.16.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.16.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.16.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.16.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.17.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.17.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.17.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.17.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.18.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.18.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.18.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.18.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.19.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.19.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.19.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.19.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.20.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.20.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.20.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.20.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.21.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.21.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.21.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.21.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.22.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.22.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.22.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.22.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.23.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.23.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.23.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.23.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.24.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.24.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.24.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.24.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.25.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.25.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.25.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.25.mlp.fc2 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.26.self_attn.qkv_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.26.self_attn.out_proj will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.26.mlp.fc1 will be ignored.
+(EngineCore pid=167) WARNING 07-10 23:23:36 [model_manager.py:394] Regarding Gemma3ForConditionalGeneration, no matching PunicaWrapper is found; vision_tower.vision_model.encoder.layers.26.mlp.fc2 will be ignored.
+(EngineCore pid=167) INFO 07-10 23:23:36 [gpu_model_runner.py:5187] Model loading took 51.66 GiB memory and 19.870043 seconds
+(EngineCore pid=167) INFO 07-10 23:23:36 [gpu_model_runner.py:6200] Encoder cache will be initialized with a budget of 8192 tokens, and profiled with 8 image items of the maximum feature size.
+(EngineCore pid=167) INFO 07-10 23:23:52 [backends.py:1089] Using cache directory: /root/.cache/vllm/torch_compile_cache/c941f7516f/rank_0_0/backbone for vLLM's torch.compile
+(EngineCore pid=167) INFO 07-10 23:23:52 [backends.py:1148] Dynamo bytecode transform time: 14.02 s
+(EngineCore pid=167) INFO 07-10 23:24:02 [backends.py:378] Cache the graph of compile range (1, 8192) for later use
+(EngineCore pid=167) INFO 07-10 23:24:17 [backends.py:393] Compiling a graph for compile range (1, 8192) takes 24.10 s
+(EngineCore pid=167) INFO 07-10 23:24:21 [decorators.py:708] saved AOT compiled function to /root/.cache/vllm/torch_compile_cache/torch_aot_compile/3871596298743e2d2f68fb760bcbd0c649ad32612c75ce1fd0500fb96b78d96f/rank_0_0/model
+(EngineCore pid=167) INFO 07-10 23:24:21 [monitor.py:53] torch.compile took 42.23 s in total
+(EngineCore pid=167) INFO 07-10 23:24:22 [monitor.py:81] Initial profiling/warmup run took 1.24 s
+(EngineCore pid=167) INFO 07-10 23:24:25 [gpu_worker.py:480] Available KV cache memory: 99.42 GiB
+(EngineCore pid=167) WARNING 07-10 23:24:25 [kv_cache_utils.py:1174] Add 8 padding layers, may waste at most 15.38% KV cache memory
+(EngineCore pid=167) INFO 07-10 23:24:25 [kv_cache_utils.py:1744] GPU KV cache size: 185,846 tokens
+(EngineCore pid=167) INFO 07-10 23:24:25 [kv_cache_utils.py:1745] Maximum concurrency for 8,192 tokens per request: 22.69x
+(EngineCore pid=167) Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   0%|          | 0/10 [00:00<?, ?it/s](EngineCore pid=167) WARNING 07-10 23:24:26 [utils.py:279] Using default LoRA kernel configs
+Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  10%|█         | 1/10 [00:02<00:26,  2.97s/it]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  30%|███       | 3/10 [00:04<00:09,  1.35s/it]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  50%|█████     | 5/10 [00:04<00:03,  1.38it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  70%|███████   | 7/10 [00:05<00:01,  2.17it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  90%|█████████ | 9/10 [00:07<00:00,  1.46it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 10/10 [00:07<00:00,  1.39it/s]
+(EngineCore pid=167) Capturing CUDA graphs (decode, FULL):   0%|          | 0/8 [00:00<?, ?it/s](EngineCore pid=167) WARNING 07-10 23:24:33 [chunked_prefill_paged_decode.py:414] Cannot use ROCm custom paged attention kernel, falling back to Triton implementation.
+Capturing CUDA graphs (decode, FULL):  12%|█▎        | 1/8 [00:00<00:06,  1.08it/s]Capturing CUDA graphs (decode, FULL):  38%|███▊      | 3/8 [00:01<00:01,  3.09it/s]Capturing CUDA graphs (decode, FULL):  62%|██████▎   | 5/8 [00:01<00:00,  4.89it/s]Capturing CUDA graphs (decode, FULL):  88%|████████▊ | 7/8 [00:01<00:00,  6.35it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 8/8 [00:01<00:00,  5.05it/s]
+(EngineCore pid=167) INFO 07-10 23:24:35 [gpu_model_runner.py:6585] Graph capturing finished in 9 secs, took 1.44 GiB
+(EngineCore pid=167) INFO 07-10 23:24:35 [jit_monitor.py:54] Kernel JIT monitor activated — Triton JIT compilations during inference will be logged as warnings.
+(EngineCore pid=167) INFO 07-10 23:24:35 [core.py:306] init engine (profile, create kv cache, warmup model) took 59.25 s (compilation: 42.23 s)
+(EngineCore pid=167) INFO 07-10 23:24:35 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=1) INFO 07-10 23:24:35 [api_server.py:579] Supported tasks: ['generate']
+(APIServer pid=1) INFO 07-10 23:24:36 [serving.py:209] Loaded new LoRA adapter: name 'ani-grader', path '/shared-docker/ani-artifacts/ani-gemma-grader-lora'
+(APIServer pid=1) WARNING 07-10 23:24:36 [model.py:1502] Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'top_k': 64, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+(APIServer pid=1) INFO 07-10 23:24:38 [hf.py:548] Detected the chat template content format to be 'openai'. You can set `--chat-template-content-format` to override this.
+(APIServer pid=1) INFO 07-10 23:24:55 [base.py:227] Multi-modal warmup completed in 17.042s
+(APIServer pid=1) INFO 07-10 23:24:55 [base.py:227] Readonly multi-modal warmup completed in 0.018s
+(APIServer pid=1) INFO 07-10 23:24:55 [api_server.py:583] Starting vLLM server on http://127.0.0.1:8001
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:37] Available routes are:
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /openapi.json, Methods: GET, HEAD
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /docs, Methods: GET, HEAD
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /docs/oauth2-redirect, Methods: GET, HEAD
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /redoc, Methods: GET, HEAD
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /load, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /version, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /health, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /metrics, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /tokenize, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /detokenize, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/models, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /ping, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /ping, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /invocations, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/chat/completions, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/chat/completions/batch, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/responses, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/responses/{response_id}, Methods: GET
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/responses/{response_id}/cancel, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/completions, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/messages, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/messages/count_tokens, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /generative_scoring, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /inference/v1/generate, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /scale_elastic_ep, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /is_scaling_elastic_ep, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/chat/completions/render, Methods: POST
+(APIServer pid=1) INFO 07-10 23:24:55 [launcher.py:46] Route: /v1/completions/render, Methods: POST
+(APIServer pid=1) INFO:     Started server process [1]
+(APIServer pid=1) INFO:     Waiting for application startup.
+(APIServer pid=1) INFO:     Application startup complete.
+(APIServer pid=1) INFO:     127.0.0.1:57024 - "GET /v1/models HTTP/1.1" 200 OK
+(APIServer pid=1) WARNING 07-10 23:26:07 [input_processor.py:157] vLLM has deprecated support for supporting different tokenizers for different LoRAs. By default, vLLM uses base model's tokenizer. If you are using a LoRA with its own tokenizer, consider specifying `--tokenizer [lora_path]` to use the LoRA tokenizer.
+(EngineCore pid=167) WARNING 07-10 23:26:08 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(EngineCore pid=167) WARNING 07-10 23:26:09 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _lora_shrink_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(EngineCore pid=167) WARNING 07-10 23:26:11 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _fwd_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(EngineCore pid=167) WARNING 07-10 23:26:13 [jit_monitor.py:103] Triton kernel JIT compilation during inference: apply_token_bitmask_inplace_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+(APIServer pid=1) INFO:     127.0.0.1:42992 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=1) INFO 07-10 23:26:16 [loggers.py:271] Engine 000: Avg prompt throughput: 39.8 tokens/s, Avg generation throughput: 6.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, MM cache hit rate: 0.0%
+(APIServer pid=1) INFO 07-10 23:26:26 [loggers.py:271] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%, MM cache hit rate: 0.0%

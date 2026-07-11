@@ -1,8 +1,9 @@
 # Install on the MI300X (ROCm). Torch must be the ROCm build — see AMD Dev Cloud image.
 # torch  (rocm wheel, provided by the AMD Dev Cloud base image)
-transformers==4.48.0
-peft==0.14.0
-trl==0.13.0
-datasets==3.2.0
-accelerate==1.2.1
-vllm            # ROCm build on the AMD Dev Cloud image
+transformers==5.12.0
+peft==0.19.1
+trl==1.8.0
+datasets==5.0.0
+accelerate==1.14.0
+Pillow>=11.0.0
+ImageHash>=4.3.2
