@@ -44,7 +44,12 @@ DATA = {
 }
 
 
-def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
+def grade(
+    crop: str,
+    quantity_kg: float,
+    image_data: str = "",
+    location: str = "La Trinidad, Benguet",
+) -> dict:
     crop_id = crop if crop in DATA else "pechay"
     d = DATA[crop_id]
     rush = "move within hours; " if d["urgency"] == "high" else ""
@@ -63,7 +68,7 @@ def grade(crop: str, quantity_kg: float, image_data: str = "") -> dict:
     }
 
 
-def match(grade: dict) -> dict:
+def match(grade: dict, location: str = "La Trinidad, Benguet") -> dict:
     d = DATA.get((grade or {}).get("cropId"), DATA["pechay"])
     buyers = [
         {"buyer": b[0], "sub": b[1], "pricePerKg": b[2], "trend": b[3], "fit": b[4], "first": b[5]}
@@ -76,7 +81,12 @@ def match(grade: dict) -> dict:
     }
 
 
-def process_harvest(crop: str, quantity_kg: float, image_data: str) -> dict:
-    g = grade(crop, quantity_kg)
-    m = match(g)
+def process_harvest(
+    crop: str,
+    quantity_kg: float,
+    image_data: str = "",
+    location: str = "La Trinidad, Benguet",
+) -> dict:
+    g = grade(crop, quantity_kg, image_data, location)
+    m = match(g, location)
     return {**g, **m}
