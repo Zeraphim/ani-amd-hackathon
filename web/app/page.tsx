@@ -38,7 +38,11 @@ const MARKUP = `
 
 <header class="hero" id="top">
   <canvas id="net-canvas"></canvas>
-  <img class="floatleaf" src="/logo-leaf.png" alt="" />
+  <svg class="hero-veins" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <image class="veins-leaf" href="/logo-leaf.png" x="1050" y="150" width="380" height="430" preserveAspectRatio="xMidYMid meet"/>
+    <g class="veins"></g>
+    <g class="veins-nodes"></g>
+  </svg>
   <div class="wrap">
     <span class="kicker" data-reveal><span class="dot"></span> Ani &middot; 3 agents &middot; one AMD MI300X &middot; Track 3 Unicorn</span>
     <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
@@ -453,6 +457,68 @@ export default function Home() {
     const gradeRow = gid("gradeRow"), matchPanel = gid("matchPanel"), dispatchEl = gid("dispatch");
     const steps = Array.from(document.querySelectorAll("#pipe .pstep")) as any[];
     let hasRun = false, busy = false;
+
+    /* hero vein extensions — continue the leaf PNG's vein tips outward.
+       Anchors = measured vein-end points on the leaf silhouette (fixed);
+       bends + nodes randomized every load. Bends only happen at nodes,
+       progress along anchor->dest is monotonic so lines never re-enter the leaf. */
+    const veinsG = document.querySelector(".hero-veins .veins");
+    const veinNodesG = document.querySelector(".hero-veins .veins-nodes");
+    if (veinsG && veinNodesG && !veinsG.children.length) {
+      const svgNS = "http://www.w3.org/2000/svg";
+      // [anchorX, anchorY, destX, destY, class] — dest sits past the viewBox edge
+      const VEINS: [number, number, number, number, string][] = [
+        [1172, 234, 1030, -40, "lime dim"],
+        [1102, 306, -40, 240, "lime dim"],
+        [1085, 555, 240, 840, "lime dim"],
+        [1260, 190, 1283, -40, "lime"],
+        [1404, 164, 1470, -40, "gold"],
+        [1415, 309, 1660, 232, "gold"],
+        [1384, 441, 1660, 560, "gold"],
+        [1319, 518, 1486, 840, "gold"],
+      ];
+      const placed: number[][] = [];
+      const LEAF_C = [1240, 365]; // leaf centroid — first bend must move away from it
+      VEINS.forEach(([ax, ay, dxE, dyE, cls]) => {
+        const vx = dxE - ax, vy = dyE - ay, vlen = Math.hypot(vx, vy);
+        const ux = vx / vlen, uy = vy / vlen;
+        let pxU = -uy, pyU = ux;
+        // orient the perpendicular away from the leaf so bends never fold back toward it
+        if (pxU * (ax - LEAF_C[0]) + pyU * (ay - LEAF_C[1]) < 0) { pxU = -pxU; pyU = -pyU; }
+        const fracs = Math.random() < 0.5 ? [0.3, 0.62] : [0.24, 0.5, 0.76];
+        const pts: number[][] = [[ax, ay]];
+        fracs.forEach((f0, i) => {
+          const f = f0 + (Math.random() - 0.5) * 0.1;
+          let x = 0, y = 0, tries = 0;
+          do {
+            // first node sits ON the straight exit line (verified to clear the
+            // leaf within 12 units for every anchor) — the line leaves the vein
+            // tip dead straight and takes its first bend at that node; later
+            // nodes may swing outward-side up to 55 units
+            const off = i === 0 ? 0 : Math.random() * 55 * (Math.random() < 0.7 ? 1 : -0.4);
+            x = ax + ux * f * vlen + pxU * off;
+            y = ay + uy * f * vlen + pyU * off;
+            tries++;
+          } while (tries < 8 && placed.some((p) => Math.hypot(p[0] - x, p[1] - y) < 40));
+          placed.push([x, y]);
+          pts.push([x, y]);
+        });
+        pts.push([dxE, dyE]);
+        const path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", "M" + pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" L"));
+        path.setAttribute("class", cls);
+        veinsG.appendChild(path);
+        pts.slice(1, -1).forEach(([x, y]) => {
+          const c = document.createElementNS(svgNS, "circle");
+          c.setAttribute("cx", x.toFixed(1));
+          c.setAttribute("cy", y.toFixed(1));
+          c.setAttribute("r", (8 + Math.random() * 3).toFixed(1));
+          if (cls.indexOf("lime") >= 0) c.setAttribute("class", "lime");
+          (c as any).style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+          veinNodesG.appendChild(c);
+        });
+      });
+    }
 
     document.querySelectorAll(".samples .s").forEach((s: any) => {
       on(s, "click", () => {

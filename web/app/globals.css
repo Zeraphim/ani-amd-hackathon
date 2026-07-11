@@ -62,7 +62,18 @@ nav .links a:hover{color:var(--green);}nav .links a:hover::after{width:100%;}
 .hero{position:relative;padding:120px 0 90px;overflow:hidden;}
 .hero canvas{position:absolute;inset:0;z-index:0;opacity:.9;}
 .hero .wrap{z-index:3;}
-.floatleaf{position:absolute;right:-40px;top:70px;width:min(46vw,560px);z-index:1;opacity:.12;animation:float 11s var(--ease-io) infinite;}
+.hero-veins{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.hero-veins .veins-leaf{opacity:.12;}
+.hero-veins .veins path{fill:none;stroke:var(--gold);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;opacity:.5;stroke-dasharray:18 26;animation:veinflow 6s linear infinite;}
+.hero-veins .veins path:nth-child(3n){animation-duration:9s;}
+.hero-veins .veins path:nth-child(4n){animation-duration:7.5s;}
+.hero-veins .veins path:nth-child(5n){animation-duration:11s;}
+.hero-veins .veins path.lime{stroke:#a9bd32;}
+.hero-veins .veins path.dim{opacity:.34;}
+.hero-veins .veins-nodes circle{fill:var(--gold);opacity:.92;stroke:#FBFAF4;stroke-width:2;animation:veinpulse 3.4s var(--ease-io) infinite;}
+.hero-veins .veins-nodes circle.lime{fill:#a9bd32;}
+@keyframes veinflow{to{stroke-dashoffset:-352;}}
+@keyframes veinpulse{0%,100%{opacity:.7;}50%{opacity:1;}}
 .kicker{display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--paper);box-shadow:var(--e-1);font-size:12.5px;font-weight:600;color:var(--green);margin-bottom:26px;}
 .kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--leaf2);box-shadow:0 0 0 4px rgba(79,168,78,.22);animation:pulse 2.4s var(--ease-io) infinite;}
 .hero h1{font-size:clamp(48px,8.5vw,108px);font-weight:700;letter-spacing:-.05em;line-height:.92;max-width:15ch;}
@@ -87,7 +98,7 @@ section.block{padding:96px 0;border-top:1px solid var(--line);position:relative;
 [data-reveal]{opacity:0;transform:translateY(28px);transition:opacity var(--dur-3) var(--ease-out),transform var(--dur-3) var(--ease-out);}
 [data-reveal].in{opacity:1;transform:none;}
 .d1{transition-delay:.07s;}.d2{transition-delay:.14s;}.d3{transition-delay:.21s;}.d4{transition-delay:.28s;}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}[data-reveal]{opacity:1;transform:none;}.marquee .track{animation:scrollx 24s linear infinite!important;}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}[data-reveal]{opacity:1;transform:none;}.marquee .track{animation:scrollx 24s linear infinite!important;}.hero-veins .veins path{animation:veinflow 6s linear infinite!important;}.hero-veins .veins-nodes circle{animation:veinpulse 3.4s var(--ease-io) infinite!important;}}
 .grid{display:grid;gap:20px;}.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}
 @media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
