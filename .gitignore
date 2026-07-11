@@ -11,3 +11,12 @@ venv/
 .DS_Store
 training/receipts/*.log
 !training/receipts/.gitkeep
+!training/receipts/rocm-smi.log
+!training/receipts/vllm_serve.log
+!training/receipts/train.log
+training/data/raw/
+training/artifacts/
+training/*.zip
+training/receipts/data_prepare.log
+.vercel
+.env*

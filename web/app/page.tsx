@@ -121,7 +121,7 @@ const MARKUP = `
       <div class="console-bar">
         <div class="dots"><i></i><i></i><i></i></div>
         <span class="ttl">ani &middot; harvest-grader</span>
-        <span class="live"><span class="d"></span> connected &middot; MI300X</span>
+        <span class="live"><span class="d"></span><span id="backendStatusText">backend &middot; checking</span></span>
       </div>
       <div class="console-body">
         <div class="console-in">
@@ -158,7 +158,7 @@ const MARKUP = `
           </div>
           <div class="out-stack" id="outStack">
             <div class="panel" style="padding:18px">
-              <div class="subhead" style="margin-bottom:12px">Agent trace &middot; 3 models, one MI300X</div>
+              <div class="subhead" style="margin-bottom:12px">Agent trace &middot; grade &rarr; match &rarr; dispatch</div>
               <div class="pipe" id="pipe">
                 <div class="pstep" data-step="0"><div class="rail"><div class="node">&#128247;</div></div><div class="txt"><div class="h">Harvest Grader &mdash; fine-tuned Gemma (vision)</div><div class="d">Reads the photo; scores quality, ripeness, shelf-life.</div><div class="stat" id="s0">&rarr; &hellip;</div></div></div>
                 <div class="pstep" data-step="1"><div class="rail"><div class="node">&#128202;</div></div><div class="txt"><div class="h">Demand &amp; Price Oracle</div><div class="d">Matches the grade to live NCR market demand.</div><div class="stat" id="s1">&rarr; &hellip;</div></div></div>
@@ -167,7 +167,7 @@ const MARKUP = `
             </div>
             <div class="grid g2 stage" id="gradeRow" style="gap:16px;display:none">
               <div class="grade-card">
-                <div class="grade-photo"><span class="badge green live"><span class="d"></span> graded on MI300X</span></div>
+                <div class="grade-photo"><span class="badge green live"><span class="d"></span><span id="gradeSourceText">source &middot; pending</span></span></div>
                 <div class="grade-body">
                   <div class="grade-head">
                     <div class="grade-score"><div class="num" id="gScore">0</div><div class="cap">score</div></div>
@@ -226,7 +226,7 @@ const MARKUP = `
       <div class="tier" style="border-color:var(--gold);box-shadow:var(--e-gold)">
         <div class="tno" style="color:var(--gold-deep)">TIER 3 &middot; MODELS</div>
         <h4>One MI300X</h4>
-        <p>vLLM on ROCm co-hosts the fine-tuned Gemma grader, reasoning, and embeddings in 192&nbsp;GB.</p>
+        <p>vLLM on ROCm serves the Gemma 3 vision grader while FastAPI keeps grading, matching, and dispatch on the same private MI300X host.</p>
         <div style="margin-top:10px"><span class="stackpill">vLLM</span><span class="stackpill">ROCm</span><span class="stackpill">Gemma &middot; LoRA</span></div>
       </div>
     </div>
@@ -238,47 +238,46 @@ const MARKUP = `
   <div class="wrap">
     <div class="sec-head" data-reveal>
       <span class="eyebrow">05 &mdash; Tier 3 &middot; why AMD is non-negotiable</span>
-      <h2>The whole stack fits on a single card</h2>
-      <p>192&nbsp;GB of HBM3 co-hosts all three models on one MI300X &mdash; so a farmer co-op runs Ani on-prem, private, and offline-capable. On an 80&nbsp;GB card, you'd need several machines.</p>
+      <h2>Measured on one AMD card</h2>
+      <p>The committed ROCm receipts verify the hardware and model load. Ani reports measured values only &mdash; no simulated telemetry and no unverified accelerator comparisons.</p>
     </div>
     <div class="gpu-grid" data-reveal>
       <div class="gpu-card">
         <div class="gpu-head">
           <span class="chip">AMD Instinct MI300X &middot; gfx942 &middot; ROCm</span>
-          <span class="live"><span class="d"></span> LIVE</span>
+          <span class="live"><span class="d"></span> Gemma 3 live on ROCm</span>
         </div>
-        <div class="vram-label"><span>HBM3 memory</span><span><b id="vramUsed">171.4</b> / 192 GB</span></div>
+        <div class="vram-label"><span>HBM3 memory &middot; measured</span><span><b id="vramUsed">153.3</b> / 192 GB</span></div>
         <div class="vram">
-          <div class="seg g1" id="segG1" title="Gemma Grader (VLM)"></div>
-          <div class="seg g2" id="segG2" title="Gemma Reasoning"></div>
-          <div class="seg g3" id="segG3" title="Embeddings + KV cache"></div>
+          <div class="seg g1" id="segG1" title="Gemma 3 27B VLM + LoRA" style="width:27%">51.66 GiB</div>
+          <div class="seg g2" id="segG2" title="KV cache" style="width:52%">99.42 GiB</div>
+          <div class="seg g3" id="segG3" title="Available HBM3" style="width:20%">38.4 GiB free</div>
         </div>
         <div class="vram-legend">
-          <span class="lg"><i style="background:var(--leaf1)"></i> Gemma Grader &middot; VLM</span>
-          <span class="lg"><i style="background:var(--leaf2)"></i> Gemma Reasoning</span>
-          <span class="lg"><i style="background:var(--gold)"></i> Embeddings + KV</span>
+          <span class="lg"><i style="background:var(--leaf1)"></i> Gemma 3 27B &middot; VLM</span>
+          <span class="lg"><i style="background:var(--leaf2)"></i> vLLM KV cache</span>
+          <span class="lg"><i style="background:var(--gold)"></i> Available HBM3</span>
         </div>
         <div class="gauges">
-          <div class="gauge"><div class="k">Throughput</div><div class="v" id="gTok">2,410 <small>tok/s</small></div></div>
-          <div class="gauge"><div class="k">Board power</div><div class="v" id="gPwr">341 <small>W</small></div></div>
-          <div class="gauge"><div class="k">Temp &middot; edge</div><div class="v" id="gTmp">62 <small>&deg;C</small></div></div>
-          <div class="gauge"><div class="k">Concurrency</div><div class="v" id="gCon">31 <small>&times;</small></div></div>
+          <div class="gauge"><div class="k">Generation</div><div class="v">6.4 <small>tok/s</small></div></div>
+          <div class="gauge"><div class="k">Prompt ingest</div><div class="v">39.8 <small>tok/s</small></div></div>
+          <div class="gauge"><div class="k">Architecture</div><div class="v">gfx942</div></div>
+          <div class="gauge"><div class="k">8K concurrency</div><div class="v">22.69<small>&times;</small></div></div>
         </div>
         <div class="termino" id="termino">
-          <div><span class="dim">$</span> <span class="p">vllm serve</span> ani/gemma-grader-lora --dtype bfloat16</div>
-          <div class="dim">INFO gfx942 detected &middot; 192GB HBM3 &middot; loading 3 models&hellip;</div>
-          <div><span class="p">READY</span> grader+reasoning+embeddings co-hosted &middot; KV 2.06M tokens</div>
+          <div><span class="dim">$</span> <span class="p">vllm serve</span> google/gemma-3-27b-it --dtype bfloat16</div>
+          <div class="dim">VERIFIED gfx942 &middot; AMD Instinct MI300X &middot; 192GB HBM3</div>
+          <div><span class="p">READY</span> Gemma 3 vision + ani-grader LoRA &middot; 185,846-token KV cache</div>
         </div>
       </div>
       <div class="gpu-card">
         <div class="subhead" style="color:#9fb3a8">Memory math &mdash; why one card</div>
         <div class="memo">
-          <div class="r"><span class="lab">Grader + reasoning + embeddings</span><span class="mono" style="color:#fff">&asymp;171 GB</span></div>
-          <div class="r"><span class="lab">NVIDIA H100 (80 GB)</span><span class="no">&#10005; won't fit</span></div>
-          <div class="r"><span class="lab">2&times; H100 (160 GB)</span><span class="no">&#10005; still short + split</span></div>
-          <div class="r"><span class="lab">AMD MI300X (192 GB)</span><span class="yes">&#10003; one card</span></div>
+          <div class="r"><span class="lab">Gemma 3 27B service reservation</span><span class="mono" style="color:#fff">153.3 GiB</span></div>
+          <div class="r"><span class="lab">NVIDIA H100 (80 GB)</span><span class="no">&#10005; measured runtime exceeds it</span></div>
+          <div class="r"><span class="lab">AMD MI300X</span><span class="yes">&#10003; 192 GB verified</span></div>
         </div>
-        <p style="color:#b8c7bf;font-size:13.5px;margin-top:16px">Fewer machines means the co-op's pricing, contracts, and farmer photos never leave the cooperative &mdash; and Ani keeps working when rural connectivity doesn't. That's the moat, and the <b style="color:var(--gold)">Best AMD-Hosted Gemma</b> entry.</p>
+        <p style="color:#b8c7bf;font-size:13.5px;margin-top:16px">The deployment keeps the Gemma vision grader, orchestration, pricing data, and farmer photos on one private AMD host. Measured ROCm logs &mdash; not animated estimates &mdash; support the <b style="color:var(--gold)">Best AMD-Hosted Gemma</b> entry.</p>
       </div>
     </div>
   </div>
@@ -302,11 +301,11 @@ const MARKUP = `
   </div>
 </footer>
 
-<div id="errorModal" class="modal-scrim" style="display:none; align-items:center; justify-content:center; z-index: 9999; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8);">
-  <div class="modal" style="background:#1a1a1a; padding: 24px; border-radius: 12px; border: 1px solid #333; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-    <h3 style="color:#ff6b6b; margin-top:0; font-size: 20px;">Invalid Image Detected</h3>
-    <p id="errorModalMsg" style="color:#a1a1aa; margin: 16px 0; font-size: 15px; line-height: 1.5;">This is an error</p>
-    <button class="btn sm" onclick="document.getElementById('errorModal').style.display='none'" style="width:100%; background: #333; color: white;">Dismiss</button>
+<div id="errorModal" class="modal-scrim" style="display:none; align-items:center; justify-content:center; z-index:9999; position:fixed; inset:0; background:rgba(14,63,35,.72);">
+  <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="errorModalTitle" style="background:var(--paper); padding:var(--s-5); border-radius:var(--r-md); border:1px solid var(--line); max-width:400px; text-align:center; box-shadow:var(--e-3);">
+    <h3 id="errorModalTitle" style="color:var(--danger); margin-top:0; font-size:20px;">Invalid Image Detected</h3>
+    <p id="errorModalMsg" class="muted" style="margin:var(--s-4) 0; font-size:15px; line-height:1.5;">This is an error</p>
+    <button class="btn sm secondary" onclick="document.getElementById('errorModal').style.display='none'" style="width:100%;">Dismiss</button>
   </div>
 </div>
 `;
@@ -543,6 +542,7 @@ export default function Home() {
       outEmpty.style.display = "none"; outStack.classList.add("show");
       steps.forEach((s) => s.classList.remove("active", "done"));
       gid("s0").textContent = "→ …"; gid("s1").textContent = "→ …"; gid("s2").textContent = "→ …";
+      gid("s0").style.color = "";
       gid("gScore").textContent = "0"; gid("fVal").style.width = "0"; gid("matchHost").innerHTML = "";
       gradeRow.classList.remove("show"); gradeRow.style.display = "none";
       matchPanel.classList.remove("show"); matchPanel.style.display = "none";
@@ -550,27 +550,37 @@ export default function Home() {
 
       /* Agent A — trace only */
       setStep(0, "active");
-      const combinedRes = await getProcess(cropId, qty, imageData, loc);
-      const grade = combinedRes;
+      const grade = await getProcess(cropId, qty, imageData, loc);
       await delay(950);
-      
+
       if (grade && grade.error) {
         const errMsg = grade.error;
         const errModal = document.getElementById("errorModal");
         if (errModal) {
-            document.getElementById("errorModalMsg")!.textContent = errMsg;
-            errModal.style.display = "flex";
+          document.getElementById("errorModalMsg")!.textContent = errMsg;
+          errModal.style.display = "flex";
         }
 
         gid("s0").textContent = "→ Error: " + errMsg;
-        gid("s0").style.color = "#ff6b6b";
+        gid("s0").style.color = "var(--danger)";
         setStep(0, "done");
-        
         runBtn.classList.remove("loading");
         busy = false;
         return;
       }
-      
+
+      const sourceLabels: Record<string, string> = {
+        mi300x: "connected · MI300X",
+        fireworks: "connected · Fireworks",
+        langgraph: "connected · LangGraph",
+        stub: "safe fallback · stub",
+      };
+      const source = sourceLabels[grade.source] ? grade.source : "stub";
+      const backendStatusText = gid("backendStatusText");
+      const gradeSourceText = gid("gradeSourceText");
+      if (backendStatusText) backendStatusText.textContent = sourceLabels[source];
+      if (gradeSourceText) gradeSourceText.textContent = source === "mi300x" ? "graded on MI300X" : `source · ${source}`;
+
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
       await delay(800);
@@ -648,33 +658,6 @@ export default function Home() {
         gid("dropLabel").style.backgroundColor = "transparent";
       }
     });
-
-    /* MI300X telemetry */
-    const gpu = gid("mi300x");
-    if (gpu) {
-      const gpuObs = new IntersectionObserver((es) => es.forEach((e) => {
-        if (e.isIntersecting) {
-          const g1 = gid("segG1"), g2 = gid("segG2"), g3 = gid("segG3");
-          if (g1) { g1.style.width = "34%"; g1.textContent = "Grader 65GB"; }
-          if (g2) { g2.style.width = "31%"; g2.textContent = "Reasoning 59GB"; }
-          if (g3) { g3.style.width = "24%"; g3.textContent = "Emb+KV 47GB"; }
-          gpuObs.unobserve(e.target);
-        }
-      }), { threshold: 0.4 });
-      gpuObs.observe(gpu);
-      cleanups.push(() => gpuObs.disconnect());
-    }
-    if (!reduce) {
-      const rnd = (base: number, jit: number) => base + (Math.random() - 0.5) * jit;
-      const iv = setInterval(() => {
-        const tok = gid("gTok"), pwr = gid("gPwr"), tmp = gid("gTmp"), vu = gid("vramUsed");
-        if (tok) tok.innerHTML = Math.round(rnd(2410, 180)).toLocaleString() + " <small>tok/s</small>";
-        if (pwr) pwr.innerHTML = Math.round(rnd(341, 14)) + " <small>W</small>";
-        if (tmp) tmp.innerHTML = Math.round(rnd(62, 3)) + " <small>°C</small>";
-        if (vu) vu.textContent = rnd(171.4, 1.2).toFixed(1);
-      }, 1600);
-      cleanups.push(() => clearInterval(iv));
-    }
 
     return () => cleanups.forEach((f) => f());
   }, []);

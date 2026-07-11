@@ -73,7 +73,10 @@ edited is listed in the shared-files table, check:
   note the track that may need to know. Proceed but flag it.
 
 The Vercel repaint sequence (A6 → B6) is strictly ordered. Do not set `INFERENCE_BASE_URL`
-to the MI300X tunnel before A6 confirms the Fireworks path is working.
+to the MI300X tunnel before A6 confirms the Fireworks path is working, **unless** the source
+plan contains a dated, user-approved decision record that documents direct evidence that the
+required Fireworks Gemma deployment is unavailable. Decision E1 in `docs/06-execution-plan.md`
+is the approved exception for this submission; B6 must still verify `source: mi300x`.
 
 ### 4. CUT-LIST — is this on the explicit cut list?
 

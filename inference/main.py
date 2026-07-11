@@ -31,6 +31,7 @@ class GradeReq(BaseModel):
 
 class MatchReq(BaseModel):
     grade: dict
+    location: str = "La Trinidad, Benguet"
 
 
 class ProcessReq(BaseModel):
@@ -54,7 +55,7 @@ def grade(req: GradeReq):
 
 @app.post("/match")
 def match(req: MatchReq):
-    return backend.match(req.grade)
+    return backend.match(req.grade, req.location)
 
 
 @app.post("/process")

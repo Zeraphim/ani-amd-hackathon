@@ -2,7 +2,7 @@
 // Tier 2 (FastAPI) returns these exact shapes, so swapping stub -> Fireworks -> MI300X
 // requires no changes here.
 
-export type Source = "stub" | "fireworks" | "mi300x";
+export type Source = "stub" | "fireworks" | "mi300x" | "langgraph";
 export type Grade = "A" | "B" | "C";
 export type Urgency = "high" | "mid" | "low";
 export type Trend = "Surging" | "Rising" | "Stable";
