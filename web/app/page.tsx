@@ -51,12 +51,11 @@ const MARKUP = `
       <div class="m"><div class="n" data-count="192" data-suffix="GB">0</div><div class="l">one card, three agents</div></div>
     </div>
   </div>
-  <div class="scrollcue"><span>Scroll</span><span class="line"></span></div>
 </header>
 
 <div class="marquee"><div class="track">
-  <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
-  <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
+  <div class="set"><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span></div>
+  <div class="set" aria-hidden="true"><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span></div>
 </div></div>
 
 <section class="block" id="problem">
@@ -182,7 +181,7 @@ const MARKUP = `
             </div>
             <div class="grid g2 stage" id="gradeRow" style="gap:16px;display:none">
               <div class="grade-card">
-                <div class="grade-photo"><span class="badge green live"><span class="d"></span><span id="gradeSourceText">source &middot; pending</span></span></div>
+                <div class="grade-photo"><span class="crop-emoji" id="gEmoji">&#129388;</span><span class="badge green live"><span class="d"></span><span id="gradeSourceText">source &middot; pending</span></span></div>
                 <div class="grade-body">
                   <div class="grade-head">
                     <div class="grade-score"><div class="num" id="gScore">0</div><div class="cap">score</div></div>
@@ -305,6 +304,21 @@ const MARKUP = `
     <div class="row" data-reveal style="justify-content:center;margin-top:8px">
       <a href="#demo" class="btn lg gold sheen magnetic">Run the demo again <span class="ico arrow">&rarr;</span></a>
       <a href="#top" class="btn lg secondary magnetic">Back to top</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="team">
+  <div class="wrap">
+    <div class="sec-head" data-reveal style="text-align:center;margin-inline:auto">
+      <span class="eyebrow">The team</span>
+      <h2>Built by four, overnight.</h2>
+    </div>
+    <div class="team-grid" data-reveal>
+      <div class="team-card"><div class="avatar">JD</div><div class="name">JC Diamante</div><div class="role">Role &mdash; edit me</div></div>
+      <div class="team-card"><div class="avatar">AL</div><div class="name">Andre D. Lacra</div><div class="role">Role &mdash; edit me</div></div>
+      <div class="team-card"><div class="avatar">JA</div><div class="name">Jan A&ntilde;onuevo</div><div class="role">Role &mdash; edit me</div></div>
+      <div class="team-card"><div class="avatar">JM</div><div class="name">Jake Manahan</div><div class="role">Role &mdash; edit me</div></div>
     </div>
   </div>
 </section>
@@ -514,6 +528,20 @@ export default function Home() {
       const hit = known.find((k) => v.startsWith(k) || v.includes(k));
       return hit || v.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pechay";
     };
+    // display-name keyword -> grade-card emoji; unknown crops fall back to leafy green
+    const cropEmoji = (name: string) => {
+      const n = (name || "").toLowerCase();
+      const map: [string, string][] = [
+        ["pechay", "🥬"], ["cabbage", "🥬"], ["lettuce", "🥬"], ["broccoli", "🥦"],
+        ["carrot", "🥕"], ["apple", "🍎"], ["banana", "🍌"], ["mango", "🥭"],
+        ["tomato", "🍅"], ["corn", "🌽"], ["potato", "🥔"], ["onion", "🧅"],
+        ["garlic", "🧄"], ["pepper", "🌶️"], ["chili", "🌶️"], ["cucumber", "🥒"],
+        ["eggplant", "🍆"], ["strawberry", "🍓"], ["grape", "🍇"], ["orange", "🍊"],
+        ["pineapple", "🍍"], ["watermelon", "🍉"],
+      ];
+      const hit = map.find(([k]) => n.includes(k));
+      return hit ? hit[1] : "🥬";
+    };
     const typeInto = async (el: HTMLInputElement, text: string, per = 40) => {
       if (reduce) { el.value = text; return; }
       el.value = "";
@@ -687,6 +715,7 @@ export default function Home() {
       /* --- All trace steps done — cascade result panels --- */
 
       gid("gCrop").textContent = grade.crop;
+      gid("gEmoji").textContent = cropEmoji(grade.crop);
       gid("gGrade").textContent = "Grade " + grade.grade;
       gid("gRipe").textContent = grade.ripeness;
       gid("gSuggest").textContent = grade.suggestion;
