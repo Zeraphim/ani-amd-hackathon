@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Ani — one photo, a harvest, sold fresh. Fine-tuned Gemma grader on AMD MI300X.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FBFAF4"/>
+      <stop offset="1" stop-color="#EDEADD"/>
+    </linearGradient>
+    <linearGradient id="harvest" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8CC63F"/>
+      <stop offset="0.45" stop-color="#4FA84E"/>
+      <stop offset="1" stop-color="#E0A62E"/>
+    </linearGradient>
+    <radialGradient id="blob" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E0A62E" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#E0A62E" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blob2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4FA84E" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#4FA84E" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="banner-lfc"><path d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/></clipPath>
+  </defs>
+
+  <!-- background -->
+  <rect x="1" y="1" width="1198" height="358" rx="28" fill="url(#bg)" stroke="rgba(16,26,21,.10)"/>
+  <circle cx="1080" cy="60" r="240" fill="url(#blob)"/>
+  <circle cx="150" cy="330" r="200" fill="url(#blob2)"/>
+
+  <!-- leaf mark -->
+  <g transform="translate(70,102) scale(0.30)">
+    <path fill="#8CC63F" d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/>
+    <g clip-path="url(#banner-lfc)"><path fill="#4FA84E" d="M212,58 L520,58 L520,520 L332,470 Z"/></g>
+    <g stroke="#E0A62E" stroke-width="7" stroke-linecap="round" fill="none">
+      <path d="M256,120 L312,172 M256,120 L206,214 M256,120 L256,68 M312,172 L298,252 M206,214 L298,252 M206,214 L226,300 M298,252 L312,318 M226,300 L312,318 M312,172 L352,150 M206,214 L168,232"/>
+    </g>
+    <g fill="#E0A62E">
+      <circle cx="256" cy="120" r="10"/><circle cx="312" cy="172" r="10"/><circle cx="206" cy="214" r="10"/>
+      <circle cx="298" cy="252" r="10"/><circle cx="226" cy="300" r="9"/><circle cx="312" cy="318" r="9"/>
+    </g>
+    <path fill="#17572F" stroke="#FBFAF4" stroke-width="5" d="M188,386 L256,300 L324,386 Z"/>
+    <path fill="#E0A62E" d="M256,300 L244,326 L256,318 L268,326 Z"/>
+  </g>
+
+  <!-- wordmark + tagline -->
+  <text x="250" y="176" font-family="Georgia, 'Times New Roman', serif" font-size="118" font-weight="700" fill="#14663B" letter-spacing="-2">Ani</text>
+  <rect x="254" y="196" width="132" height="5" rx="2.5" fill="url(#harvest)"/>
+  <text x="256" y="238" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-style="italic" fill="#0E3F23">One photo. A harvest, sold fresh.</text>
+  <text x="256" y="268" font-family="Helvetica, Arial, sans-serif" font-size="15.5" fill="#5B6B62">Fine-tuned Gemma&#8209;3&#8209;27B grader &#183; served privately on-device.</text>
+
+  <!-- tech chips -->
+  <g font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="600">
+    <g>
+      <rect x="256" y="290" width="132" height="30" rx="15" fill="#FBFAF4" stroke="rgba(16,26,21,.14)"/>
+      <text x="322" y="310" fill="#14663B" text-anchor="middle">AMD MI300X</text>
+    </g>
+    <g>
+      <rect x="398" y="290" width="82" height="30" rx="15" fill="#FBFAF4" stroke="rgba(16,26,21,.14)"/>
+      <text x="439" y="310" fill="#14663B" text-anchor="middle">ROCm</text>
+    </g>
+    <g>
+      <rect x="490" y="290" width="78" height="30" rx="15" fill="#FBFAF4" stroke="rgba(16,26,21,.14)"/>
+      <text x="529" y="310" fill="#14663B" text-anchor="middle">vLLM</text>
+    </g>
+    <g>
+      <rect x="578" y="290" width="104" height="30" rx="15" fill="#FBFAF4" stroke="rgba(16,26,21,.14)"/>
+      <text x="630" y="310" fill="#14663B" text-anchor="middle">Gemma 3</text>
+    </g>
+  </g>
+
+  <!-- measured-proof panel (right) -->
+  <line x1="812" y1="80" x2="812" y2="306" stroke="rgba(16,26,21,.12)" stroke-width="1.5"/>
+  <text x="852" y="92" font-family="Helvetica, Arial, sans-serif" font-size="11.5" letter-spacing="2" fill="#B67E10">MEASURED ON ONE MI300X</text>
+
+  <g>
+    <text x="852" y="126" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#B67E10">+13.3 pts</text>
+    <text x="852" y="145" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#5B6B62">grading lift vs. base Gemma&#8209;3&#8209;27B</text>
+
+    <text x="852" y="178" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#B67E10">1.40 s / grade</text>
+    <text x="852" y="197" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#5B6B62">end&#8209;to&#8209;end &#183; source: mi300x &#183; 20/20 ok</text>
+
+    <text x="852" y="230" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#14663B">153.9 GiB VRAM</text>
+    <text x="852" y="249" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#5B6B62">measured &#183; fits 192 GB MI300X, not 80 GB H100</text>
+
+    <text x="852" y="282" font-family="Georgia, 'Times New Roman', serif" font-size="24" font-weight="700" fill="#14663B">100% held&#8209;out acc.</text>
+    <text x="852" y="301" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#5B6B62">n=30 balanced &#183; 95% CI &#8805; 89%</text>
+  </g>
+</svg>

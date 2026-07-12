@@ -10,7 +10,7 @@ license: mit
 ---
 
 <p align="center">
-  <img src="docs/ui/banner.svg" alt="Ani — one photo, a harvest, sold fresh. Fine-tuned Gemma-3-27B grader on AMD MI300X." width="100%">
+  <img src="assets/banner.svg" alt="Ani — one photo, a harvest, sold fresh. Fine-tuned Gemma-3-27B grader on AMD MI300X." width="100%">
 </p>
 
 <h1 align="center">Ani — Agentic Harvest Grading & Market-Matching on AMD MI300X</h1>
@@ -115,7 +115,6 @@ section (edit volume / price / spoilage, see value recovered).
 web/         Tier 1 — Next.js app (UI, ROI calculator, API proxy routes)
 inference/   Tier 2 — FastAPI + swappable backends (stub · fireworks · langgraph/mi300x)
 training/    Tier 3 — LoRA fine-tune, vLLM serving, benchmarks, and committed receipts/
-docs/        architecture, deployment runbook, UI assets (incl. this banner)
 BUSINESS.md  market, revenue model, unit economics
 JUDGES_START_HERE.md   60-second judge path
 ```
