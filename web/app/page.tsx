@@ -16,6 +16,8 @@ const MARKUP = `
     <g style="fill:#E0A62E"><circle cx="256" cy="120" r="8"/><circle cx="312" cy="172" r="8"/><circle cx="206" cy="214" r="8"/><circle cx="298" cy="252" r="8"/><circle cx="226" cy="300" r="7"/><circle cx="312" cy="318" r="7"/></g>
     <path style="fill:#17572F;stroke:#FBFAF4;stroke-width:4" d="M188,386 L256,300 L324,386 Z"/><path style="fill:#E0A62E" d="M256,300 L244,326 L256,318 L268,326 Z"/>
   </symbol>
+  <symbol id="ic-linkedin" viewBox="0 0 24 24"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></symbol>
+  <symbol id="ic-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6 0-.3 0-1-.01-1.9-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.75.08-.73.08-.73 1.2.08 1.83 1.24 1.83 1.24 1.07 1.83 2.81 1.3 3.5.99.1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.95 0-1.32.47-2.39 1.24-3.23-.13-.3-.54-1.53.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.82 1.1.82 2.22 0 1.61-.02 2.9-.02 3.3 0 .32.22.7.82.58A12 12 0 0 0 12 .3z"/></symbol>
 </svg>
 
 <div class="scrollbar" id="scrollbar"></div>
@@ -36,7 +38,11 @@ const MARKUP = `
 
 <header class="hero" id="top">
   <canvas id="net-canvas"></canvas>
-  <img class="floatleaf" src="/logo-leaf.png" alt="" />
+  <svg class="hero-veins" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <image class="veins-leaf" href="/logo-leaf.png" x="1050" y="150" width="380" height="430" preserveAspectRatio="xMidYMid meet"/>
+    <g class="veins"></g>
+    <g class="veins-nodes"></g>
+  </svg>
   <div class="wrap">
     <span class="kicker" data-reveal><span class="dot"></span> Ani &middot; 3 agents &middot; one AMD MI300X &middot; Track 3 Unicorn</span>
     <h1 data-reveal>One photo.<br>A <span class="grad">harvest</span>,<br>sold fresh.</h1>
@@ -51,12 +57,11 @@ const MARKUP = `
       <div class="m"><div class="n" data-count="192" data-suffix="GB">0</div><div class="l">one card, three agents</div></div>
     </div>
   </div>
-  <div class="scrollcue"><span>Scroll</span><span class="line"></span></div>
 </header>
 
 <div class="marquee"><div class="track">
-  <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
-  <span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span>
+  <div class="set"><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span></div>
+  <div class="set" aria-hidden="true"><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span><span>Grade</span><span>Match</span><span>Dispatch</span><span>Fresh from Benguet</span></div>
 </div></div>
 
 <section class="block" id="problem">
@@ -193,7 +198,7 @@ const MARKUP = `
             </div>
             <div class="grid g2 stage" id="gradeRow" style="gap:16px;display:none">
               <div class="grade-card">
-                <div class="grade-photo"><span class="badge green live"><span class="d"></span><span id="gradeSourceText">source &middot; pending</span></span></div>
+                <div class="grade-photo"><span class="crop-emoji" id="gEmoji">&#129388;</span><span class="badge green live"><span class="d"></span><span id="gradeSourceText">source &middot; pending</span></span></div>
                 <div class="grade-body">
                   <div class="grade-head">
                     <div class="grade-score"><div class="num" id="gScore">0</div><div class="cap">score</div></div>
@@ -316,6 +321,22 @@ const MARKUP = `
     <div class="row" data-reveal style="justify-content:center;margin-top:8px">
       <a href="#demo" class="btn lg gold sheen magnetic">Run the demo again <span class="ico arrow">&rarr;</span></a>
       <a href="#top" class="btn lg secondary magnetic">Back to top</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="team">
+  <div class="wrap">
+    <div class="sec-head" data-reveal style="text-align:center;margin-inline:auto">
+      <span class="eyebrow">The team</span>
+      <h2>Five Builders, One Goal</h2>
+    </div>
+    <div class="team-grid" data-reveal>
+      <div class="team-card"><div class="avatar">AV</div><div class="name">Angelo Sebaxtian Vasquez</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/angelo-sebaxtian-v-700625260/" target="_blank" rel="noopener noreferrer" aria-label="Angelo Sebaxtian Vasquez on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/BazzSHOCKCoder" target="_blank" rel="noopener noreferrer" aria-label="Angelo Sebaxtian Vasquez on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">AL</div><div class="name">Andre Lacra</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/andre-lacra-39292b279/" target="_blank" rel="noopener noreferrer" aria-label="Andre Lacra on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/Andyzxc4" target="_blank" rel="noopener noreferrer" aria-label="Andre Lacra on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">JD</div><div class="name">JC Diamante</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/jcdiamante/" target="_blank" rel="noopener noreferrer" aria-label="JC Diamante on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/Zeraphim" target="_blank" rel="noopener noreferrer" aria-label="JC Diamante on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">JA</div><div class="name">Jan A&ntilde;onuevo</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/jananonuevo/" target="_blank" rel="noopener noreferrer" aria-label="Jan A&ntilde;onuevo on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/jananonuevo" target="_blank" rel="noopener noreferrer" aria-label="Jan A&ntilde;onuevo on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
+      <div class="team-card"><div class="avatar">JM</div><div class="name">Jake Manahan</div><div class="socials"><a class="soc" href="https://www.linkedin.com/in/jake-m-a93a58235" target="_blank" rel="noopener noreferrer" aria-label="Jake Manahan on LinkedIn"><svg><use href="#ic-linkedin"/></svg></a><a class="soc" href="https://github.com/mcjakey1" target="_blank" rel="noopener noreferrer" aria-label="Jake Manahan on GitHub"><svg><use href="#ic-github"/></svg></a></div></div>
     </div>
   </div>
 </section>
@@ -448,6 +469,68 @@ export default function Home() {
     const steps = Array.from(document.querySelectorAll("#pipe .pstep")) as any[];
     let hasRun = false, busy = false;
 
+    /* hero vein extensions — continue the leaf PNG's vein tips outward.
+       Anchors = measured vein-end points on the leaf silhouette (fixed);
+       bends + nodes randomized every load. Bends only happen at nodes,
+       progress along anchor->dest is monotonic so lines never re-enter the leaf. */
+    const veinsG = document.querySelector(".hero-veins .veins");
+    const veinNodesG = document.querySelector(".hero-veins .veins-nodes");
+    if (veinsG && veinNodesG && !veinsG.children.length) {
+      const svgNS = "http://www.w3.org/2000/svg";
+      // [anchorX, anchorY, destX, destY, class] — dest sits past the viewBox edge
+      const VEINS: [number, number, number, number, string][] = [
+        [1172, 234, 1030, -40, "lime dim"],
+        [1102, 306, -40, 240, "lime dim"],
+        [1085, 555, 240, 840, "lime dim"],
+        [1260, 190, 1283, -40, "lime"],
+        [1404, 164, 1470, -40, "gold"],
+        [1415, 309, 1660, 232, "gold"],
+        [1384, 441, 1660, 560, "gold"],
+        [1319, 518, 1486, 840, "gold"],
+      ];
+      const placed: number[][] = [];
+      const LEAF_C = [1240, 365]; // leaf centroid — first bend must move away from it
+      VEINS.forEach(([ax, ay, dxE, dyE, cls]) => {
+        const vx = dxE - ax, vy = dyE - ay, vlen = Math.hypot(vx, vy);
+        const ux = vx / vlen, uy = vy / vlen;
+        let pxU = -uy, pyU = ux;
+        // orient the perpendicular away from the leaf so bends never fold back toward it
+        if (pxU * (ax - LEAF_C[0]) + pyU * (ay - LEAF_C[1]) < 0) { pxU = -pxU; pyU = -pyU; }
+        const fracs = Math.random() < 0.5 ? [0.3, 0.62] : [0.24, 0.5, 0.76];
+        const pts: number[][] = [[ax, ay]];
+        fracs.forEach((f0, i) => {
+          const f = f0 + (Math.random() - 0.5) * 0.1;
+          let x = 0, y = 0, tries = 0;
+          do {
+            // first node sits ON the straight exit line (verified to clear the
+            // leaf within 12 units for every anchor) — the line leaves the vein
+            // tip dead straight and takes its first bend at that node; later
+            // nodes may swing outward-side up to 55 units
+            const off = i === 0 ? 0 : Math.random() * 55 * (Math.random() < 0.7 ? 1 : -0.4);
+            x = ax + ux * f * vlen + pxU * off;
+            y = ay + uy * f * vlen + pyU * off;
+            tries++;
+          } while (tries < 8 && placed.some((p) => Math.hypot(p[0] - x, p[1] - y) < 40));
+          placed.push([x, y]);
+          pts.push([x, y]);
+        });
+        pts.push([dxE, dyE]);
+        const path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", "M" + pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" L"));
+        path.setAttribute("class", cls);
+        veinsG.appendChild(path);
+        pts.slice(1, -1).forEach(([x, y]) => {
+          const c = document.createElementNS(svgNS, "circle");
+          c.setAttribute("cx", x.toFixed(1));
+          c.setAttribute("cy", y.toFixed(1));
+          c.setAttribute("r", (8 + Math.random() * 3).toFixed(1));
+          if (cls.indexOf("lime") >= 0) c.setAttribute("class", "lime");
+          (c as any).style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+          veinNodesG.appendChild(c);
+        });
+      });
+    }
+
     document.querySelectorAll(".samples .s").forEach((s: any) => {
       on(s, "click", () => {
         document.querySelectorAll(".samples .s").forEach((x) => x.classList.remove("on"));
@@ -524,6 +607,20 @@ export default function Home() {
       const known = ["pechay", "cabbage", "carrots", "broccoli"];
       const hit = known.find((k) => v.startsWith(k) || v.includes(k));
       return hit || v.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pechay";
+    };
+    // display-name keyword -> grade-card emoji; unknown crops fall back to leafy green
+    const cropEmoji = (name: string) => {
+      const n = (name || "").toLowerCase();
+      const map: [string, string][] = [
+        ["pechay", "🥬"], ["cabbage", "🥬"], ["lettuce", "🥬"], ["broccoli", "🥦"],
+        ["carrot", "🥕"], ["apple", "🍎"], ["banana", "🍌"], ["mango", "🥭"],
+        ["tomato", "🍅"], ["corn", "🌽"], ["potato", "🥔"], ["onion", "🧅"],
+        ["garlic", "🧄"], ["pepper", "🌶️"], ["chili", "🌶️"], ["cucumber", "🥒"],
+        ["eggplant", "🍆"], ["strawberry", "🍓"], ["grape", "🍇"], ["orange", "🍊"],
+        ["pineapple", "🍍"], ["watermelon", "🍉"],
+      ];
+      const hit = map.find(([k]) => n.includes(k));
+      return hit ? hit[1] : "🥬";
     };
     const typeInto = async (el: HTMLInputElement, text: string, per = 40) => {
       if (reduce) { el.value = text; return; }
@@ -698,6 +795,7 @@ export default function Home() {
       /* --- All trace steps done — cascade result panels --- */
 
       gid("gCrop").textContent = grade.crop;
+      gid("gEmoji").textContent = cropEmoji(grade.crop);
       gid("gGrade").textContent = "Grade " + grade.grade;
       gid("gRipe").textContent = grade.ripeness;
       gid("gSuggest").textContent = grade.suggestion;
