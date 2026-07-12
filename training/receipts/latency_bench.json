@@ -1,0 +1,29 @@
+{
+  "captured_at": "2026-07-12T13:27:52.824441+00:00",
+  "measurement": "end-to-end image /process latency",
+  "base_url": "http://127.0.0.1:8000",
+  "sample_image": "Pechay_B12.jpg",
+  "sample_sha256": "932282eeac53ee7a9e788af1444ba1f1e47f7b8593bff964de9875aff44ce132",
+  "expected_source": "mi300x",
+  "requests": 20,
+  "succeeded": 20,
+  "failed": 0,
+  "concurrency": 1,
+  "warmup_requests_excluded": 2,
+  "latency_s": {
+    "p50": 1.397,
+    "p95": 1.398,
+    "mean": 1.397,
+    "min": 1.394,
+    "max": 1.405
+  },
+  "grades_per_min": 42.95,
+  "wall_seconds": 27.94,
+  "sources": {
+    "mi300x": 20
+  },
+  "grades": {
+    "B": 20
+  },
+  "errors": []
+}
