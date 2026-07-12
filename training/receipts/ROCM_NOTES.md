@@ -1,7 +1,8 @@
 # ROCm / MI300X notes & receipts
 
 This is the hardware-specific execution record for Ani's Track B. Values below come from
-the committed logs, not marketing specifications.
+the committed logs, not marketing specifications. Judge-facing analysis and the honest
+accuracy framing live in [`METRICS.md`](./METRICS.md).
 
 ## Instance
 
@@ -17,9 +18,14 @@ the committed logs, not marketing specifications.
 
 ## Receipts committed here
 
-- [x] `rocm-smi.log` — `gfx942`, driver, and 191.7 GiB HBM telemetry
+- [x] `rocm-smi.log` — `gfx942`, driver, and 191.7 GiB HBM telemetry. **Note:** captured
+  *before* `vllm serve` starts, so its VRAM/util read idle — identity proof, not load proof.
+- [x] `rocm-smi-loaded.log` — 12 telemetry samples captured **during active image
+  inference**; all show 153.9 GiB used VRAM and 90–100% GPU utilization.
 - [x] `vllm_serve.log` — Gemma 3 vision startup, ROCm/HIP pins, and loaded
   `ani-grader` adapter
+- [ ] `variance/summary.md` — base/tuned mean±std across seeds (`run_variance_eval.sh` → `aggregate_metrics.py`)
+- [x] `latency_bench.json` — 20/20 `source: mi300x` image grades; p50/p95 and grades/min
 - [x] `train.log` — real one-epoch multimodal LoRA run plus production serving check
 - [x] `loss_curve.csv` and `loss_curve.svg` — optimizer-step loss evidence
 - [x] `b7_metrics.json` and `b7_predictions.jsonl` — machine-readable metric and
@@ -33,7 +39,10 @@ the committed logs, not marketing specifications.
 - Published archive MD5 verified: `1a942c2d49dc302bacef155561e1f9a8`
 - 300 balanced examples: 100 each for Fresh/A, Mild/B, and Rotten/C
 - 240 training examples; 30 balanced evaluation examples used for the reported metric;
-  30 additional examples remain in the held-out manifest
+  30 additional examples remain in the held-out manifest — **the eval split holds 60; use
+  all of them (`--eval-limit 60`) for a tighter interval** (see METRICS.md)
+- The tuned **100% (30/30) is a small-n point estimate**: Wilson 95% CI [88.6%, 100%];
+  base 86.7% CI [70.3%, 94.7%]. Report the interval and multi-seed variance, not a bare 100%.
 - Seed 42; every canonical time-lapse sequence is assigned globally to one split;
   verified train/eval sequence overlap is zero
 - One epoch, gradient accumulation 8, 30 optimizer steps, learning rate 2e-4
@@ -83,10 +92,14 @@ the committed logs, not marketing specifications.
 
 ## Memory math — why the MI300X is load-bearing
 
-- Measured serving footprint during a real request: **153.3 GiB**.
+- Measured serving footprint during real image requests: **153.9 GiB**
+  (165,271,171,072 bytes).
 - Breakdown from vLLM: 51.66 GiB model load + 99.42 GiB available KV cache + roughly
   2.2 GiB runtime/graph overhead. The tuned LoRA adds only 0.1329% trainable parameters.
-- Remaining measured headroom was about 38.4 GiB.
+- **Provenance:** `vllm_serve.log` provides the 51.66 GiB weights + 99.42 GiB KV
+  reservation breakdown. `rocm-smi-loaded.log` independently corroborates the total
+  footprint during inference; the original pre-load `rocm-smi.log` remains identity proof.
+- Remaining measured headroom was about 37.8 GiB.
 - This configured Gemma vision runtime alone exceeds an H100 80 GB card, while it fits on
   the MI300X 192 GB card with useful headroom: **MI300X 192 GB ✅ · H100 80 GB ❌**.
 - Ani does not claim that a separate embedding model was co-hosted in this receipt; the

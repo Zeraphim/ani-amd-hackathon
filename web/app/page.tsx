@@ -100,12 +100,23 @@ const MARKUP = `
       <p><strong>Benguet &rarr; Metro Manila today.</strong> Southeast Asian cold chains next.</p>
     </div>
     <div class="panel" data-reveal style="margin-top:22px">
-      <div class="subhead">Loss reduction &mdash; before vs after Ani (pilot simulation)</div>
-      <div class="bars">
-        <div class="bar-row"><div class="lbl"><span>Baseline waste, no matching</span><b>42%</b></div><div class="bar-track"><div class="bf warn" data-w="42"></div></div></div>
-        <div class="bar-row"><div class="lbl"><span>With Ani grade + demand matching</span><b>17%</b></div><div class="bar-track"><div class="bf" data-w="17"></div></div></div>
-        <div class="bar-row"><div class="lbl"><span>Farmer income recovered</span><b>+31%</b></div><div class="bar-track"><div class="bf" data-w="31"></div></div></div>
+      <div class="subhead">Loss recovery estimate &mdash; gross value preserved with Ani (editable)</div>
+      <div class="grid g2" style="gap:14px">
+        <div class="field" style="margin-bottom:0"><label>Harvest volume (kg)</label><input class="input" id="roiVol" type="number" min="1" value="1000" /></div>
+        <div class="field" style="margin-bottom:0"><label>Farm-gate price (&#8369;/kg)</label><input class="input" id="roiPrice" type="number" min="0" step="0.5" value="25" /></div>
+        <div class="field" style="margin-bottom:0"><label>Baseline spoilage (%)</label><input class="input" id="roiBase" type="number" min="0" max="100" value="42" /></div>
+        <div class="field" style="margin-bottom:0"><label>Spoilage with Ani (%)</label><input class="input" id="roiAni" type="number" min="0" max="100" value="17" /></div>
       </div>
+      <div class="grid g3" style="gap:14px;margin-top:18px">
+        <div class="stat" style="padding:18px"><div id="roiKg" style="font-family:var(--display);font-weight:700;font-size:26px;color:var(--gold-deep)">&mdash;</div><div class="l">kg saved per cycle</div></div>
+        <div class="stat" style="padding:18px"><div id="roiPhp" style="font-family:var(--display);font-weight:700;font-size:26px;color:var(--gold-deep)">&mdash;</div><div class="l">&#8369; recovered per cycle</div></div>
+        <div class="stat" style="padding:18px"><div id="roiUplift" style="font-family:var(--display);font-weight:700;font-size:26px;color:var(--green)">&mdash;</div><div class="l">sellable revenue uplift</div></div>
+      </div>
+      <div class="bars" style="margin-top:18px">
+        <div class="bar-row"><div class="lbl"><span>Sellable share &mdash; baseline</span><b id="roiBeforePct">58%</b></div><div class="bar-track"><div class="bf warn" id="roiBarBefore"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Sellable share &mdash; with Ani</span><b id="roiAfterPct">83%</b></div><div class="bar-track"><div class="bf" id="roiBarAfter"></div></div></div>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:12px">Gross-benefit estimate on cited loss rates (DA ~30% general; 42&ndash;50% vegetables) &mdash; adjust the inputs. It excludes Ani service, hardware, and operating costs, so it is not net ROI or a measured pilot result; see <b>BUSINESS.md</b>.</p>
     </div>
   </div>
 </section>
@@ -731,6 +742,35 @@ export default function Home() {
       if (target.files && target.files[0]) await analyzeImage(target.files[0]);
     });
     on(gid("retakeBtn"), "click", (e: Event) => { e.preventDefault(); resetPhoto(); });
+
+    /* ---------- ROI calculator (Market section) ---------- */
+    (function initRoi() {
+      const vol = gid("roiVol"), price = gid("roiPrice"), base = gid("roiBase"), ani = gid("roiAni");
+      if (!vol || !price || !base || !ani) return;
+      const kgEl = gid("roiKg"), phpEl = gid("roiPhp"), upEl = gid("roiUplift");
+      const beforePct = gid("roiBeforePct"), afterPct = gid("roiAfterPct");
+      const barBefore = gid("roiBarBefore"), barAfter = gid("roiBarAfter");
+      const clampPct = (x: number) => Math.max(0, Math.min(100, x));
+      const compute = () => {
+        const v = Math.max(0, parseFloat(vol.value) || 0);
+        const p = Math.max(0, parseFloat(price.value) || 0);
+        const b = clampPct(parseFloat(base.value) || 0);
+        const a = clampPct(parseFloat(ani.value) || 0);
+        const sellBefore = 1 - b / 100, sellAfter = 1 - a / 100;
+        const kgSaved = (v * (b - a)) / 100;
+        const phpRecovered = kgSaved * p;
+        const uplift = sellBefore > 0 ? ((sellAfter - sellBefore) / sellBefore) * 100 : null;
+        kgEl.textContent = (kgSaved > 0 ? "+" : "") + Math.round(kgSaved).toLocaleString() + " kg";
+        phpEl.textContent = (phpRecovered < 0 ? "-₱" : "+₱") + Math.abs(Math.round(phpRecovered)).toLocaleString();
+        upEl.textContent = uplift === null ? "N/A" : (uplift >= 0 ? "+" : "") + uplift.toFixed(0) + "%";
+        beforePct.textContent = Math.round(sellBefore * 100) + "%";
+        afterPct.textContent = Math.round(sellAfter * 100) + "%";
+        barBefore.style.width = clampPct(sellBefore * 100) + "%";
+        barAfter.style.width = clampPct(sellAfter * 100) + "%";
+      };
+      [vol, price, base, ani].forEach((el: any) => on(el, "input", compute));
+      compute();
+    })();
 
     return () => cleanups.forEach((f) => f());
   }, []);
