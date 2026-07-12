@@ -17,7 +17,6 @@
       <stop offset="0" stop-color="#4FA84E" stop-opacity="0.16"/>
       <stop offset="1" stop-color="#4FA84E" stop-opacity="0"/>
     </radialGradient>
-    <clipPath id="banner-lfc"><path d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/></clipPath>
   </defs>
 
   <!-- background -->
@@ -25,20 +24,8 @@
   <circle cx="1080" cy="60" r="240" fill="url(#blob)"/>
   <circle cx="150" cy="330" r="200" fill="url(#blob2)"/>
 
-  <!-- leaf mark -->
-  <g transform="translate(70,102) scale(0.30)">
-    <path fill="#8CC63F" d="M256,64 C150,150 150,360 256,452 C362,360 362,150 256,64 Z"/>
-    <g clip-path="url(#banner-lfc)"><path fill="#4FA84E" d="M212,58 L520,58 L520,520 L332,470 Z"/></g>
-    <g stroke="#E0A62E" stroke-width="7" stroke-linecap="round" fill="none">
-      <path d="M256,120 L312,172 M256,120 L206,214 M256,120 L256,68 M312,172 L298,252 M206,214 L298,252 M206,214 L226,300 M298,252 L312,318 M226,300 L312,318 M312,172 L352,150 M206,214 L168,232"/>
-    </g>
-    <g fill="#E0A62E">
-      <circle cx="256" cy="120" r="10"/><circle cx="312" cy="172" r="10"/><circle cx="206" cy="214" r="10"/>
-      <circle cx="298" cy="252" r="10"/><circle cx="226" cy="300" r="9"/><circle cx="312" cy="318" r="9"/>
-    </g>
-    <path fill="#17572F" stroke="#FBFAF4" stroke-width="5" d="M188,386 L256,300 L324,386 Z"/>
-    <path fill="#E0A62E" d="M256,300 L244,326 L256,318 L268,326 Z"/>
-  </g>
+  <!-- Ani leaf mark -->
+  <image href="../web/public/logo-leaf.png" x="58" y="88" width="150" height="171" preserveAspectRatio="xMidYMid meet"/>
 
   <!-- wordmark + tagline -->
   <text x="250" y="176" font-family="Georgia, 'Times New Roman', serif" font-size="118" font-weight="700" fill="#14663B" letter-spacing="-2">Ani</text>
@@ -74,7 +61,7 @@
     <text x="852" y="126" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#B67E10">+13.3 pts</text>
     <text x="852" y="145" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#5B6B62">grading lift vs. base Gemma&#8209;3&#8209;27B</text>
 
-    <text x="852" y="178" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#B67E10">1.40 s / grade</text>
+    <text x="852" y="178" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#B67E10">0.40 s / grade</text>
     <text x="852" y="197" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#5B6B62">end&#8209;to&#8209;end &#183; source: mi300x &#183; 20/20 ok</text>
 
     <text x="852" y="230" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#14663B">153.9 GiB VRAM</text>
