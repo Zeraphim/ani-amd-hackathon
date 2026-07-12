@@ -1,7 +1,7 @@
 """Ani Tier 2 — inference/orchestration API.
 
 Run locally now:   ANI_BACKEND=langgraph uvicorn main:app --port 8000
-With Fireworks:    ANI_BACKEND=fireworks FIREWORKS_API_KEY=... uvicorn main:app --port 8000
+With Fireworks:    ANI_BACKEND=fireworks FIREWORKS_API_KEY=... uvicorn main:app --port 7999
 On the MI300X:     ANI_BACKEND=mi300x ANI_BASE_URL=https://<tunnel>/v1 ANI_MODEL=<your-finetune> uvicorn main:app --port 8000
 
 Then point the web tier at it: set INFERENCE_BASE_URL=http://<host>:8000 (HF Space secret).

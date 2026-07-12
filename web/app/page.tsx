@@ -514,9 +514,9 @@ export default function Home() {
     let analyzed: any = null; // one vision pass result (grade + detected crop/volume)
     const sourceLabels: Record<string, string> = {
       mi300x: "connected · MI300X",
-      fireworks: "connected · Fireworks",
+      fireworks: "fallback · Fireworks (Kimi K2.6)",
       langgraph: "connected · LangGraph",
-      stub: "safe fallback · stub",
+      stub: "demo fallback · Pechay data",
     };
     // detected crop text -> id; unknown crops degrade to their slug (backend falls back to pechay data)
     const mapCropId = (name: string) => {
@@ -671,7 +671,13 @@ export default function Home() {
       await delay(650);
       const source = sourceLabels[grade.source] ? grade.source : "stub";
       const gradeSourceText = gid("gradeSourceText");
-      if (gradeSourceText) gradeSourceText.textContent = source === "mi300x" ? "graded on MI300X" : `source · ${source}`;
+      if (gradeSourceText) {
+        gradeSourceText.textContent = source === "mi300x"
+          ? "graded on MI300X"
+          : source === "fireworks"
+            ? "fallback · Fireworks · Kimi K2.6"
+            : "demo fallback · Pechay";
+      }
       gid("s0").textContent = "→ Grade " + grade.grade + " · " + grade.score + " · 0.4s";
       setStep(0, "done");
       await delay(700);
